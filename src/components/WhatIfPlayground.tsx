@@ -289,7 +289,7 @@ export const WhatIfPlayground: React.FC = () => {
                 PyTorch FP32 / FP16 Tiêu Chuẩn:
               </span>
               <ul className="space-y-2 list-disc list-inside text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-                <li>Tính toán từng lớp tuần tự (Conv $\rightarrow$ BatchNorm $\rightarrow$ ReLU).</li>
+                <li>Tính toán từng lớp tuần tự (Conv → BatchNorm → ReLU).</li>
                 <li>Độ trễ suy luận trên Jetson Nano: ~45 - 60 ms / khung hình (~15 - 20 FPS).</li>
                 <li>Dễ debug, code linh hoạt nhưng chưa tận dụng hết năng lực đồ họa GPU.</li>
               </ul>

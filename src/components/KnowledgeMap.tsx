@@ -113,7 +113,7 @@ export const KnowledgeMap: React.FC<KnowledgeMapProps> = ({ onSelectModule, modu
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
-                  Gamepad điều khiển 2 động cơ qua <code>traitlets.dlink</code>, stream camera BGR8 $\rightarrow$ JPEG nén, cơ chế Watchdog ngắt an toàn khi mất WiFi.
+                  Gamepad điều khiển 2 động cơ qua <code>traitlets.dlink</code>, stream camera BGR8 → JPEG nén, cơ chế Watchdog ngắt an toàn khi mất WiFi.
                 </p>
               </div>
             </div>
@@ -195,7 +195,7 @@ export const KnowledgeMap: React.FC<KnowledgeMapProps> = ({ onSelectModule, modu
                     </span>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
-                    XYDataset, hflip đảo dấu <code>x = -x</code>, Adam optimizer, MSE Loss $\rightarrow$ <code>best_steering_model_xy.pth</code>.
+                    XYDataset, hflip đảo dấu <code>x = -x</code>, Adam optimizer, MSE Loss → <code>best_steering_model_xy.pth</code>.
                   </p>
                 </div>
 

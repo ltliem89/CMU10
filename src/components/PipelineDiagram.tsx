@@ -78,7 +78,7 @@ export const PipelineDiagram: React.FC = () => {
                 Luồng Bám Đường (Hồi Quy Tọa Độ X/Y &amp; Điều Khiển Vi Sai)
               </h4>
               <p className="text-xs sm:text-sm text-blue-950/80 dark:text-blue-200/90 mt-1 leading-relaxed">
-                Camera CSI (224×224) $\rightarrow$ Tiền xử lý (CHW, normalize) $\rightarrow$ ResNet18 $\rightarrow$ Tọa độ [x, y] $\rightarrow$ <code>arctan2(x, y)</code> &amp; PD Controller $\rightarrow$ Motor vi sai.
+                Camera CSI (224×224) → Tiền xử lý (CHW, normalize) → ResNet18 → Tọa độ [x, y] → <code>arctan2(x, y)</code> &amp; PD Controller → Motor vi sai.
               </p>
             </div>
           </div>
@@ -175,7 +175,7 @@ export const PipelineDiagram: React.FC = () => {
                 Luồng Tránh Va Chạm (Phân Loại Nhị Phân Free / Blocked)
               </h4>
               <p className="text-xs sm:text-sm text-pink-950/80 dark:text-pink-200/90 mt-1 leading-relaxed">
-                Ảnh Camera CSI (224×224) $\rightarrow$ ResNet18/AlexNet $\rightarrow$ Logits (2 lớp) $\rightarrow$ Softmax $\rightarrow$ prob_blocked: &lt;0.5 đi thẳng, &gt;=0.5 rẽ trái né vật cản.
+                Ảnh Camera CSI (224×224) → ResNet18/AlexNet → Logits (2 lớp) → Softmax → prob_blocked: &lt;0.5 đi thẳng, &gt;=0.5 rẽ trái né vật cản.
               </p>
             </div>
           </div>
@@ -248,7 +248,7 @@ export const PipelineDiagram: React.FC = () => {
                 Luồng Điều Khiển Thủ Công &amp; An Toàn Watchdog
               </h4>
               <p className="text-xs sm:text-sm text-purple-950/80 dark:text-purple-200/90 mt-1 leading-relaxed">
-                Gamepad HTML5 $\rightarrow$ Traitlets.dlink $\rightarrow$ Driver Động Cơ; Kèm Heartbeat Watchdog ngắt kết nối an toàn khi mất sóng WiFi.
+                Gamepad HTML5 → Traitlets.dlink → Driver Động Cơ; Kèm Heartbeat Watchdog ngắt kết nối an toàn khi mất sóng WiFi.
               </p>
             </div>
           </div>
@@ -308,7 +308,7 @@ export const PipelineDiagram: React.FC = () => {
                 Luồng Biên Dịch &amp; Tăng Tốc Phần Cứng NVIDIA TensorRT
               </h4>
               <p className="text-xs sm:text-sm text-orange-950/80 dark:text-orange-200/90 mt-1 leading-relaxed">
-                Mô hình PyTorch FP32 $\rightarrow$ <code>torch2trt(model, [dummy], fp16_mode=True)</code> $\rightarrow$ Hợp nhất lớp (Layer Fusion) &amp; chọn CUDA Kernel $\rightarrow$ TRTModule suy luận ~45 FPS.
+                Mô hình PyTorch FP32 → <code>torch2trt(model, [dummy], fp16_mode=True)</code> → Hợp nhất lớp (Layer Fusion) &amp; chọn CUDA Kernel → TRTModule suy luận ~45 FPS.
               </p>
             </div>
           </div>

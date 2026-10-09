@@ -47,7 +47,7 @@ export const SourcesAndCaveats: React.FC<SourcesAndCaveatsProps> = ({ modules, o
             2. Diễn Giải Sư Phạm
           </div>
           <p className="text-blue-950/90 dark:text-blue-200 leading-relaxed font-medium">
-            Các giải thích về động học vi sai $v = (v_R + v_L)/2$, hồi quy tọa độ bám đường vs phân loại nhị phân tránh va chạm,
+            Các giải thích về động học vi sai <code className="bg-blue-100 dark:bg-blue-900/60 px-1.5 py-0.5 rounded text-blue-900 dark:text-blue-200 font-mono font-bold">v = (v_R + v_L)/2</code>, hồi quy tọa độ bám đường vs phân loại nhị phân tránh va chạm,
             và cơ chế Layer Fusion của TensorRT được biên soạn giúp học sinh lớp 11 dễ tiếp thu nhất.
           </p>
         </div>
