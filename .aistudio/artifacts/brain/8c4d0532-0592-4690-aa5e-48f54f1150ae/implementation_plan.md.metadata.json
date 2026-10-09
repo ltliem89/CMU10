@@ -1,0 +1,6 @@
+{
+  "summary":  "Phương án chuẩn hóa kiến trúc bố cục và logic cho Robot Twin Motor Simulator và Bảng Nhật ký Robot:\n- Khắc phục sự cố kéo dài dọc, thiếu liên kết trực quan giữa điều khiển và log.\n- Kiến trúc buồng lái 2 tầng tối ưu (Cockpit Deck + Interactive Telemetry Inspector).\n- Thiết kế bố cục song song: Cột trái luồng lệnh Python thời gian thực, Cột phải phân tích động thái cơ học và công thức toán học vi sai.\n- Đầy đủ tính năng lọc, sao chép code Python sang Notebook và tự động cuộn.",
+  "updatedAt":  "2026-10-09T15:21:38.801883193Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}
