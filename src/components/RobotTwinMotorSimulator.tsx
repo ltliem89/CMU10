@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, AlertTriangle, Compass, Gauge, Shield, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { Play, Pause, RotateCcw, AlertTriangle, Compass, Gauge, Shield, ArrowUpRight, CheckCircle2, Zap } from 'lucide-react';
 
 interface RobotTwinMotorSimulatorProps {
   onEmergencyStop?: () => void;
@@ -30,7 +30,6 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
   });
 
   const [trail, setTrail] = useState<{ x: number; y: number }[]>([]);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Synchronize with external speeds if controlled externally
   useEffect(() => {
@@ -42,13 +41,13 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
 
   // Differential drive physical constants (scaled for visual educational clarity)
   const WHEEL_BASE = 40; // b: distance between wheels in pixels
-  const SPEED_SCALE = 2.2; // mapping motor value [-1, 1] to simulation pixel steps
+  const SPEED_SCALE = 2.4; // mapping motor value [-1, 1] to simulation pixel steps
 
   // Computed kinematics
   const linearVel = ((rightSpeed + leftSpeed) / 2) * SPEED_SCALE;
   const angularVel = ((rightSpeed - leftSpeed) / WHEEL_BASE) * SPEED_SCALE;
 
-  // Kinetic state description in Vietnamese
+  // Kinetic state description in Vietnamese with Vibrant STEM Badges
   const getMotionExplanation = () => {
     const l = parseFloat(leftSpeed.toFixed(2));
     const r = parseFloat(rightSpeed.toFixed(2));
@@ -56,8 +55,8 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
     if (Math.abs(l) < 0.03 && Math.abs(r) < 0.03) {
       return {
         title: 'Robot Dừng Yên (Stop)',
-        desc: 'Cả hai động cơ nhận giá trị 0.0. Không có lực kéo, robot đứng yên an toàn.',
-        badgeColor: 'bg-slate-100 text-slate-700 border-slate-300'
+        desc: 'Cả hai động cơ nhận giá trị 0.0. Không có lực kéo vi sai, robot đứng yên an toàn.',
+        badgeColor: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700'
       };
     }
     if (Math.abs(l - r) < 0.04) {
@@ -65,13 +64,13 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
         return {
           title: 'Đi Thẳng Về Phía Trước (Forward)',
           desc: `Hai bánh cùng tốc độ và cùng chiều tiến (vL = ${l}, vR = ${r}) → Vận tốc góc ω ≈ 0, robot tịnh tiến thẳng.`,
-          badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-300'
+          badgeColor: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200 border-emerald-300 dark:border-emerald-700'
         };
       } else {
         return {
           title: 'Lùi Thẳng Về Phía Sau (Backward)',
           desc: `Hai bánh cùng tốc độ và cùng chiều lùi (vL = ${l}, vR = ${r}) → Robot lùi thẳng.`,
-          badgeColor: 'bg-amber-50 text-amber-700 border-amber-300'
+          badgeColor: 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200 border-amber-300 dark:border-amber-700'
         };
       }
     }
@@ -79,14 +78,14 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
       if (r > l) {
         return {
           title: 'Xoay Tròn Tại Chỗ Ngược Chiều Kim Đồng Hồ (Spin Left)',
-          desc: `Bánh phải tiến (${r}), bánh trái lùi (${l}) → Vận tốc tiến v ≈ 0, tâm quay trùng với tâm robot.`,
-          badgeColor: 'bg-cyan-50 text-cyan-700 border-cyan-300'
+          desc: `Bánh phải tiến (${r}), bánh trái lùi (${l}) → Vận tốc tiến v ≈ 0, tâm quay trùng với tâm xe.`,
+          badgeColor: 'bg-teal-100 text-teal-900 dark:bg-teal-950/60 dark:text-teal-200 border-teal-300 dark:border-teal-700'
         };
       } else {
         return {
           title: 'Xoay Tròn Tại Chỗ Cùng Chiều Kim Đồng Hồ (Spin Right)',
           desc: `Bánh trái tiến (${l}), bánh phải lùi (${r}) → Robot xoay tròn tại chỗ sang phải.`,
-          badgeColor: 'bg-cyan-50 text-cyan-700 border-cyan-300'
+          badgeColor: 'bg-teal-100 text-teal-900 dark:bg-teal-950/60 dark:text-teal-200 border-teal-300 dark:border-teal-700'
         };
       }
     }
@@ -94,27 +93,27 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
       return {
         title: 'Xoay Quanh Bánh Trái (Pivot Left)',
         desc: `Bánh trái đứng yên (0.0), bánh phải đẩy (${r}) → Robot bẻ lái gấp sang trái quanh bánh trái.`,
-        badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-300'
+        badgeColor: 'bg-blue-100 text-blue-900 dark:bg-blue-950/60 dark:text-blue-200 border-blue-300 dark:border-blue-700'
       };
     }
     if (Math.abs(r) < 0.05 && l > 0) {
       return {
         title: 'Xoay Quanh Bánh Phải (Pivot Right)',
         desc: `Bánh phải đứng yên (0.0), bánh trái đẩy (${l}) → Robot bẻ lái gấp sang phải quanh bánh phải.`,
-        badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-300'
+        badgeColor: 'bg-blue-100 text-blue-900 dark:bg-blue-950/60 dark:text-blue-200 border-blue-300 dark:border-blue-700'
       };
     }
     if (r > l) {
       return {
         title: 'Rẽ Vòng Cung Sang Trái (Curve Left)',
         desc: `Bánh phải chạy nhanh hơn bánh trái (${r} > ${l}) → Tạo mô-men quay làm robot bẻ cung sang trái.`,
-        badgeColor: 'bg-blue-50 text-blue-700 border-blue-300'
+        badgeColor: 'bg-purple-100 text-purple-900 dark:bg-purple-950/60 dark:text-purple-200 border-purple-300 dark:border-purple-700'
       };
     } else {
       return {
         title: 'Rẽ Vòng Cung Sang Phải (Curve Right)',
         desc: `Bánh trái chạy nhanh hơn bánh phải (${l} > ${r}) → Tạo mô-men quay làm robot bẻ cung sang phải.`,
-        badgeColor: 'bg-purple-50 text-purple-700 border-purple-300'
+        badgeColor: 'bg-pink-100 text-pink-900 dark:bg-pink-950/60 dark:text-pink-200 border-pink-300 dark:border-pink-700'
       };
     }
   };
@@ -135,8 +134,8 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
         let newX = prev.x + v * Math.cos(newTheta);
         let newY = prev.y + v * Math.sin(newTheta);
 
-        // Keep inside bounds (with wrap-around or soft bounce)
-        const margin = 25;
+        // Keep inside bounds (soft bounce at walls)
+        const margin = 26;
         if (newX < margin) newX = margin;
         if (newX > 600 - margin) newX = 600 - margin;
         if (newY < margin) newY = margin;
@@ -168,76 +167,80 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
   const handleEmergencyStop = () => {
     setLeftSpeed(0.0);
     setRightSpeed(0.0);
+    setIsRunning(false);
     if (onEmergencyStop) onEmergencyStop();
   };
 
   const setPreset = (l: number, r: number) => {
     setLeftSpeed(l);
     setRightSpeed(r);
+    setIsRunning(true);
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-      {/* Header bar */}
-      <div className="px-6 py-5 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex flex-wrap items-center justify-between gap-4">
+    <div className="bg-white dark:bg-[#131E36] rounded-3xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
+      {/* Vibrant STEM Header bar */}
+      <div className="px-6 py-5 bg-gradient-to-r from-[#2563EB] via-indigo-900 to-[#8B5CF6] text-white flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300">
+          <div className="w-12 h-12 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center text-cyan-300 shadow-sm shrink-0">
             <Compass className="w-7 h-7 animate-spin-slow" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5">
-              <h2 className="text-xl font-extrabold">Mô Phỏng Robot Hai Động Cơ (Differential Drive)</h2>
-              <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                MÔ PHỎNG AN TOÀN
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight">
+                Mô Phỏng Robot Vi Sai (Differential Drive)
+              </h2>
+              <span className="px-3 py-0.5 text-xs font-black rounded-full bg-emerald-400 text-emerald-950 shadow-xs">
+                AN TOÀN TRÌNH DUYỆT
               </span>
             </div>
-            <p className="text-sm text-slate-300 mt-0.5">
-              Mô hình hóa động học vi sai của JetBot: hai bánh xe điều khiển độc lập (-1.0 đến +1.0)
+            <p className="text-sm text-cyan-100 mt-0.5">
+              Mô hình hóa động học hai bánh xe độc lập: v_L và v_R từ -1.0 đến +1.0
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={() => setIsRunning(!isRunning)}
-            className={`px-3.5 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition ${
-              isRunning ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30'
+            className={`px-4 py-2 rounded-xl text-sm font-black flex items-center gap-2 transition shadow-sm ${
+              isRunning ? 'bg-amber-400 text-amber-950 hover:bg-amber-300' : 'bg-emerald-400 text-emerald-950 hover:bg-emerald-300'
             }`}
           >
             {isRunning ? <Pause className="w-4.5 h-4.5" /> : <Play className="w-4.5 h-4.5" />}
-            {isRunning ? 'Tạm Dừng' : 'Tiếp Tục'}
+            {isRunning ? 'Tạm Dừng' : 'Chạy Mô Phỏng'}
           </button>
           <button
             onClick={handleReset}
-            className="px-3.5 py-2 rounded-xl text-sm font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 flex items-center gap-2 transition"
+            className="px-3.5 py-2 rounded-xl text-sm font-bold bg-white/15 text-white hover:bg-white/25 flex items-center gap-2 transition border border-white/20"
           >
-            <RotateCcw className="w-4.5 h-4.5" /> Đặt Lại Vị Trí
+            <RotateCcw className="w-4.5 h-4.5" /> Đặt Lại Xe
           </button>
           <button
             onClick={handleEmergencyStop}
-            className="px-4 py-2 rounded-xl text-sm font-extrabold bg-rose-600 hover:bg-rose-500 text-white flex items-center gap-2 shadow-sm transition"
+            className="px-4 py-2 rounded-xl text-sm font-black bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white flex items-center gap-2 shadow-md transition border border-red-400/40"
           >
-            <AlertTriangle className="w-4.5 h-4.5" /> DỪNG KHẨN CẤP
+            <AlertTriangle className="w-4.5 h-4.5 animate-bounce" /> DỪNG KHẨN CẤP
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
-        {/* Left: 2D Simulation Arena */}
-        <div className="lg:col-span-7 p-4 bg-slate-950 flex flex-col items-center justify-center relative select-none">
+        {/* Left: 2D Simulation Arena - High-tech Dark Science Lab Deck */}
+        <div className="lg:col-span-7 p-4 sm:p-6 bg-[#0A101F] flex flex-col items-center justify-center relative select-none">
           {/* Visual Track Arena Container */}
-          <div className="relative w-full max-w-[600px] h-[440px] bg-slate-900 rounded-xl border border-slate-800 overflow-hidden shadow-inner">
+          <div className="relative w-full max-w-[600px] h-[440px] bg-[#0E172E] rounded-2xl border-2 border-cyan-500/30 overflow-hidden shadow-2xl">
             {/* Background Track Grid and Demo Road */}
             <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <pattern id="arenaGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" strokeWidth="0.8" />
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1E293B" strokeWidth="0.8" />
                 </pattern>
-                {/* Road curve gradient */}
-                <linearGradient id="roadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#334155" />
-                  <stop offset="100%" stopColor="#1e293b" />
-                </linearGradient>
+                {/* Robot body glow */}
+                <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
               </defs>
 
               {/* Grid */}
@@ -247,19 +250,19 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
               <path
                 d="M 120 100 C 300 40, 480 80, 500 200 C 520 340, 380 380, 240 370 C 100 360, 60 220, 120 100 Z"
                 fill="none"
-                stroke="#475569"
-                strokeWidth="48"
+                stroke="#1E293B"
+                strokeWidth="52"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                opacity="0.35"
+                opacity="0.9"
               />
               <path
                 d="M 120 100 C 300 40, 480 80, 500 200 C 520 340, 380 380, 240 370 C 100 360, 60 220, 120 100 Z"
                 fill="none"
-                stroke="#facc15"
-                strokeWidth="2.5"
-                strokeDasharray="10 10"
-                opacity="0.5"
+                stroke="#FACC15"
+                strokeWidth="3"
+                strokeDasharray="12 10"
+                opacity="0.8"
               />
 
               {/* Trajectory Breadcrumbs */}
@@ -267,83 +270,83 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
                 <polyline
                   points={trail.map((p) => `${p.x},${p.y}`).join(' ')}
                   fill="none"
-                  stroke="#38bdf8"
-                  strokeWidth="2.5"
-                  strokeDasharray="4 3"
-                  opacity="0.75"
+                  stroke="#06B6D4"
+                  strokeWidth="3"
+                  strokeDasharray="5 3"
+                  opacity="0.85"
                 />
               )}
 
-              {/* Dynamic Robot SVG Representation */}
+              {/* Dynamic JetBot SVG Model */}
               <g transform={`translate(${pos.x}, ${pos.y}) rotate(${(pos.theta * 180) / Math.PI + 90})`}>
-                {/* Camera Field of View (FOV) cone */}
+                {/* Camera Field of View (FOV) cone with yellow laser light */}
                 {showCameraCone && (
                   <path
-                    d="M 0 -22 L -45 -110 L 45 -110 Z"
-                    fill="rgba(56, 189, 248, 0.12)"
-                    stroke="rgba(56, 189, 248, 0.4)"
-                    strokeWidth="1"
-                    strokeDasharray="3 3"
+                    d="M 0 -22 L -48 -115 L 48 -115 Z"
+                    fill="rgba(250, 204, 21, 0.15)"
+                    stroke="rgba(250, 204, 21, 0.6)"
+                    strokeWidth="1.5"
+                    strokeDasharray="4 3"
                   />
                 )}
 
                 {/* Robot Main Chassis (Body) */}
                 <rect
-                  x="-20"
-                  y="-26"
-                  width="40"
-                  height="52"
-                  rx="8"
-                  fill="#1e293b"
-                  stroke="#06b6d4"
-                  strokeWidth="2"
+                  x="-21"
+                  y="-27"
+                  width="42"
+                  height="54"
+                  rx="10"
+                  fill="#172554"
+                  stroke="#2563EB"
+                  strokeWidth="2.5"
                 />
 
-                {/* Jetson Nano Heat-sink / Board detail */}
-                <rect x="-14" y="-12" width="28" height="24" rx="3" fill="#0f172a" stroke="#334155" strokeWidth="1" />
-                <path d="M -10 -8 L 10 -8 M -10 -4 L 10 -4 M -10 0 L 10 0 M -10 4 L 10 4 M -10 8 L 10 8" stroke="#0284c7" strokeWidth="1" />
+                {/* Jetson Nano Micro-Controller Board */}
+                <rect x="-15" y="-13" width="30" height="26" rx="4" fill="#0B1120" stroke="#3B82F6" strokeWidth="1" />
+                <path d="M -11 -9 L 11 -9 M -11 -4 L 11 -4 M -11 1 L 11 1 M -11 6 L 11 6 M -11 10 L 11 10" stroke="#60A5FA" strokeWidth="1" />
 
                 {/* Front Camera Mount */}
-                <rect x="-7" y="-28" width="14" height="6" rx="2" fill="#0284c7" />
-                <circle cx="0" cy="-28" r="2.5" fill="#38bdf8" />
+                <rect x="-8" y="-30" width="16" height="7" rx="3" fill="#0284C7" />
+                <circle cx="0" cy="-30" r="3" fill="#22D3EE" />
 
                 {/* Front Heading Arrow */}
-                <polygon points="0,-42 -6,-32 6,-32" fill="#38bdf8" />
+                <polygon points="0,-45 -7,-34 7,-34" fill="#FACC15" />
 
                 {/* Left Motor / Track (Left side of robot) */}
-                <g transform="translate(-25, 0)">
+                <g transform="translate(-27, 0)">
                   <rect
                     x="-6"
-                    y="-18"
-                    width="9"
-                    height="36"
-                    rx="3"
-                    fill={leftSpeed > 0 ? '#10b981' : leftSpeed < 0 ? '#f43f5e' : '#475569'}
-                    stroke="#0f172a"
-                    strokeWidth="1.5"
+                    y="-19"
+                    width="10"
+                    height="38"
+                    rx="4"
+                    fill={leftSpeed > 0 ? '#10B981' : leftSpeed < 0 ? '#EC4899' : '#475569'}
+                    stroke="#0284C7"
+                    strokeWidth="2"
                   />
                   {/* Wheel ribs (animated spinning indicator) */}
-                  <line x1="-5" y1="-10" x2="2" y2="-10" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.7" />
-                  <line x1="-5" y1="0" x2="2" y2="0" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.7" />
-                  <line x1="-5" y1="10" x2="2" y2="10" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.7" />
+                  <line x1="-5" y1="-10" x2="3" y2="-10" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.8" />
+                  <line x1="-5" y1="0" x2="3" y2="0" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.8" />
+                  <line x1="-5" y1="10" x2="3" y2="10" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.8" />
                 </g>
 
                 {/* Right Motor / Track (Right side of robot) */}
-                <g transform="translate(25, 0)">
+                <g transform="translate(27, 0)">
                   <rect
-                    x="-3"
-                    y="-18"
-                    width="9"
-                    height="36"
-                    rx="3"
-                    fill={rightSpeed > 0 ? '#10b981' : rightSpeed < 0 ? '#f43f5e' : '#475569'}
-                    stroke="#0f172a"
-                    strokeWidth="1.5"
+                    x="-4"
+                    y="-19"
+                    width="10"
+                    height="38"
+                    rx="4"
+                    fill={rightSpeed > 0 ? '#10B981' : rightSpeed < 0 ? '#EC4899' : '#475569'}
+                    stroke="#F97316"
+                    strokeWidth="2"
                   />
                   {/* Wheel ribs */}
-                  <line x1="-2" y1="-10" x2="5" y2="-10" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.7" />
-                  <line x1="-2" y1="0" x2="5" y2="0" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.7" />
-                  <line x1="-2" y1="10" x2="5" y2="10" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.7" />
+                  <line x1="-3" y1="-10" x2="5" y2="-10" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.8" />
+                  <line x1="-3" y1="0" x2="5" y2="0" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.8" />
+                  <line x1="-3" y1="10" x2="5" y2="10" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.8" />
                 </g>
 
                 {/* Velocity Vector Arrow */}
@@ -352,75 +355,77 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
                     x1="0"
                     y1="0"
                     x2="0"
-                    y2={-linearVel * 12}
-                    stroke="#e11d48"
-                    strokeWidth="2.5"
+                    y2={-linearVel * 14}
+                    stroke="#F43F5E"
+                    strokeWidth="3"
                     strokeLinecap="round"
                   />
                 )}
 
-                {/* Left & Right Labels */}
-                <text x="-34" y="2" fill="#94a3b8" fontSize="8" fontWeight="bold" textAnchor="end">L</text>
-                <text x="34" y="2" fill="#94a3b8" fontSize="8" fontWeight="bold" textAnchor="start">R</text>
+                {/* Left & Right Motor Labels */}
+                <text x="-37" y="3" fill="#38BDF8" fontSize="9" fontWeight="900" textAnchor="end">L</text>
+                <text x="37" y="3" fill="#FB923C" fontSize="9" fontWeight="900" textAnchor="start">R</text>
               </g>
             </svg>
 
             {/* In-canvas telemetry overlay */}
-            <div className="absolute bottom-3 left-3 bg-slate-900/90 backdrop-blur-md px-3 py-2 rounded-lg border border-slate-700/80 text-[11px] font-mono text-slate-200 shadow-md">
+            <div className="absolute bottom-3 left-3 bg-[#0B1120]/90 backdrop-blur-md px-3.5 py-2 rounded-xl border border-cyan-500/40 text-[11px] font-mono text-cyan-200 shadow-lg">
               <div className="flex items-center gap-3">
-                <span>X: {pos.x.toFixed(0)}px</span>
-                <span>Y: {pos.y.toFixed(0)}px</span>
-                <span>Góc: {(((pos.theta * 180) / Math.PI + 360) % 360).toFixed(0)}°</span>
+                <span>X: <strong className="text-white">{pos.x.toFixed(0)}px</strong></span>
+                <span>Y: <strong className="text-white">{pos.y.toFixed(0)}px</strong></span>
+                <span>Góc: <strong className="text-yellow-300">{(((pos.theta * 180) / Math.PI + 360) % 360).toFixed(0)}°</strong></span>
               </div>
             </div>
 
-            {/* Viewport toggles */}
-            <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-lg border border-slate-700/80 text-[11px] text-slate-300">
+            {/* Viewport visual toggles */}
+            <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-[#0B1120]/90 backdrop-blur-md p-1.5 rounded-xl border border-cyan-500/40 text-[11px] text-slate-300 shadow-md">
               <button
                 onClick={() => setShowTrail(!showTrail)}
-                className={`px-2 py-0.5 rounded ${showTrail ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800'}`}
+                className={`px-2.5 py-1 rounded-lg font-bold transition ${showTrail ? 'bg-cyan-600 text-white' : 'hover:bg-slate-800 text-slate-400'}`}
               >
                 Vệt đường
               </button>
               <button
                 onClick={() => setShowVectors(!showVectors)}
-                className={`px-2 py-0.5 rounded ${showVectors ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800'}`}
+                className={`px-2.5 py-1 rounded-lg font-bold transition ${showVectors ? 'bg-cyan-600 text-white' : 'hover:bg-slate-800 text-slate-400'}`}
               >
-                Vector
+                Vector v
               </button>
               <button
                 onClick={() => setShowCameraCone(!showCameraCone)}
-                className={`px-2 py-0.5 rounded ${showCameraCone ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800'}`}
+                className={`px-2.5 py-1 rounded-lg font-bold transition ${showCameraCone ? 'bg-yellow-500 text-black' : 'hover:bg-slate-800 text-slate-400'}`}
               >
-                Tầm Camera
+                FOV Camera
               </button>
             </div>
           </div>
         </div>
 
         {/* Right: Kinematic Controls & Live Code Binding */}
-        <div className="lg:col-span-5 p-6 bg-slate-50 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-slate-200">
+        <div className="lg:col-span-5 p-6 bg-slate-50 dark:bg-[#131E36] flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800">
           <div>
             {/* Live motion diagnosis card */}
-            <div className={`p-4.5 rounded-2xl border mb-5 ${explanation.badgeColor}`}>
-              <div className="flex items-center gap-2.5 font-bold text-base mb-1.5">
-                <Gauge className="w-5 h-5" />
+            <div className={`p-4.5 rounded-2xl border-2 mb-5 ${explanation.badgeColor} shadow-2xs`}>
+              <div className="flex items-center gap-2.5 font-black text-base mb-1.5">
+                <Gauge className="w-5 h-5 shrink-0" />
                 <span>{explanation.title}</span>
               </div>
-              <p className="text-sm leading-relaxed opacity-95">{explanation.desc}</p>
+              <p className="text-sm leading-relaxed opacity-95 font-medium">{explanation.desc}</p>
             </div>
 
-            {/* Motor Dual Sliders */}
+            {/* Motor Dual Sliders with Vibrant STEM Colors */}
             <div className="space-y-4 mb-6">
-              {/* Left Motor Control */}
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+              {/* Left Motor Control (Electric Blue / Cyan) */}
+              <div className="bg-white dark:bg-[#182442] p-4 rounded-2xl border-2 border-blue-200 dark:border-blue-800/80 shadow-xs">
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
-                    <label className="text-sm font-bold text-slate-800">robot.left_motor.value</label>
+                    <span className="w-3.5 h-3.5 rounded-full bg-blue-600 shadow-sm"></span>
+                    <label className="text-sm font-black text-slate-900 dark:text-white">
+                      robot.left_motor.value (Bánh Trái)
+                    </label>
                   </div>
-                  <span className={`text-sm font-mono font-bold px-2.5 py-0.5 rounded-lg ${
-                    leftSpeed > 0 ? 'bg-emerald-100 text-emerald-800' : leftSpeed < 0 ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-700'
+                  <span className={`text-sm font-mono font-black px-2.5 py-0.5 rounded-lg ${
+                    leftSpeed > 0 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200' : leftSpeed < 0 ? 'bg-pink-100 text-pink-800 dark:bg-pink-950 dark:text-pink-200' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
                   }`}>
                     {leftSpeed > 0 ? `+${leftSpeed.toFixed(2)}` : leftSpeed.toFixed(2)}
                   </span>
@@ -433,24 +438,26 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
                   value={leftSpeed}
                   onChange={(e) => setLeftSpeed(parseFloat(e.target.value))}
                   disabled={isExternalControlled}
-                  className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
                 />
-                <div className="flex justify-between text-xs text-slate-500 mt-1.5 font-mono">
-                  <span>-1.0 (Lùi tối đa)</span>
+                <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-mono">
+                  <span>-1.0 (Lùi)</span>
                   <span>0.0 (Dừng)</span>
-                  <span>+1.0 (Tiến tối đa)</span>
+                  <span>+1.0 (Tiến)</span>
                 </div>
               </div>
 
-              {/* Right Motor Control */}
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+              {/* Right Motor Control (Energy Orange / Amber) */}
+              <div className="bg-white dark:bg-[#182442] p-4 rounded-2xl border-2 border-orange-200 dark:border-orange-800/80 shadow-xs">
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-indigo-500"></span>
-                    <label className="text-sm font-bold text-slate-800">robot.right_motor.value</label>
+                    <span className="w-3.5 h-3.5 rounded-full bg-orange-500 shadow-sm"></span>
+                    <label className="text-sm font-black text-slate-900 dark:text-white">
+                      robot.right_motor.value (Bánh Phải)
+                    </label>
                   </div>
-                  <span className={`text-sm font-mono font-bold px-2.5 py-0.5 rounded-lg ${
-                    rightSpeed > 0 ? 'bg-emerald-100 text-emerald-800' : rightSpeed < 0 ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-700'
+                  <span className={`text-sm font-mono font-black px-2.5 py-0.5 rounded-lg ${
+                    rightSpeed > 0 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200' : rightSpeed < 0 ? 'bg-pink-100 text-pink-800 dark:bg-pink-950 dark:text-pink-200' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
                   }`}>
                     {rightSpeed > 0 ? `+${rightSpeed.toFixed(2)}` : rightSpeed.toFixed(2)}
                   </span>
@@ -463,55 +470,56 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
                   value={rightSpeed}
                   onChange={(e) => setRightSpeed(parseFloat(e.target.value))}
                   disabled={isExternalControlled}
-                  className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-orange-500"
                 />
-                <div className="flex justify-between text-xs text-slate-500 mt-1.5 font-mono">
-                  <span>-1.0 (Lùi tối đa)</span>
+                <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-mono">
+                  <span>-1.0 (Lùi)</span>
                   <span>0.0 (Dừng)</span>
-                  <span>+1.0 (Tiến tối đa)</span>
+                  <span>+1.0 (Tiến)</span>
                 </div>
               </div>
             </div>
 
             {/* Quick Presets from Specification (Section 5.4) */}
             <div className="mb-5">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-2.5">
-                Kịch bản thử nghiệm nhanh (Mục 5.4 Đặc tả):
+              <label className="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider block mb-2.5 flex items-center justify-between">
+                <span>Kịch bản thử nghiệm nhanh:</span>
+                <span className="text-[11px] text-blue-600 dark:text-blue-400 font-bold">Mục 5.4 Đặc tả</span>
               </label>
               <div className="grid grid-cols-2 gap-2.5">
                 <button
                   onClick={() => setPreset(0.6, 0.6)}
-                  className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs sm:text-sm text-slate-800 font-medium transition shadow-2xs"
+                  className="p-3 rounded-2xl border border-emerald-200 dark:border-emerald-800/60 bg-white dark:bg-[#182442] hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-left text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-medium transition shadow-2xs stem-card-interactive"
                 >
-                  <span className="font-bold text-emerald-600 block">1. Tiến:</span> +0.6, +0.6
+                  <span className="font-black text-emerald-600 dark:text-emerald-400 block">1. Tiến thẳng:</span> +0.6, +0.6
                 </button>
                 <button
                   onClick={() => setPreset(-0.5, -0.5)}
-                  className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs sm:text-sm text-slate-800 font-medium transition shadow-2xs"
+                  className="p-3 rounded-2xl border border-amber-200 dark:border-amber-800/60 bg-white dark:bg-[#182442] hover:bg-amber-50 dark:hover:bg-amber-950/40 text-left text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-medium transition shadow-2xs stem-card-interactive"
                 >
-                  <span className="font-bold text-amber-600 block">2. Lùi:</span> -0.5, -0.5
+                  <span className="font-black text-amber-600 dark:text-amber-400 block">2. Lùi thẳng:</span> -0.5, -0.5
                 </button>
                 <button
                   onClick={() => setPreset(0.2, 0.8)}
-                  className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs sm:text-sm text-slate-800 font-medium transition shadow-2xs"
+                  className="p-3 rounded-2xl border border-blue-200 dark:border-blue-800/60 bg-white dark:bg-[#182442] hover:bg-blue-50 dark:hover:bg-blue-950/40 text-left text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-medium transition shadow-2xs stem-card-interactive"
                 >
-                  <span className="font-bold text-blue-600 block">3. Rẽ cong:</span> +0.2, +0.8
+                  <span className="font-black text-blue-600 dark:text-blue-400 block">3. Bẻ cong trái:</span> +0.2, +0.8
                 </button>
                 <button
                   onClick={() => setPreset(0.0, 0.7)}
-                  className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs sm:text-sm text-slate-800 font-medium transition shadow-2xs"
+                  className="p-3 rounded-2xl border border-purple-200 dark:border-purple-800/60 bg-white dark:bg-[#182442] hover:bg-purple-50 dark:hover:bg-purple-950/40 text-left text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-medium transition shadow-2xs stem-card-interactive"
                 >
-                  <span className="font-bold text-indigo-600 block">4. Quanh bánh trái:</span> 0.0, +0.7
+                  <span className="font-black text-purple-600 dark:text-purple-400 block">4. Quanh bánh trái:</span> 0.0, +0.7
                 </button>
                 <button
                   onClick={() => setPreset(-0.5, 0.5)}
-                  className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs sm:text-sm text-slate-800 font-medium transition shadow-2xs"
+                  className="p-3 rounded-2xl border border-teal-200 dark:border-teal-800/60 bg-white dark:bg-[#182442] hover:bg-teal-50 dark:hover:bg-teal-950/40 text-left text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-medium transition shadow-2xs stem-card-interactive"
                 >
-                  <span className="font-bold text-cyan-600 block">5. Xoay tại chỗ:</span> -0.5, +0.5
+                  <span className="font-black text-teal-600 dark:text-teal-400 block">5. Xoay tròn tại chỗ:</span> -0.5, +0.5
                 </button>
                 <button
                   onClick={() => setPreset(0.0, 0.0)}
-                  className="p-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-left text-xs sm:text-sm text-rose-700 font-bold transition shadow-2xs"
+                  className="p-3 rounded-2xl border-2 border-red-300 dark:border-red-800/60 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-950/70 text-left text-xs sm:text-sm text-red-700 dark:text-red-300 font-black transition shadow-2xs stem-card-interactive"
                 >
                   <span className="block">6. Dừng an toàn:</span> 0.0, 0.0
                 </button>
@@ -519,21 +527,22 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
             </div>
 
             {/* Differential Drive Math Box */}
-            <div className="p-4 bg-indigo-50/70 rounded-2xl border border-indigo-100 text-xs sm:text-sm text-indigo-950 font-mono space-y-1.5">
-              <div className="font-sans font-bold text-indigo-900 text-xs uppercase tracking-wide">
-                Mô hình Toán học Vi sai:
+            <div className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/50 dark:to-blue-950/50 rounded-2xl border border-indigo-200 dark:border-indigo-800/60 text-xs sm:text-sm text-indigo-950 dark:text-indigo-200 font-mono space-y-1.5 shadow-2xs">
+              <div className="font-sans font-black text-indigo-900 dark:text-indigo-300 text-xs uppercase tracking-wide flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-yellow-500" />
+                Mô hình Toán học Động học Vi sai:
               </div>
-              <div>Vận tốc tiến: v = (v_R + v_L) / 2 = <span className="font-bold text-indigo-700">{((rightSpeed + leftSpeed) / 2).toFixed(2)}</span></div>
-              <div>Vận tốc góc: ω = (v_R - v_L) / b = <span className="font-bold text-indigo-700">{((rightSpeed - leftSpeed) / WHEEL_BASE * 10).toFixed(2)} rad/s</span></div>
+              <div>Vận tốc tiến: v = (v_R + v_L) / 2 = <strong className="text-blue-600 dark:text-blue-400">{((rightSpeed + leftSpeed) / 2).toFixed(2)}</strong></div>
+              <div>Vận tốc góc: ω = (v_R - v_L) / b = <strong className="text-purple-600 dark:text-purple-400">{((rightSpeed - leftSpeed) / WHEEL_BASE * 10).toFixed(2)} rad/s</strong></div>
             </div>
           </div>
 
           {/* Educational Code Mapping note */}
-          <div className="pt-4 border-t border-slate-200 mt-4 text-xs text-slate-600 flex items-center justify-between">
-            <span className="flex items-center gap-1.5 font-medium">
-              <Shield className="w-4 h-4 text-emerald-600" /> Giới hạn an toàn: [-1.0, +1.0]
+          <div className="pt-4 border-t border-slate-200 dark:border-slate-800 mt-4 text-xs text-slate-600 dark:text-slate-400 flex items-center justify-between">
+            <span className="flex items-center gap-1.5 font-bold text-emerald-600 dark:text-emerald-400">
+              <Shield className="w-4 h-4" /> Giới hạn xung an toàn: [-1.0, +1.0]
             </span>
-            <span className="text-slate-500 font-mono">teleoperation.ipynb &amp; live_demo.ipynb</span>
+            <span className="font-mono text-slate-500">teleoperation.ipynb &amp; live_demo.ipynb</span>
           </div>
         </div>
       </div>

@@ -14,11 +14,14 @@ import {
   ShieldCheck, 
   Camera, 
   Gamepad2, 
-  Play
+  Play,
+  Zap,
+  Tag
 } from 'lucide-react';
 import { ModuleMeta } from '../types/jetbot';
 import { CameraSimulator } from './CameraSimulator';
 import { RobotTwinMotorSimulator } from './RobotTwinMotorSimulator';
+import { MODULE_THEMES } from '../theme/stemTokens';
 
 interface ModuleDetailViewProps {
   module: ModuleMeta;
@@ -41,6 +44,9 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
   const prevModule = currentIndex > 0 ? allModules[currentIndex - 1] : null;
   const nextModule = currentIndex < allModules.length - 1 ? allModules[currentIndex + 1] : null;
 
+  // Module distinct theme
+  const theme = MODULE_THEMES[module.id] || MODULE_THEMES['teleoperation'];
+
   const handleCopyCode = (index: number, code: string) => {
     navigator.clipboard.writeText(code);
     setCopiedIndex(index);
@@ -49,63 +55,71 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Top Breadcrumb & Navigation */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4.5 rounded-2xl border border-slate-200 shadow-2xs">
-        <div className="flex items-center gap-2.5 text-sm">
-          <span className="font-bold text-slate-400">DANH MỤC 12 MODULES</span>
-          <span className="text-slate-300">/</span>
-          <span className="font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-xl">
-            Module {module.number}: {module.nameVi}
-          </span>
+      {/* Top Breadcrumb & Next/Prev Controls */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-[#131E36] p-4.5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="flex items-center gap-2.5 text-xs sm:text-sm">
+          <span className="font-bold text-slate-400 dark:text-slate-500">12 NOTEBOOKS</span>
+          <span className="text-slate-300 dark:text-slate-600">/</span>
+          <div className="flex items-center gap-2">
+            <span
+              className="w-3 h-3 rounded-full shrink-0 shadow-sm"
+              style={{ backgroundColor: theme.primaryHex }}
+            />
+            <span className={`font-black ${theme.accentText} ${theme.accentBg} px-3 py-1 rounded-xl border ${theme.accentBorder}`}>
+              Module {module.number}: {module.nameVi}
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-2.5 text-xs sm:text-sm">
           {prevModule && (
             <button
               onClick={() => onSelectModule(prevModule.id)}
-              className="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition font-semibold"
+              className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 transition font-bold"
             >
-              <ArrowLeft className="w-4 h-4" /> Module {prevModule.number}
+              <ArrowLeft className="w-4 h-4" /> M{prevModule.number}
             </button>
           )}
           {nextModule && (
             <button
               onClick={() => onSelectModule(nextModule.id)}
-              className="px-3.5 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 flex items-center gap-2 transition font-bold shadow-2xs"
+              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 transition font-black shadow-md"
             >
-              Module {nextModule.number} <ArrowRight className="w-4 h-4" />
+              M{nextModule.number} <ArrowRight className="w-4 h-4" />
             </button>
           )}
         </div>
       </div>
 
-      {/* Module Overview Hero Banner */}
-      <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-800">
-        <div className="flex flex-wrap items-center gap-2.5 mb-3.5">
-          <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-            TỆP NGUỒN: {module.notebookName}
+      {/* Module Overview Hero Banner with Signature Gradient */}
+      <div className={`bg-gradient-to-r ${theme.bannerGradient} text-white rounded-3xl p-6 sm:p-8 shadow-lg relative overflow-hidden`}>
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="flex flex-wrap items-center gap-2 mb-3.5 relative z-10">
+          <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-black/30 text-yellow-300 border border-white/20">
+            NOTEBOOK: {module.notebookName}
           </span>
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+          <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-400 text-emerald-950 shadow-xs">
             {module.taskTypeVi}
           </span>
-          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-slate-200">
-            {module.categoryNameVi}
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/20 text-white border border-white/20">
+            {theme.colorName}
           </span>
         </div>
 
-        <h1 className="text-2xl sm:text-3xl font-extrabold mb-3">
+        <h1 className="text-2xl sm:text-4xl font-black mb-3 text-white drop-shadow-sm relative z-10">
           Module {module.number}: {module.nameVi}
         </h1>
 
-        <p className="text-slate-200 text-sm sm:text-base leading-relaxed max-w-4xl">
+        <p className="text-white/95 text-sm sm:text-base leading-relaxed max-w-4xl font-medium relative z-10">
           {module.descriptionVi}
         </p>
 
         {/* Target Goal Box */}
-        <div className="mt-5 p-4 bg-white/10 backdrop-blur-xs rounded-2xl border border-white/15 text-xs sm:text-sm text-indigo-100 flex items-start gap-3">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+        <div className="mt-5 p-4 bg-black/25 backdrop-blur-md rounded-2xl border border-white/20 text-xs sm:text-sm text-white flex items-start gap-3 relative z-10">
+          <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0 mt-0.5" />
           <div className="leading-relaxed">
-            <strong className="text-white text-sm sm:text-base">Mục tiêu chính: </strong>
+            <strong className="text-yellow-300 font-black text-sm sm:text-base">Mục tiêu sư phạm: </strong>
             {module.targetGoalVi}
           </div>
         </div>
@@ -114,12 +128,12 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
       {/* Interactive Sandbox for this Module */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <Play className="w-4.5 h-4.5 text-indigo-600" />
-            Không Gian Thực Hành Tương Tác Của Module {module.number}
+          <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <Play className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            Không Gian Thực Hành Tương Tác Trực Tiếp Của Module {module.number}
           </h3>
-          <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">
-            Mô phỏng chạy ngay không cần phần cứng
+          <span className="text-xs px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 font-black border border-emerald-300 dark:border-emerald-800">
+            Chạy ngay không cần robot thật
           </span>
         </div>
 
@@ -137,11 +151,17 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
         )}
 
         {(module.id === 'train_model' || module.id === 'train_model_plot' || module.id === 'train_model_resnet18') && (
-          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center space-y-4">
-            <h4 className="font-bold text-slate-800 text-sm">Mô Phỏng Quá Trình Huấn Luyện Mạng Nơ-ron</h4>
-            <p className="text-xs text-slate-600 max-w-2xl mx-auto">
-              Module này huấn luyện mô hình sâu trên máy trạm hoặc GPU Jetson Nano. Hãy sử dụng tab 
-              <strong> &quot;Đồ Thị Huấn Luyện&quot;</strong> trên thanh điều hướng để xem mô phỏng tương tác đường cong Loss &amp; Accuracy.
+          <div className="bg-slate-50 dark:bg-[#182442] p-6 rounded-3xl border border-slate-200 dark:border-slate-800 text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-900/60 text-purple-600 dark:text-purple-300 mx-auto flex items-center justify-center font-bold">
+              <Cpu className="w-6 h-6" />
+            </div>
+            <h4 className="font-black text-slate-900 dark:text-white text-base">
+              Mô Phỏng Quá Trình Huấn Luyện Mạng Nơ-ron AI
+            </h4>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+              Module này huấn luyện mô hình sâu trên máy trạm hoặc GPU Jetson Nano. Hãy chuyển sang tab 
+              <strong className="text-blue-600 dark:text-blue-400"> &quot;Đồ Thị Huấn Luyện&quot;</strong> hoặc 
+              <strong className="text-pink-600 dark:text-pink-400"> &quot;Thí Nghiệm Nếu Như&quot;</strong> để phân tích trực quan quá trình hội tụ!
             </p>
           </div>
         )}
@@ -161,27 +181,27 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
         )}
 
         {(module.id === 'live_demo_build_trt' || module.id === 'live_demo_resnet18_build_trt') && (
-          <div className="bg-gradient-to-r from-cyan-950 to-slate-900 text-white p-6 rounded-2xl border border-cyan-800/40 space-y-3">
-            <div className="flex items-center gap-2 text-cyan-300 font-bold text-sm">
-              <Cpu className="w-5 h-5" />
-              Quy Trình Biên Dịch Mô Hình NVIDIA TensorRT (torch2trt FP16)
+          <div className="bg-gradient-to-r from-amber-600 via-orange-600 to-purple-900 text-white p-6 sm:p-7 rounded-3xl shadow-md space-y-3">
+            <div className="flex items-center gap-2 text-yellow-300 font-black text-base">
+              <Zap className="w-6 h-6" />
+              Quy Trình Biên Dịch Tối Ưu NVIDIA TensorRT (torch2trt FP16)
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Mã nguồn sử dụng lệnh <code>torch2trt(model, [data], fp16_mode=True)</code> để chuyển đổi đồ thị PyTorch sang định dạng TensorRT Engine tối ưu.
-              Sau khi biên dịch thành công, file trọng số engine được lưu ra đĩa để nạp vào <code>TRTModule</code> ở bước suy luận thời gian thực.
+            <p className="text-xs sm:text-sm text-white/95 leading-relaxed font-medium">
+              Mã nguồn gọi hàm <code>torch2trt(model, [data], fp16_mode=True)</code> để chuyển đổi đồ thị PyTorch sang cấu trúc TensorRT Engine.
+              File trọng số engine sau biên dịch được lưu để nạp vào <code>TRTModule</code> ở bước suy luận thời gian thực với tốc độ ~45 FPS.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
-              <div className="p-3 bg-white/5 rounded-xl border border-white/10">
-                <span className="text-slate-400 block mb-1">Độ chính xác:</span>
-                <span className="font-bold text-cyan-300">FP16 (Half Precision)</span>
+              <div className="p-3 bg-black/25 rounded-2xl border border-white/20">
+                <span className="text-amber-200 block mb-1 font-bold">Chế độ số thực:</span>
+                <span className="font-black text-white text-sm">FP16 (Half Precision)</span>
               </div>
-              <div className="p-3 bg-white/5 rounded-xl border border-white/10">
-                <span className="text-slate-400 block mb-1">Thời gian build:</span>
-                <span className="font-bold text-amber-300">~2 - 5 phút trên Jetson Nano</span>
+              <div className="p-3 bg-black/25 rounded-2xl border border-white/20">
+                <span className="text-amber-200 block mb-1 font-bold">Thời gian build:</span>
+                <span className="font-black text-yellow-300 text-sm">~2 - 5 phút trên Nano</span>
               </div>
-              <div className="p-3 bg-white/5 rounded-xl border border-white/10">
-                <span className="text-slate-400 block mb-1">Kết quả đầu ra:</span>
-                <span className="font-bold text-emerald-300 font-mono">
+              <div className="p-3 bg-black/25 rounded-2xl border border-white/20">
+                <span className="text-amber-200 block mb-1 font-bold">File đích:</span>
+                <span className="font-mono font-black text-cyan-200 text-xs">
                   {module.id.includes('resnet18') ? 'best_model_trt.pth' : 'best_steering_model_xy_trt.pth'}
                 </span>
               </div>
@@ -191,39 +211,39 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
       </div>
 
       {/* Data Flow (Input -> Process -> Output) */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-          <Layers className="w-4 h-4 text-indigo-600" /> Luồng Dữ Liệu Chi Tiết (Data Flow)
+      <div className="bg-white dark:bg-[#131E36] rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+        <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+          <Layers className="w-5 h-5 text-blue-600 dark:text-blue-400" /> Luồng Dữ Liệu Chi Tiết (Data Flow)
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <span className="font-bold text-indigo-700 block mb-1 uppercase tracking-wide text-[11px]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+          <div className="p-4 bg-blue-50/70 dark:bg-blue-950/40 rounded-2xl border border-blue-200 dark:border-blue-900/60">
+            <span className="font-black text-blue-700 dark:text-blue-300 block mb-1 uppercase tracking-wide text-xs">
               1. Dữ Liệu Đầu Vào (Input)
             </span>
-            <p className="text-slate-700 leading-relaxed">{module.dataFlow.input}</p>
+            <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-medium">{module.dataFlow.input}</p>
           </div>
-          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <span className="font-bold text-blue-700 block mb-1 uppercase tracking-wide text-[11px]">
+          <div className="p-4 bg-purple-50/70 dark:bg-purple-950/40 rounded-2xl border border-purple-200 dark:border-purple-900/60">
+            <span className="font-black text-purple-700 dark:text-purple-300 block mb-1 uppercase tracking-wide text-xs">
               2. Thuật Toán Xử Lý (Process)
             </span>
-            <p className="text-slate-700 leading-relaxed">{module.dataFlow.process}</p>
+            <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-medium">{module.dataFlow.process}</p>
           </div>
-          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <span className="font-bold text-emerald-700 block mb-1 uppercase tracking-wide text-[11px]">
+          <div className="p-4 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-900/60">
+            <span className="font-black text-emerald-700 dark:text-emerald-300 block mb-1 uppercase tracking-wide text-xs">
               3. Kết Quả Đầu Ra (Output)
             </span>
-            <p className="text-slate-700 leading-relaxed">{module.dataFlow.output}</p>
+            <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-medium">{module.dataFlow.output}</p>
           </div>
         </div>
       </div>
 
       {/* Code Snippets Extracted Directly from Notebook */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+      <div className="bg-white dark:bg-[#131E36] rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-            <Code2 className="w-4 h-4 text-indigo-600" /> Mã Nguồn Trích Xuất Từ Notebook Gốc
+          <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+            <Code2 className="w-5 h-5 text-blue-600 dark:text-blue-400" /> Mã Nguồn Trích Xuất Từ Notebook Gốc
           </h3>
-          <span className="text-xs font-mono text-slate-500">
+          <span className="text-xs font-mono text-slate-500 font-bold">
             {module.codeSnippets.length} đoạn mã tham chiếu
           </span>
         </div>
@@ -235,10 +255,10 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
               <button
                 key={idx}
                 onClick={() => setActiveCodeTab(idx)}
-                className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition ${
+                className={`px-3.5 py-2 rounded-xl font-bold whitespace-nowrap transition ${
                   activeCodeTab === idx
-                    ? 'bg-indigo-600 text-white font-bold shadow-xs'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
                 }`}
               >
                 Đoạn mã {idx + 1}: {snippet.captionVi || 'Code Cell'}
@@ -250,12 +270,12 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
         {/* Active Code Block Display */}
         {module.codeSnippets[activeCodeTab] && (
           <div className="space-y-4">
-            <div className="relative bg-slate-950 rounded-2xl p-5 overflow-x-auto border border-slate-800">
+            <div className="relative bg-[#0A101F] rounded-2xl p-5 overflow-x-auto border-2 border-slate-800 shadow-xl">
               <div className="flex justify-between items-center pb-2.5 mb-3 border-b border-slate-800 text-xs sm:text-sm text-slate-400">
-                <span className="font-semibold text-slate-300">{module.codeSnippets[activeCodeTab].captionVi}</span>
+                <span className="font-bold text-slate-200">{module.codeSnippets[activeCodeTab].captionVi}</span>
                 <button
                   onClick={() => handleCopyCode(activeCodeTab, module.codeSnippets[activeCodeTab].code)}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center gap-1.5 transition font-medium"
+                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center gap-1.5 transition font-bold"
                 >
                   {copiedIndex === activeCodeTab ? (
                     <>
@@ -268,25 +288,27 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
                   )}
                 </button>
               </div>
-              <pre className="text-sm font-mono text-emerald-300 leading-relaxed">
+              <pre className="text-sm font-mono text-emerald-300 dark:text-emerald-400 leading-relaxed">
                 {module.codeSnippets[activeCodeTab].code}
               </pre>
             </div>
 
-            {/* Line-by-line pedagogical annotations if available */}
+            {/* Line-by-line pedagogical annotations */}
             {module.codeSnippets[activeCodeTab].annotations && (
-              <div className="p-5 bg-indigo-50/70 rounded-2xl border border-indigo-100 space-y-3 text-xs sm:text-sm">
-                <span className="font-bold text-indigo-900 text-sm block mb-1">Chú giải chi tiết từng dòng lệnh:</span>
+              <div className="p-5 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-2xl border border-indigo-100 dark:border-indigo-900/60 space-y-3 text-xs sm:text-sm">
+                <span className="font-black text-indigo-900 dark:text-indigo-200 text-sm block mb-1">
+                  Chú giải kỹ thuật từng dòng lệnh:
+                </span>
                 <div className="space-y-2.5">
                   {module.codeSnippets[activeCodeTab].annotations!.map((ann, i) => (
-                    <div key={i} className="flex items-start gap-2.5 text-indigo-950">
-                      <span className="font-mono font-bold text-indigo-700 bg-white px-2 py-0.5 rounded-lg border border-indigo-200 shrink-0 text-xs">
+                    <div key={i} className="flex items-start gap-2.5 text-indigo-950 dark:text-indigo-200">
+                      <span className="font-mono font-black text-blue-700 dark:text-blue-300 bg-white dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-indigo-200 dark:border-indigo-800 shrink-0 text-xs">
                         Dòng {ann.line}
                       </span>
                       <div className="space-y-0.5">
-                        <strong className="text-indigo-950">{ann.explanation}</strong>
-                        <div className="text-indigo-800/90 text-xs sm:text-sm italic">
-                          Tác động lên robot: {ann.impactOnRobot}
+                        <strong className="text-indigo-950 dark:text-indigo-100">{ann.explanation}</strong>
+                        <div className="text-indigo-800/90 dark:text-indigo-300/90 text-xs sm:text-sm italic font-medium">
+                          Tác động cơ khí / logic: {ann.impactOnRobot}
                         </div>
                       </div>
                     </div>
@@ -298,31 +320,31 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
         )}
       </div>
 
-      {/* Caveats, Common Errors and Hardware notes */}
+      {/* Caveats & Hardware Notes */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Caveats */}
-        <div className="bg-amber-50/70 p-5 rounded-2xl border border-amber-200 space-y-3 text-xs sm:text-sm text-amber-950">
-          <div className="font-bold flex items-center gap-2 text-amber-900 text-sm sm:text-base">
-            <AlertTriangle className="w-5 h-5 text-amber-600" />
+        <div className="bg-orange-50/80 dark:bg-orange-950/40 p-5 rounded-3xl border border-orange-200 dark:border-orange-800/60 space-y-3 text-xs sm:text-sm text-orange-950 dark:text-orange-200">
+          <div className="font-black flex items-center gap-2 text-orange-900 dark:text-orange-300 text-sm sm:text-base">
+            <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
             Lỗi Thường Gặp &amp; Lưu Ý Kỹ Thuật (Caveats)
           </div>
-          <ul className="space-y-2 list-disc list-inside text-amber-900/95 leading-relaxed">
+          <ul className="space-y-2 list-disc list-inside text-orange-950/95 dark:text-orange-200/95 leading-relaxed font-medium">
             {module.caveatsAndErrors.map((err, i) => (
               <li key={i}>{err}</li>
             ))}
           </ul>
         </div>
 
-        {/* Hardware & Runtime Requirements */}
-        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3 text-xs sm:text-sm text-slate-800">
-          <div className="font-bold flex items-center gap-2 text-slate-900 text-sm sm:text-base">
-            <ShieldCheck className="w-5 h-5 text-emerald-600" />
-            Điều Kiện Triển Khai Thực Tế &amp; An Toàn
+        {/* Hardware Requirements */}
+        <div className="bg-slate-50 dark:bg-[#182442] p-5 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-3 text-xs sm:text-sm text-slate-800 dark:text-slate-200">
+          <div className="font-black flex items-center gap-2 text-slate-900 dark:text-white text-sm sm:text-base">
+            <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            Điều Kiện Phần Cứng Triển Khai Thực Tế
           </div>
-          <p className="text-slate-600 leading-relaxed mb-2">
-            Khi chuyển từ môi trường mô phỏng sang robot thật Jetson Nano:
+          <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-2 font-medium">
+            Khi triển khai từ trình duyệt sang kit robot JetBot thực tế:
           </p>
-          <ul className="space-y-2 list-disc list-inside text-slate-700 leading-relaxed">
+          <ul className="space-y-2 list-disc list-inside text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
             {module.hardwareRequirements.map((req, i) => (
               <li key={i}>{req}</li>
             ))}

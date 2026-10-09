@@ -1,10 +1,32 @@
 @import "tailwindcss";
 
+:root {
+  /* Vibrant STEM Design Tokens */
+  --stem-electric-blue: #2563EB;
+  --stem-neon-purple: #8B5CF6;
+  --stem-hot-pink: #EC4899;
+  --stem-energy-orange: #F97316;
+  --stem-vibrant-yellow: #FACC15;
+  --stem-teal-data: #14B8A6;
+  --stem-active-green: #22C55E;
+  
+  --stem-bg-light: #F8FAFC;
+  --stem-card-bg: #FFFFFF;
+  --stem-text-main: #172033;
+  --stem-border-subtle: #E2E8F0;
+
+  --stem-bg-dark: #0B1120;
+  --stem-card-dark: #131E36;
+  --stem-text-dark: #F8FAFC;
+  --stem-border-dark: #1E293B;
+}
+
 @layer base {
   html {
     font-size: 17.5px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
   }
 
   html.font-size-large {
@@ -16,12 +38,68 @@
   }
 
   body {
+    background-color: var(--stem-bg-light);
+    color: var(--stem-text-main);
     line-height: 1.6;
     letter-spacing: -0.01em;
+    min-height: 100vh;
   }
 
-  /* Make code blocks and pre elements clear and legible */
+  html.dark body {
+    background-color: var(--stem-bg-dark);
+    color: var(--stem-text-dark);
+  }
+
+  /* High-legibility code blocks */
   pre, code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
+}
+
+/* Vibrant STEM Lab Utilities */
+.stem-lab-grid {
+  background-image: radial-gradient(rgba(37, 99, 235, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+html.dark .stem-lab-grid {
+  background-image: radial-gradient(rgba(139, 92, 246, 0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.stem-arena-grid {
+  background-image: 
+    linear-gradient(to right, rgba(56, 189, 248, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Gradient accents */
+.gradient-blue-purple {
+  background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%);
+}
+
+.gradient-purple-pink {
+  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+}
+
+.gradient-orange-pink {
+  background: linear-gradient(135deg, #F97316 0%, #EC4899 100%);
+}
+
+.gradient-yellow-orange {
+  background: linear-gradient(135deg, #FACC15 0%, #F97316 100%);
+}
+
+.gradient-teal-blue {
+  background: linear-gradient(135deg, #14B8A6 0%, #2563EB 100%);
+}
+
+/* Smooth micro-interactions */
+.stem-card-interactive {
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease;
+}
+
+.stem-card-interactive:hover {
+  transform: translateY(-2px);
 }

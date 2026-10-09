@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, Target, AlertCircle, CheckCircle, Image as ImageIcon, Sparkles, Sliders } from 'lucide-react';
+import { Camera, Target, AlertCircle, CheckCircle, Image as ImageIcon, Sparkles, Sliders, Check } from 'lucide-react';
 
 interface CameraSimulatorProps {
   mode?: 'annotation' | 'classification' | 'inference';
@@ -41,7 +41,7 @@ const SCENES: SceneConfig[] = [
   },
   {
     id: 'blocked_lego',
-    nameVi: 'Vật cản khối LEGO chắn đường',
+    nameVi: 'Vật cản LEGO chắn đường',
     category: 'blocked',
     recommendedTarget: { x: 80, y: 150 },
     defaultProbBlocked: 0.89
@@ -64,7 +64,7 @@ export const CameraSimulator: React.FC<CameraSimulatorProps> = ({
   const [targetPoint, setTargetPoint] = useState<{ x: number; y: number }>(SCENES[0].recommendedTarget);
   const [savedCount, setSavedCount] = useState<number>(12);
   const [lastSavedFilename, setLastSavedFilename] = useState<string>('xy_112_070_e847c21.jpg');
-  const [isSimulatingInference, setIsSimulatingInference] = useState<boolean>(true);
+  const [isCopied, setIsCopied] = useState<boolean>(false);
 
   // Handle scene change
   const handleSelectScene = (scene: SceneConfig) => {
@@ -116,41 +116,52 @@ export const CameraSimulator: React.FC<CameraSimulatorProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+    <div className="bg-white dark:bg-[#131E36] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6 space-y-5">
+      {/* Sensor Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-2.5">
-          <Camera className="w-5 h-5 text-indigo-600" />
-          <h3 className="font-bold text-slate-800 text-base">
-            Khung Nhìn Camera Mô Phỏng (JetBot CSI 224×224)
-          </h3>
-          <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono font-semibold">
-            bgr8_to_jpeg
-          </span>
+          <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/60 text-teal-600 dark:text-teal-300 flex items-center justify-center font-bold">
+            <Camera className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="font-black text-slate-900 dark:text-white text-base">
+              Cảm Biến Thị Giác CSI Camera (224×224 px)
+            </h3>
+            <span className="text-xs text-teal-600 dark:text-teal-400 font-bold font-mono">
+              Định dạng: BGR8 → JPEG (bgr8_to_jpeg)
+            </span>
+          </div>
         </div>
 
-        {/* Scene Selector */}
-        <div className="flex items-center gap-1.5 overflow-x-auto text-xs sm:text-sm">
-          <span className="text-slate-500 font-semibold mr-1 hidden sm:inline">Cảnh:</span>
-          {SCENES.map((scene) => (
-            <button
-              key={scene.id}
-              onClick={() => handleSelectScene(scene)}
-              className={`px-3 py-1.5 rounded-xl font-medium transition whitespace-nowrap ${
-                selectedScene.id === scene.id
-                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              {scene.nameVi}
-            </button>
-          ))}
+        {/* Scene Selector with Vibrant STEM Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto text-xs py-1">
+          <span className="text-slate-400 dark:text-slate-500 font-bold mr-1 hidden sm:inline">Cảnh:</span>
+          {SCENES.map((scene) => {
+            const isFree = scene.category === 'free';
+            const isSelected = selectedScene.id === scene.id;
+            return (
+              <button
+                key={scene.id}
+                onClick={() => handleSelectScene(scene)}
+                className={`px-3 py-1.5 rounded-xl font-bold transition whitespace-nowrap ${
+                  isSelected
+                    ? isFree
+                      ? 'bg-teal-600 text-white shadow-md'
+                      : 'bg-pink-600 text-white shadow-md'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                }`}
+              >
+                {scene.nameVi}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-        {/* Left: 224x224 Camera Canvas */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+        {/* Left: 224x224 Camera Canvas Styled as Scientific Lens HUD */}
         <div className="md:col-span-6 flex flex-col items-center">
-          <div className="relative w-[240px] h-[240px] bg-slate-900 rounded-xl overflow-hidden shadow-md border-2 border-slate-700">
+          <div className="relative w-[240px] h-[240px] bg-[#0A101F] rounded-2xl overflow-hidden shadow-xl border-2 border-teal-500/50">
             {/* Simulated Track Video Scene (SVG Visual Render) */}
             <svg
               viewBox="0 0 224 224"
@@ -158,97 +169,91 @@ export const CameraSimulator: React.FC<CameraSimulatorProps> = ({
               onClick={handleCanvasClick}
             >
               {/* Floor background */}
-              <rect width="224" height="224" fill="#1e293b" />
+              <rect width="224" height="224" fill="#0B1329" />
 
-              {/* Road Rendering based on selectedScene */}
+              {/* Perspective grid floor */}
+              <line x1="0" y1="112" x2="224" y2="112" stroke="#1E293B" strokeWidth="0.8" />
+              <line x1="0" y1="160" x2="224" y2="160" stroke="#1E293B" strokeWidth="1" />
+              <line x1="0" y1="200" x2="224" y2="200" stroke="#1E293B" strokeWidth="1.2" />
+
+              {/* Scene 1: Straight road */}
               {selectedScene.id === 'straight' && (
                 <g>
-                  {/* Road surface */}
-                  <polygon points="30,224 85,60 139,60 194,224" fill="#334155" />
-                  {/* Center dashed line */}
-                  <line x1="112" y1="224" x2="112" y2="60" stroke="#facc15" strokeWidth="4" strokeDasharray="8 6" />
-                  {/* Horizon */}
-                  <line x1="0" y1="60" x2="224" y2="60" stroke="#475569" strokeWidth="1" strokeDasharray="2 2" />
+                  {/* Road asphalt */}
+                  <polygon points="80,50 144,50 200,224 24,224" fill="#1E293B" />
+                  {/* Road border edges */}
+                  <line x1="80" y1="50" x2="24" y2="224" stroke="#64748B" strokeWidth="3" />
+                  <line x1="144" y1="50" x2="200" y2="224" stroke="#64748B" strokeWidth="3" />
+                  {/* Dashed center line */}
+                  <line x1="112" y1="50" x2="112" y2="224" stroke="#FACC15" strokeWidth="3" strokeDasharray="14 10" />
                 </g>
               )}
 
+              {/* Scene 2: Right curve */}
               {selectedScene.id === 'curve_right' && (
                 <g>
-                  <path d="M 30,224 Q 90,140 180,90 L 195,95 Q 110,150 194,224 Z" fill="#334155" />
-                  <path d="M 112,224 Q 120,150 190,92" fill="none" stroke="#facc15" strokeWidth="4" strokeDasharray="8 6" />
+                  <path d="M 60,224 Q 100,120 180,60 L 220,60 Q 150,140 200,224 Z" fill="#1E293B" />
+                  <path d="M 60,224 Q 100,120 180,60" stroke="#64748B" strokeWidth="3" fill="none" />
+                  <path d="M 200,224 Q 150,140 220,60" stroke="#64748B" strokeWidth="3" fill="none" />
+                  <path d="M 130,224 Q 125,130 200,60" stroke="#FACC15" strokeWidth="3" strokeDasharray="14 10" fill="none" />
                 </g>
               )}
 
+              {/* Scene 3: Left curve */}
               {selectedScene.id === 'curve_left' && (
                 <g>
-                  <path d="M 194,224 Q 134,140 44,90 L 29,95 Q 114,150 30,224 Z" fill="#334155" />
-                  <path d="M 112,224 Q 104,150 34,92" fill="none" stroke="#facc15" strokeWidth="4" strokeDasharray="8 6" />
+                  <path d="M 164,224 Q 124,120 44,60 L 4,60 Q 74,140 24,224 Z" fill="#1E293B" />
+                  <path d="M 164,224 Q 124,120 44,60" stroke="#64748B" strokeWidth="3" fill="none" />
+                  <path d="M 24,224 Q 74,140 4,60" stroke="#64748B" strokeWidth="3" fill="none" />
+                  <path d="M 94,224 Q 99,130 24,60" stroke="#FACC15" strokeWidth="3" strokeDasharray="14 10" fill="none" />
                 </g>
               )}
 
+              {/* Scene 4: Obstacle Lego Blocks */}
               {selectedScene.id === 'blocked_lego' && (
                 <g>
-                  <polygon points="30,224 85,60 139,60 194,224" fill="#334155" />
-                  {/* LEGO Block Obstacle right in front */}
-                  <rect x="75" y="110" width="74" height="50" rx="4" fill="#dc2626" stroke="#991b1b" strokeWidth="2" />
-                  <circle cx="90" cy="118" r="5" fill="#ef4444" />
-                  <circle cx="112" cy="118" r="5" fill="#ef4444" />
-                  <circle cx="134" cy="118" r="5" fill="#ef4444" />
-                  <circle cx="90" cy="140" r="5" fill="#ef4444" />
-                  <circle cx="112" cy="140" r="5" fill="#ef4444" />
-                  <circle cx="134" cy="140" r="5" fill="#ef4444" />
+                  <polygon points="80,50 144,50 200,224 24,224" fill="#1E293B" />
+                  <line x1="80" y1="50" x2="24" y2="224" stroke="#64748B" strokeWidth="3" />
+                  <line x1="144" y1="50" x2="200" y2="224" stroke="#64748B" strokeWidth="3" />
+                  {/* Lego Obstacle */}
+                  <rect x="75" y="115" width="74" height="48" rx="4" fill="#EF4444" stroke="#991B1B" strokeWidth="2" />
+                  <circle cx="88" cy="115" r="4" fill="#DC2626" />
+                  <circle cx="104" cy="115" r="4" fill="#DC2626" />
+                  <circle cx="120" cy="115" r="4" fill="#DC2626" />
+                  <circle cx="136" cy="115" r="4" fill="#DC2626" />
+                  <text x="112" y="145" fill="#FFFFFF" fontSize="11" fontWeight="bold" textAnchor="middle">BLOCKED</text>
                 </g>
               )}
 
+              {/* Scene 5: Obstacle Toy Box */}
               {selectedScene.id === 'blocked_box' && (
                 <g>
-                  <polygon points="30,224 85,60 139,60 194,224" fill="#334155" />
-                  {/* Heavy cardboard box */}
-                  <rect x="62" y="100" width="100" height="70" rx="3" fill="#b45309" stroke="#78350f" strokeWidth="2" />
-                  <line x1="62" y1="135" x2="162" y2="135" stroke="#92400e" strokeWidth="2" />
+                  <polygon points="80,50 144,50 200,224 24,224" fill="#1E293B" />
+                  <line x1="80" y1="50" x2="24" y2="224" stroke="#64748B" strokeWidth="3" />
+                  <line x1="144" y1="50" x2="200" y2="224" stroke="#64748B" strokeWidth="3" />
+                  {/* Cardboard Box Obstacle close to camera */}
+                  <polygon points="50,110 174,110 164,195 60,195" fill="#D97706" stroke="#92400E" strokeWidth="2" />
+                  <text x="112" y="160" fill="#FFFFFF" fontSize="12" fontWeight="bold" textAnchor="middle">VẬT CẢN GẦN</text>
                 </g>
               )}
 
-              {/* Mode-specific Overlays */}
-              {mode !== 'classification' && (
-                <g>
-                  {/* Base point at bottom center (cv2.circle đỏ) */}
-                  <circle cx="112" cy="224" r="6" fill="#ef4444" stroke="#ffffff" strokeWidth="1.5" />
+              {/* HUD Target crosshair and vector guide */}
+              <line x1="112" y1="224" x2={targetPoint.x} y2={targetPoint.y} stroke="#06B6D4" strokeWidth="2.5" strokeDasharray="3 2" />
+              <circle cx="112" cy="224" r="5" fill="#EF4444" stroke="#FFFFFF" strokeWidth="1.5" />
 
-                  {/* Guidance Line (cv2.line xanh dương) */}
-                  <line
-                    x1="112"
-                    y1="224"
-                    x2={targetPoint.x}
-                    y2={targetPoint.y}
-                    stroke="#2563eb"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                  />
-
-                  {/* Annotated Target Dot (cv2.circle xanh lá) */}
-                  <circle
-                    cx={targetPoint.x}
-                    cy={targetPoint.y}
-                    r="7"
-                    fill="#10b981"
-                    stroke="#ffffff"
-                    strokeWidth="2"
-                  />
-                  {/* Crosshair guide */}
-                  <line x1={targetPoint.x - 12} y1={targetPoint.y} x2={targetPoint.x + 12} y2={targetPoint.y} stroke="#10b981" strokeWidth="1" strokeDasharray="2 2" />
-                  <line x1={targetPoint.x} y1={targetPoint.y - 12} x2={targetPoint.x} y2={targetPoint.y + 12} stroke="#10b981" strokeWidth="1" strokeDasharray="2 2" />
-                </g>
-              )}
-
-              {/* Resolution Tag */}
-              <text x="6" y="16" fill="#94a3b8" fontSize="10" fontFamily="monospace">224x224</text>
+              {/* Annotated Target circle (cv2.circle green dot) */}
+              <circle cx={targetPoint.x} cy={targetPoint.y} r="9" fill="rgba(34, 197, 94, 0.4)" stroke="#22C55E" strokeWidth="2.5" />
+              <circle cx={targetPoint.x} cy={targetPoint.y} r="3" fill="#22C55E" />
             </svg>
 
-            {/* Click instruction banner */}
-            <div className="absolute bottom-1 inset-x-0 text-center pointer-events-none">
-              <span className="bg-black/70 backdrop-blur-xs text-white text-[10px] px-2 py-0.5 rounded-full font-sans">
-                Nhấp chuột lên ảnh để di chuyển chấm xanh (Target)
+            {/* Scientific HUD Overlay details */}
+            <div className="absolute top-2 left-2 text-[10px] font-mono text-cyan-300 bg-black/60 px-2 py-0.5 rounded border border-cyan-500/30">
+              LIVE 224×224
+            </div>
+
+            <div className="absolute bottom-2 inset-x-0 flex justify-center pointer-events-none">
+              <span className="bg-black/80 backdrop-blur-xs text-yellow-300 text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-yellow-500/30">
+                Nhấp chuột lên ảnh để gán nhãn chấm xanh (Target X/Y)
               </span>
             </div>
           </div>
@@ -257,58 +262,61 @@ export const CameraSimulator: React.FC<CameraSimulatorProps> = ({
         {/* Right: Telemetry, Formula & Action Panel */}
         <div className="md:col-span-6 space-y-3.5">
           {/* Coordinates & Naming Formula */}
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm space-y-2 font-mono">
-            <div className="flex justify-between items-center text-slate-700">
-              <span className="font-sans font-semibold text-slate-900">Tọa độ Pixel (Ảnh):</span>
-              <span className="font-bold text-indigo-700">X = {targetPoint.x}px, Y = {targetPoint.y}px</span>
+          <div className="bg-slate-50 dark:bg-[#182442] p-4 rounded-2xl border border-slate-200 dark:border-slate-800 text-sm space-y-2 font-mono shadow-xs">
+            <div className="flex justify-between items-center text-slate-700 dark:text-slate-300">
+              <span className="font-sans font-bold text-slate-900 dark:text-white">Tọa độ Pixel (Ảnh):</span>
+              <span className="font-black text-blue-600 dark:text-blue-400">X = {targetPoint.x}px, Y = {targetPoint.y}px</span>
             </div>
-            <div className="flex justify-between items-center text-slate-700">
-              <span className="font-sans font-semibold text-slate-900">Chuẩn hóa [-1.0, 1.0]:</span>
-              <span className="font-bold text-emerald-700">norm_x = {normX}, norm_y = {normY}</span>
+            <div className="flex justify-between items-center text-slate-700 dark:text-slate-300">
+              <span className="font-sans font-bold text-slate-900 dark:text-white">Chuẩn hóa [-1.0, 1.0]:</span>
+              <span className="font-black text-emerald-600 dark:text-emerald-400">norm_x = {normX}, norm_y = {normY}</span>
             </div>
-            <div className="flex justify-between items-center text-slate-700">
-              <span className="font-sans font-semibold text-slate-900">Góc lái ước tính:</span>
-              <span className="font-bold text-blue-700">θ = {calcSteeringAngle()}°</span>
+            <div className="flex justify-between items-center text-slate-700 dark:text-slate-300">
+              <span className="font-sans font-bold text-slate-900 dark:text-white">Góc bẻ lái ước tính:</span>
+              <span className="font-black text-amber-500 dark:text-amber-400">θ = arctan2(x,y) = {calcSteeringAngle()}°</span>
             </div>
           </div>
 
           {/* Classification Probabilities (For Collision Avoidance) */}
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div className="bg-slate-50 dark:bg-[#182442] p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
             <div className="flex justify-between items-center text-sm mb-1.5">
-              <span className="font-semibold text-slate-900">Dự đoán Softmax (Tránh va chạm):</span>
-              <span className={`font-mono font-bold px-2 py-0.5 rounded text-xs ${
-                selectedScene.defaultProbBlocked >= 0.5 ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
+              <span className="font-bold text-slate-900 dark:text-white">Xác suất Softmax (Tránh va chạm):</span>
+              <span className={`font-mono font-black px-2.5 py-0.5 rounded-lg text-xs ${
+                selectedScene.defaultProbBlocked >= 0.5 
+                  ? 'bg-pink-100 text-pink-800 dark:bg-pink-950 dark:text-pink-200 border border-pink-300' 
+                  : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200 border border-emerald-300'
               }`}>
                 prob_blocked = {(selectedScene.defaultProbBlocked * 100).toFixed(0)}%
               </span>
             </div>
-            {/* Progress bar */}
-            <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden flex">
+
+            {/* High contrast progress bar */}
+            <div className="w-full bg-slate-200 dark:bg-slate-700 h-3 rounded-full overflow-hidden flex shadow-inner">
               <div
                 className="bg-emerald-500 h-full transition-all"
                 style={{ width: `${(1 - selectedScene.defaultProbBlocked) * 100}%` }}
                 title="Free"
               />
               <div
-                className="bg-rose-500 h-full transition-all"
+                className="bg-pink-500 h-full transition-all"
                 style={{ width: `${selectedScene.defaultProbBlocked * 100}%` }}
                 title="Blocked"
               />
             </div>
-            <div className="flex justify-between text-xs text-slate-600 mt-1.5 font-medium">
-              <span>Đường thoáng (free): {((1 - selectedScene.defaultProbBlocked) * 100).toFixed(0)}%</span>
-              <span>Bị cản (blocked): {(selectedScene.defaultProbBlocked * 100).toFixed(0)}%</span>
+            <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400 mt-1.5 font-bold">
+              <span className="text-emerald-600 dark:text-emerald-400">Đường thoáng (free): {((1 - selectedScene.defaultProbBlocked) * 100).toFixed(0)}%</span>
+              <span className="text-pink-600 dark:text-pink-400">Vật cản (blocked): {(selectedScene.defaultProbBlocked * 100).toFixed(0)}%</span>
             </div>
 
-            <div className="mt-3 text-sm font-medium text-slate-800 flex items-center gap-2">
+            <div className="mt-3 text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
               <span>Hành vi điều khiển:</span>
               {selectedScene.defaultProbBlocked < 0.5 ? (
-                <span className="text-emerald-700 font-bold flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4" /> robot.forward(speed)
+                <span className="text-emerald-600 dark:text-emerald-400 font-black flex items-center gap-1.5">
+                  <CheckCircle className="w-4 h-4" /> robot.forward(speed) [Tiến thẳng]
                 </span>
               ) : (
-                <span className="text-rose-700 font-bold flex items-center gap-1">
-                  <AlertCircle className="w-4 h-4" /> robot.left(speed) [Bẻ lái tránh cản]
+                <span className="text-pink-600 dark:text-pink-400 font-black flex items-center gap-1.5">
+                  <AlertCircle className="w-4 h-4" /> robot.left(speed) [Bẻ lái né chướng ngại]
                 </span>
               )}
             </div>
@@ -318,19 +326,19 @@ export const CameraSimulator: React.FC<CameraSimulatorProps> = ({
           <div className="flex flex-col sm:flex-row items-center gap-3 pt-1">
             <button
               onClick={handleSaveSnapshot}
-              className="w-full sm:w-auto flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-xs transition"
+              className="w-full sm:w-auto flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-md transition stem-card-interactive"
             >
               <ImageIcon className="w-4.5 h-4.5" />
               Lưu Mẫu Snapshot Vào dataset_xy/
             </button>
-            <div className="text-xs text-slate-600 font-mono">
-              Tổng mẫu: <span className="font-bold text-slate-900 text-sm">{savedCount}</span>
+            <div className="text-xs text-slate-600 dark:text-slate-400 font-mono">
+              Tổng mẫu: <strong className="text-slate-900 dark:text-white text-sm">{savedCount}</strong>
             </div>
           </div>
 
-          <div className="text-xs text-slate-600 bg-white p-3 rounded-xl border border-slate-200">
-            <span className="font-semibold text-slate-700">Tên file sinh ra: </span>
-            <code className="text-indigo-600 font-mono text-xs font-bold">{lastSavedFilename}</code>
+          <div className="text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-[#182442] p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+            <span className="font-bold text-slate-700 dark:text-slate-300">Tên file sinh ra: </span>
+            <code className="text-blue-600 dark:text-blue-400 font-mono text-xs font-bold">{lastSavedFilename}</code>
           </div>
         </div>
       </div>
