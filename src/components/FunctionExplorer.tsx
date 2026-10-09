@@ -147,16 +147,16 @@ export const FunctionExplorer: React.FC<FunctionExplorerProps> = ({ functions, o
           >
             <div>
               {/* Badges row */}
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-mono font-extrabold text-sm text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
+              <div className="flex flex-wrap items-center justify-between gap-2.5 mb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-extrabold text-base text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-100">
                     {fn.name}
                   </span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full">
+                  <span className="text-xs font-semibold px-2.5 py-0.5 bg-slate-100 text-slate-700 rounded-full">
                     {fn.kind}
                   </span>
                 </div>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
                   fn.level === 'basic' ? 'bg-emerald-100 text-emerald-800' : fn.level === 'intermediate' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
                 }`}>
                   {fn.level === 'basic' ? 'Cơ bản' : fn.level === 'intermediate' ? 'Trung cấp' : 'Nâng cao'}
@@ -164,34 +164,34 @@ export const FunctionExplorer: React.FC<FunctionExplorerProps> = ({ functions, o
               </div>
 
               {/* 1-sentence Summary */}
-              <p className="text-xs font-bold text-slate-800 mb-2 leading-relaxed">
+              <p className="text-sm font-bold text-slate-900 mb-2 leading-relaxed">
                 {fn.summaryVi}
               </p>
 
               {/* Detailed Explanation */}
-              <p className="text-xs text-slate-600 leading-relaxed mb-3">
+              <p className="text-sm text-slate-600 leading-relaxed mb-3.5">
                 {fn.explanationVi}
               </p>
 
               {/* Syntax */}
               {fn.syntax && (
-                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-xs font-mono text-slate-800 mb-3">
-                  <span className="text-[10px] font-sans font-bold text-slate-400 block mb-0.5">Cú pháp sử dụng:</span>
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs sm:text-sm font-mono text-slate-800 mb-3.5">
+                  <span className="text-xs font-sans font-bold text-slate-400 block mb-1">Cú pháp sử dụng:</span>
                   {fn.syntax}
                 </div>
               )}
 
               {/* Inputs & Outputs */}
-              <div className="space-y-1 text-[11px] mb-3">
+              <div className="space-y-1.5 text-xs sm:text-sm mb-3.5">
                 {fn.inputs && fn.inputs.length > 0 && (
                   <div>
-                    <span className="font-semibold text-slate-700">Đầu vào: </span>
+                    <span className="font-semibold text-slate-800">Đầu vào: </span>
                     <span className="text-slate-600">{fn.inputs.join(', ')}</span>
                   </div>
                 )}
                 {fn.outputs && fn.outputs.length > 0 && (
                   <div>
-                    <span className="font-semibold text-slate-700">Đầu ra: </span>
+                    <span className="font-semibold text-slate-800">Đầu ra: </span>
                     <span className="text-slate-600">{fn.outputs.join(', ')}</span>
                   </div>
                 )}
@@ -199,22 +199,22 @@ export const FunctionExplorer: React.FC<FunctionExplorerProps> = ({ functions, o
 
               {/* Code Snippet */}
               {fn.codeExample && (
-                <div className="relative bg-slate-900 rounded-lg p-3 text-[11px] font-mono text-slate-200 mb-3 overflow-x-auto">
+                <div className="relative bg-slate-900 rounded-xl p-4 text-xs sm:text-sm font-mono text-slate-200 mb-3.5 overflow-x-auto">
                   <button
                     onClick={() => handleCopyCode(fn.id, fn.codeExample!)}
-                    className="absolute top-2 right-2 p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+                    className="absolute top-2.5 right-2.5 p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
                     title="Sao chép đoạn mã"
                   >
-                    {copiedId === fn.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copiedId === fn.id ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                   </button>
-                  <pre className="pr-6">{fn.codeExample}</pre>
+                  <pre className="pr-8 leading-relaxed">{fn.codeExample}</pre>
                 </div>
               )}
 
               {/* Cautions */}
               {fn.cautions && fn.cautions.length > 0 && (
-                <div className="p-2.5 bg-amber-50 rounded-lg border border-amber-200 text-[11px] text-amber-900 mb-3 flex items-start gap-1.5">
-                  <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs sm:text-sm text-amber-950 mb-3.5 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold">Lưu ý kỹ thuật: </span>
                     {fn.cautions.join(' ')}
@@ -224,11 +224,11 @@ export const FunctionExplorer: React.FC<FunctionExplorerProps> = ({ functions, o
             </div>
 
             {/* Footer with Source notebook link */}
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-1 text-[11px] text-slate-500 overflow-x-auto">
+            <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm">
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 overflow-x-auto">
                 <span className="font-medium text-slate-400">Nguồn:</span>
                 {fn.sourceNotebooks.map((nb, i) => (
-                  <span key={i} className="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">
+                  <span key={i} className="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-700 font-medium">
                     {nb}
                   </span>
                 ))}
@@ -237,9 +237,9 @@ export const FunctionExplorer: React.FC<FunctionExplorerProps> = ({ functions, o
               {fn.moduleIds.length > 0 && (
                 <button
                   onClick={() => onSelectModule(fn.moduleIds[0])}
-                  className="font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition"
+                  className="font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition text-xs sm:text-sm"
                 >
-                  Xem Module <ArrowUpRight className="w-3.5 h-3.5" />
+                  Xem Module <ArrowUpRight className="w-4 h-4" />
                 </button>
               )}
             </div>

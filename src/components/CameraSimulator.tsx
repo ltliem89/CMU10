@@ -116,28 +116,28 @@ export const CameraSimulator: React.FC<CameraSimulatorProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-3 border-b border-slate-100">
-        <div className="flex items-center gap-2">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+        <div className="flex items-center gap-2.5">
           <Camera className="w-5 h-5 text-indigo-600" />
-          <h3 className="font-bold text-slate-800 text-sm">
+          <h3 className="font-bold text-slate-800 text-base">
             Khung Nhìn Camera Mô Phỏng (JetBot CSI 224×224)
           </h3>
-          <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-mono">
+          <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono font-semibold">
             bgr8_to_jpeg
           </span>
         </div>
 
         {/* Scene Selector */}
-        <div className="flex items-center gap-1 overflow-x-auto text-xs">
-          <span className="text-slate-500 font-medium mr-1 hidden sm:inline">Cảnh:</span>
+        <div className="flex items-center gap-1.5 overflow-x-auto text-xs sm:text-sm">
+          <span className="text-slate-500 font-semibold mr-1 hidden sm:inline">Cảnh:</span>
           {SCENES.map((scene) => (
             <button
               key={scene.id}
               onClick={() => handleSelectScene(scene)}
-              className={`px-2.5 py-1 rounded-lg font-medium transition whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-xl font-medium transition whitespace-nowrap ${
                 selectedScene.id === scene.id
-                  ? 'bg-indigo-600 text-white shadow-xs'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
@@ -255,9 +255,9 @@ export const CameraSimulator: React.FC<CameraSimulatorProps> = ({
         </div>
 
         {/* Right: Telemetry, Formula & Action Panel */}
-        <div className="md:col-span-6 space-y-3">
+        <div className="md:col-span-6 space-y-3.5">
           {/* Coordinates & Naming Formula */}
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs space-y-1.5 font-mono">
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm space-y-2 font-mono">
             <div className="flex justify-between items-center text-slate-700">
               <span className="font-sans font-semibold text-slate-900">Tọa độ Pixel (Ảnh):</span>
               <span className="font-bold text-indigo-700">X = {targetPoint.x}px, Y = {targetPoint.y}px</span>
@@ -273,17 +273,17 @@ export const CameraSimulator: React.FC<CameraSimulatorProps> = ({
           </div>
 
           {/* Classification Probabilities (For Collision Avoidance) */}
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-            <div className="flex justify-between items-center text-xs mb-1">
-              <span className="font-semibold text-slate-800">Dự đoán Softmax (Tránh va chạm):</span>
-              <span className={`font-mono font-bold px-1.5 py-0.5 rounded text-[11px] ${
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div className="flex justify-between items-center text-sm mb-1.5">
+              <span className="font-semibold text-slate-900">Dự đoán Softmax (Tránh va chạm):</span>
+              <span className={`font-mono font-bold px-2 py-0.5 rounded text-xs ${
                 selectedScene.defaultProbBlocked >= 0.5 ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
               }`}>
                 prob_blocked = {(selectedScene.defaultProbBlocked * 100).toFixed(0)}%
               </span>
             </div>
             {/* Progress bar */}
-            <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden flex">
+            <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden flex">
               <div
                 className="bg-emerald-500 h-full transition-all"
                 style={{ width: `${(1 - selectedScene.defaultProbBlocked) * 100}%` }}
@@ -295,42 +295,42 @@ export const CameraSimulator: React.FC<CameraSimulatorProps> = ({
                 title="Blocked"
               />
             </div>
-            <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+            <div className="flex justify-between text-xs text-slate-600 mt-1.5 font-medium">
               <span>Đường thoáng (free): {((1 - selectedScene.defaultProbBlocked) * 100).toFixed(0)}%</span>
               <span>Bị cản (blocked): {(selectedScene.defaultProbBlocked * 100).toFixed(0)}%</span>
             </div>
 
-            <div className="mt-2 text-xs font-medium text-slate-700 flex items-center gap-1.5">
+            <div className="mt-3 text-sm font-medium text-slate-800 flex items-center gap-2">
               <span>Hành vi điều khiển:</span>
               {selectedScene.defaultProbBlocked < 0.5 ? (
                 <span className="text-emerald-700 font-bold flex items-center gap-1">
-                  <CheckCircle className="w-3.5 h-3.5" /> robot.forward(speed)
+                  <CheckCircle className="w-4 h-4" /> robot.forward(speed)
                 </span>
               ) : (
                 <span className="text-rose-700 font-bold flex items-center gap-1">
-                  <AlertCircle className="w-3.5 h-3.5" /> robot.left(speed) [Bẻ lái tránh cản]
+                  <AlertCircle className="w-4 h-4" /> robot.left(speed) [Bẻ lái tránh cản]
                 </span>
               )}
             </div>
           </div>
 
           {/* Action Button: Save Snapshot to Dataset */}
-          <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-1">
             <button
               onClick={handleSaveSnapshot}
-              className="w-full sm:w-auto flex-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition"
+              className="w-full sm:w-auto flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-xs transition"
             >
-              <ImageIcon className="w-4 h-4" />
+              <ImageIcon className="w-4.5 h-4.5" />
               Lưu Mẫu Snapshot Vào dataset_xy/
             </button>
-            <div className="text-[11px] text-slate-500 font-mono">
-              Tổng mẫu: <span className="font-bold text-slate-800">{savedCount}</span>
+            <div className="text-xs text-slate-600 font-mono">
+              Tổng mẫu: <span className="font-bold text-slate-900 text-sm">{savedCount}</span>
             </div>
           </div>
 
-          <div className="text-[11px] text-slate-500 bg-white p-2 rounded border border-slate-200">
+          <div className="text-xs text-slate-600 bg-white p-3 rounded-xl border border-slate-200">
             <span className="font-semibold text-slate-700">Tên file sinh ra: </span>
-            <code className="text-indigo-600 font-mono">{lastSavedFilename}</code>
+            <code className="text-indigo-600 font-mono text-xs font-bold">{lastSavedFilename}</code>
           </div>
         </div>
       </div>

@@ -76,36 +76,36 @@ export const GlossaryView: React.FC<GlossaryViewProps> = ({ terms }) => {
       </div>
 
       {/* Terms Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4.5">
         {filteredTerms.map((item, idx) => (
           <div
             key={idx}
-            className="bg-white rounded-2xl border border-slate-200 shadow-2xs hover:shadow-sm transition p-5 flex flex-col justify-between"
+            className="bg-white rounded-2xl border border-slate-200 shadow-2xs hover:shadow-sm transition p-5.5 flex flex-col justify-between"
           >
             <div>
-              <div className="flex items-center justify-between gap-2 mb-1.5">
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
                   {item.category}
                 </span>
               </div>
 
-              <h3 className="text-sm font-bold text-slate-900 mb-0.5 font-mono">
+              <h3 className="text-base font-bold text-slate-900 mb-1 font-mono">
                 {item.term}
               </h3>
-              <div className="text-xs font-semibold text-indigo-700 mb-3">
+              <div className="text-sm font-semibold text-indigo-700 mb-3.5">
                 {item.vietnamese}
               </div>
 
-              <p className="text-xs text-slate-600 leading-relaxed mb-3">
+              <p className="text-sm text-slate-700 leading-relaxed mb-4">
                 {item.definition}
               </p>
             </div>
 
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-700 space-y-1">
-              <span className="font-bold text-slate-900 block text-[10px] uppercase tracking-wide">
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-800 space-y-1.5">
+              <span className="font-bold text-slate-900 block text-xs uppercase tracking-wide">
                 Ứng dụng trong JetBot:
               </span>
-              <p className="leading-relaxed opacity-90">{item.realWorldContext}</p>
+              <p className="leading-relaxed opacity-95">{item.realWorldContext}</p>
             </div>
           </div>
         ))}

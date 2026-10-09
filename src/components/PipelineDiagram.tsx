@@ -75,107 +75,107 @@ export const PipelineDiagram: React.FC = () => {
           </div>
 
           {/* Interactive Steps Visual Flow */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-3 relative">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3.5 relative">
             {/* Step 1 */}
             <div
               onClick={() => setSelectedNode('camera-in')}
-              className={`p-3.5 rounded-xl border cursor-pointer transition ${
+              className={`p-4 rounded-xl border cursor-pointer transition ${
                 selectedNode === 'camera-in' ? 'border-blue-500 bg-blue-50 shadow-xs ring-2 ring-blue-200' : 'border-slate-200 bg-white hover:border-slate-300'
               }`}
             >
-              <div className="text-[10px] font-bold text-blue-600 uppercase">Bước 1: Thu nhận</div>
-              <div className="text-xs font-bold text-slate-800 mt-1">Camera CSI MIPI</div>
-              <div className="text-[11px] font-mono text-slate-500 mt-1">camera.value</div>
-              <div className="mt-2 text-[10px] text-slate-600">Khung hình thô HWC (224×224×3) BGR8 từ ống kính robot.</div>
+              <div className="text-xs font-bold text-blue-600 uppercase">Bước 1: Thu nhận</div>
+              <div className="text-sm font-bold text-slate-900 mt-1">Camera CSI MIPI</div>
+              <div className="text-xs font-mono text-slate-600 mt-1">camera.value</div>
+              <div className="mt-2 text-xs text-slate-600 leading-relaxed">Khung hình thô HWC (224×224×3) BGR8 từ ống kính robot.</div>
             </div>
 
             {/* Step 2 */}
             <div
               onClick={() => setSelectedNode('preprocess')}
-              className={`p-3.5 rounded-xl border cursor-pointer transition ${
+              className={`p-4 rounded-xl border cursor-pointer transition ${
                 selectedNode === 'preprocess' ? 'border-blue-500 bg-blue-50 shadow-xs ring-2 ring-blue-200' : 'border-slate-200 bg-white hover:border-slate-300'
               }`}
             >
-              <div className="text-[10px] font-bold text-blue-600 uppercase">Bước 2: Tiền xử lý</div>
-              <div className="text-xs font-bold text-slate-800 mt-1">preprocess(image)</div>
-              <div className="text-[11px] font-mono text-slate-500 mt-1">Tensor (1, 3, 224, 224)</div>
-              <div className="mt-2 text-[10px] text-slate-600">Đổi trục sang CHW, chia 255.0, trừ mean, chia std, ép kiểu FP16 lên GPU.</div>
+              <div className="text-xs font-bold text-blue-600 uppercase">Bước 2: Tiền xử lý</div>
+              <div className="text-sm font-bold text-slate-900 mt-1">preprocess(image)</div>
+              <div className="text-xs font-mono text-slate-600 mt-1">Tensor (1, 3, 224, 224)</div>
+              <div className="mt-2 text-xs text-slate-600 leading-relaxed">Đổi trục sang CHW, chia 255.0, trừ mean, chia std, ép kiểu FP16 lên GPU.</div>
             </div>
 
             {/* Step 3 */}
             <div
               onClick={() => setSelectedNode('xy-regression')}
-              className={`p-3.5 rounded-xl border cursor-pointer transition ${
+              className={`p-4 rounded-xl border cursor-pointer transition ${
                 selectedNode === 'xy-regression' ? 'border-blue-500 bg-blue-50 shadow-xs ring-2 ring-blue-200' : 'border-slate-200 bg-white hover:border-slate-300'
               }`}
             >
-              <div className="text-[10px] font-bold text-blue-600 uppercase">Bước 3: Suy luận AI</div>
-              <div className="text-xs font-bold text-slate-800 mt-1">ResNet18 Regression</div>
-              <div className="text-[11px] font-mono text-slate-500 mt-1">outputs: [x, y]</div>
-              <div className="mt-2 text-[10px] text-slate-600">Lớp Linear(512, 2) dự đoán tọa độ chuẩn hóa x trong [-1, 1], y trong [-1, 1].</div>
+              <div className="text-xs font-bold text-blue-600 uppercase">Bước 3: Suy luận AI</div>
+              <div className="text-sm font-bold text-slate-900 mt-1">ResNet18 Regression</div>
+              <div className="text-xs font-mono text-slate-600 mt-1">outputs: [x, y]</div>
+              <div className="mt-2 text-xs text-slate-600 leading-relaxed">Lớp Linear(512, 2) dự đoán tọa độ chuẩn hóa x trong [-1, 1], y trong [-1, 1].</div>
             </div>
 
             {/* Step 4 */}
             <div
               onClick={() => setSelectedNode('pd-control')}
-              className={`p-3.5 rounded-xl border cursor-pointer transition ${
+              className={`p-4 rounded-xl border cursor-pointer transition ${
                 selectedNode === 'pd-control' ? 'border-blue-500 bg-blue-50 shadow-xs ring-2 ring-blue-200' : 'border-slate-200 bg-white hover:border-slate-300'
               }`}
             >
-              <div className="text-[10px] font-bold text-blue-600 uppercase">Bước 4: Điều khiển</div>
-              <div className="text-xs font-bold text-slate-800 mt-1">PD Steering Angle</div>
-              <div className="text-[11px] font-mono text-slate-500 mt-1">arctan2(x, y)</div>
-              <div className="mt-2 text-[10px] text-slate-600">Tính góc lái θ, nhân Kp và Kd để tạo tín hiệu steering_slider mượt mà.</div>
+              <div className="text-xs font-bold text-blue-600 uppercase">Bước 4: Điều khiển</div>
+              <div className="text-sm font-bold text-slate-900 mt-1">PD Steering Angle</div>
+              <div className="text-xs font-mono text-slate-600 mt-1">arctan2(x, y)</div>
+              <div className="mt-2 text-xs text-slate-600 leading-relaxed">Tính góc lái θ, nhân Kp và Kd để tạo tín hiệu steering_slider mượt mà.</div>
             </div>
 
             {/* Step 5 */}
             <div
               onClick={() => setSelectedNode('motor-output')}
-              className={`p-3.5 rounded-xl border cursor-pointer transition ${
+              className={`p-4 rounded-xl border cursor-pointer transition ${
                 selectedNode === 'motor-output' ? 'border-blue-500 bg-blue-50 shadow-xs ring-2 ring-blue-200' : 'border-slate-200 bg-white hover:border-slate-300'
               }`}
             >
-              <div className="text-[10px] font-bold text-blue-600 uppercase">Bước 5: Chấp hành</div>
-              <div className="text-xs font-bold text-slate-800 mt-1">Động Cơ Vi Sai</div>
-              <div className="text-[11px] font-mono text-slate-500 mt-1">left / right motor</div>
-              <div className="mt-2 text-[10px] text-slate-600">left = speed + steering, right = speed - steering, kẹp trong [0.0, 1.0].</div>
+              <div className="text-xs font-bold text-blue-600 uppercase">Bước 5: Chấp hành</div>
+              <div className="text-sm font-bold text-slate-900 mt-1">Động Cơ Vi Sai</div>
+              <div className="text-xs font-mono text-slate-600 mt-1">left / right motor</div>
+              <div className="mt-2 text-xs text-slate-600 leading-relaxed">left = speed + steering, right = speed - steering, kẹp trong [0.0, 1.0].</div>
             </div>
           </div>
 
           {/* Node Detailed Focus Inspector */}
-          <div className="p-4 rounded-xl bg-slate-900 text-white text-xs">
-            <div className="flex items-center gap-2 font-bold text-indigo-300 mb-2">
-              <Sparkles className="w-4 h-4" />
+          <div className="p-5 rounded-2xl bg-slate-900 text-white text-xs sm:text-sm">
+            <div className="flex items-center gap-2 font-bold text-indigo-300 mb-2.5 text-sm sm:text-base">
+              <Sparkles className="w-5 h-5" />
               Chi Tiết Kỹ Thuật Bước Được Chọn:
             </div>
             {selectedNode === 'camera-in' && (
-              <div>
-                <p className="text-slate-300 mb-1">Khung ảnh lấy từ đối tượng <code>Camera()</code> qua backend GStreamer phần cứng Jetson Nano.</p>
-                <p className="font-mono text-emerald-400">Đầu vào: Cảm biến quang học CSI 224x224 px $\rightarrow$ Đầu ra: camera.value (NumPy array, uint8).</p>
+              <div className="space-y-1.5">
+                <p className="text-slate-300 leading-relaxed">Khung ảnh lấy từ đối tượng <code>Camera()</code> qua backend GStreamer phần cứng Jetson Nano.</p>
+                <p className="font-mono text-emerald-400 text-xs sm:text-sm">Đầu vào: Cảm biến quang học CSI 224x224 px $\rightarrow$ Đầu ra: camera.value (NumPy array, uint8).</p>
               </div>
             )}
             {selectedNode === 'preprocess' && (
-              <div>
-                <p className="text-slate-300 mb-1">Thực hiện hàm <code>preprocess(image)</code>: chuyển PIL, to_tensor (HWC sang CHW), chia 255.0, trừ mean=[0.485, 0.456, 0.406], chia std=[0.229, 0.224, 0.225], đưa lên GPU cuda() dạng half().</p>
-                <p className="font-mono text-emerald-400">Đầu vào: (224, 224, 3) BGR $\rightarrow$ Đầu ra: torch.cuda.HalfTensor (1, 3, 224, 224).</p>
+              <div className="space-y-1.5">
+                <p className="text-slate-300 leading-relaxed">Thực hiện hàm <code>preprocess(image)</code>: chuyển PIL, to_tensor (HWC sang CHW), chia 255.0, trừ mean=[0.485, 0.456, 0.406], chia std=[0.229, 0.224, 0.225], đưa lên GPU cuda() dạng half().</p>
+                <p className="font-mono text-emerald-400 text-xs sm:text-sm">Đầu vào: (224, 224, 3) BGR $\rightarrow$ Đầu ra: torch.cuda.HalfTensor (1, 3, 224, 224).</p>
               </div>
             )}
             {selectedNode === 'xy-regression' && (
-              <div>
-                <p className="text-slate-300 mb-1">Mô hình ResNet18 đã nạp checkpoint <code>best_steering_model_xy.pth</code> thực hiện phép tính ma trận trích xuất đặc trưng qua 18 tầng tích chập và lớp Fully Connected cuối cùng 512 $\rightarrow$ 2.</p>
-                <p className="font-mono text-emerald-400">Đầu vào: Tensor ảnh (1, 3, 224, 224) $\rightarrow$ Đầu ra: xy[0] (tọa độ x), xy[1] (tọa độ y).</p>
+              <div className="space-y-1.5">
+                <p className="text-slate-300 leading-relaxed">Mô hình ResNet18 đã nạp checkpoint <code>best_steering_model_xy.pth</code> thực hiện phép tính ma trận trích xuất đặc trưng qua 18 tầng tích chập và lớp Fully Connected cuối cùng 512 $\rightarrow$ 2.</p>
+                <p className="font-mono text-emerald-400 text-xs sm:text-sm">Đầu vào: Tensor ảnh (1, 3, 224, 224) $\rightarrow$ Đầu ra: xy[0] (tọa độ x), xy[1] (tọa độ y).</p>
               </div>
             )}
             {selectedNode === 'pd-control' && (
-              <div>
-                <p className="text-slate-300 mb-1">Chuyển đổi sai lệch vị trí mục tiêu thành góc lái mong muốn: <code>angle = np.arctan2(x, y)</code>. Thuật toán PD: <code>pid = angle * steering_gain + (angle - angle_last) * steering_dgain</code>.</p>
-                <p className="font-mono text-emerald-400">Đầu vào: (x, y) $\rightarrow$ Đầu ra: giá trị steering float trong khoảng [-1.0, 1.0].</p>
+              <div className="space-y-1.5">
+                <p className="text-slate-300 leading-relaxed">Chuyển đổi sai lệch vị trí mục tiêu thành góc lái mong muốn: <code>angle = np.arctan2(x, y)</code>. Thuật toán PD: <code>pid = angle * steering_gain + (angle - angle_last) * steering_dgain</code>.</p>
+                <p className="font-mono text-emerald-400 text-xs sm:text-sm">Đầu vào: (x, y) $\rightarrow$ Đầu ra: giá trị steering float trong khoảng [-1.0, 1.0].</p>
               </div>
             )}
             {selectedNode === 'motor-output' && (
-              <div>
-                <p className="text-slate-300 mb-1">Gửi xung điều chế PWM qua I2C bus tới IC PCA9685 và cầu H TB6612FNG trên JetBot kit. Động cơ hai bánh xe quay chênh lệch vận tốc để tạo mô-men lái bám theo vạch.</p>
-                <p className="font-mono text-emerald-400">Đầu vào: steering, speed $\rightarrow$ Đầu ra: robot.left_motor.value, robot.right_motor.value.</p>
+              <div className="space-y-1.5">
+                <p className="text-slate-300 leading-relaxed">Gửi xung điều chế PWM qua I2C bus tới IC PCA9685 và cầu H TB6612FNG trên JetBot kit. Động cơ hai bánh xe quay chênh lệch vận tốc để tạo mô-men lái bám theo vạch.</p>
+                <p className="font-mono text-emerald-400 text-xs sm:text-sm">Đầu vào: steering, speed $\rightarrow$ Đầu ra: robot.left_motor.value, robot.right_motor.value.</p>
               </div>
             )}
           </div>

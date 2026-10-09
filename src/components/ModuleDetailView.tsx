@@ -50,30 +50,30 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Breadcrumb & Navigation */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-        <div className="flex items-center gap-2 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4.5 rounded-2xl border border-slate-200 shadow-2xs">
+        <div className="flex items-center gap-2.5 text-sm">
           <span className="font-bold text-slate-400">DANH MỤC 12 MODULES</span>
           <span className="text-slate-300">/</span>
-          <span className="font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg">
+          <span className="font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-xl">
             Module {module.number}: {module.nameVi}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-2.5 text-xs sm:text-sm">
           {prevModule && (
             <button
               onClick={() => onSelectModule(prevModule.id)}
-              className="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center gap-1.5 transition font-medium"
+              className="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition font-semibold"
             >
-              <ArrowLeft className="w-3.5 h-3.5" /> Module {prevModule.number}
+              <ArrowLeft className="w-4 h-4" /> Module {prevModule.number}
             </button>
           )}
           {nextModule && (
             <button
               onClick={() => onSelectModule(nextModule.id)}
-              className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 flex items-center gap-1.5 transition font-medium shadow-2xs"
+              className="px-3.5 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 flex items-center gap-2 transition font-bold shadow-2xs"
             >
-              Module {nextModule.number} <ArrowRight className="w-3.5 h-3.5" />
+              Module {nextModule.number} <ArrowRight className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -81,14 +81,14 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
 
       {/* Module Overview Hero Banner */}
       <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-800">
-        <div className="flex flex-wrap items-center gap-2 mb-3">
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+        <div className="flex flex-wrap items-center gap-2.5 mb-3.5">
+          <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
             TỆP NGUỒN: {module.notebookName}
           </span>
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
             {module.taskTypeVi}
           </span>
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/10 text-slate-200">
+          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-slate-200">
             {module.categoryNameVi}
           </span>
         </div>
@@ -97,15 +97,15 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
           Module {module.number}: {module.nameVi}
         </h1>
 
-        <p className="text-slate-300 text-sm leading-relaxed max-w-4xl">
+        <p className="text-slate-200 text-sm sm:text-base leading-relaxed max-w-4xl">
           {module.descriptionVi}
         </p>
 
         {/* Target Goal Box */}
-        <div className="mt-4 p-3 bg-white/5 rounded-xl border border-white/10 text-xs text-indigo-200 flex items-start gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-          <div>
-            <strong className="text-white">Mục tiêu chính: </strong>
+        <div className="mt-5 p-4 bg-white/10 backdrop-blur-xs rounded-2xl border border-white/15 text-xs sm:text-sm text-indigo-100 flex items-start gap-3">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+          <div className="leading-relaxed">
+            <strong className="text-white text-sm sm:text-base">Mục tiêu chính: </strong>
             {module.targetGoalVi}
           </div>
         </div>
@@ -250,42 +250,42 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
         {/* Active Code Block Display */}
         {module.codeSnippets[activeCodeTab] && (
           <div className="space-y-4">
-            <div className="relative bg-slate-950 rounded-xl p-4 overflow-x-auto border border-slate-800">
-              <div className="flex justify-between items-center pb-2 mb-2 border-b border-slate-800 text-xs text-slate-400">
-                <span>{module.codeSnippets[activeCodeTab].captionVi}</span>
+            <div className="relative bg-slate-950 rounded-2xl p-5 overflow-x-auto border border-slate-800">
+              <div className="flex justify-between items-center pb-2.5 mb-3 border-b border-slate-800 text-xs sm:text-sm text-slate-400">
+                <span className="font-semibold text-slate-300">{module.codeSnippets[activeCodeTab].captionVi}</span>
                 <button
                   onClick={() => handleCopyCode(activeCodeTab, module.codeSnippets[activeCodeTab].code)}
-                  className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center gap-1 transition"
+                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center gap-1.5 transition font-medium"
                 >
                   {copiedIndex === activeCodeTab ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-400" /> Đã sao chép
+                      <Check className="w-4 h-4 text-emerald-400" /> Đã sao chép
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3.5 h-3.5" /> Sao chép mã
+                      <Copy className="w-4 h-4" /> Sao chép mã
                     </>
                   )}
                 </button>
               </div>
-              <pre className="text-xs font-mono text-emerald-300 leading-relaxed">
+              <pre className="text-sm font-mono text-emerald-300 leading-relaxed">
                 {module.codeSnippets[activeCodeTab].code}
               </pre>
             </div>
 
             {/* Line-by-line pedagogical annotations if available */}
             {module.codeSnippets[activeCodeTab].annotations && (
-              <div className="p-4 bg-indigo-50/60 rounded-xl border border-indigo-100 space-y-2 text-xs">
-                <span className="font-bold text-indigo-900 block mb-1">Chú giải chi tiết từng dòng lệnh:</span>
-                <div className="space-y-2">
+              <div className="p-5 bg-indigo-50/70 rounded-2xl border border-indigo-100 space-y-3 text-xs sm:text-sm">
+                <span className="font-bold text-indigo-900 text-sm block mb-1">Chú giải chi tiết từng dòng lệnh:</span>
+                <div className="space-y-2.5">
                   {module.codeSnippets[activeCodeTab].annotations!.map((ann, i) => (
-                    <div key={i} className="flex items-start gap-2 text-indigo-950">
-                      <span className="font-mono font-bold text-indigo-700 bg-white px-1.5 py-0.5 rounded border border-indigo-200 shrink-0">
+                    <div key={i} className="flex items-start gap-2.5 text-indigo-950">
+                      <span className="font-mono font-bold text-indigo-700 bg-white px-2 py-0.5 rounded-lg border border-indigo-200 shrink-0 text-xs">
                         Dòng {ann.line}
                       </span>
-                      <div>
-                        <strong>{ann.explanation}</strong>
-                        <div className="text-indigo-800/80 mt-0.5 italic">
+                      <div className="space-y-0.5">
+                        <strong className="text-indigo-950">{ann.explanation}</strong>
+                        <div className="text-indigo-800/90 text-xs sm:text-sm italic">
                           Tác động lên robot: {ann.impactOnRobot}
                         </div>
                       </div>
@@ -301,12 +301,12 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
       {/* Caveats, Common Errors and Hardware notes */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Caveats */}
-        <div className="bg-amber-50/60 p-5 rounded-2xl border border-amber-200 space-y-2 text-xs text-amber-950">
-          <div className="font-bold flex items-center gap-2 text-amber-800 text-sm">
-            <AlertTriangle className="w-4 h-4 text-amber-600" />
+        <div className="bg-amber-50/70 p-5 rounded-2xl border border-amber-200 space-y-3 text-xs sm:text-sm text-amber-950">
+          <div className="font-bold flex items-center gap-2 text-amber-900 text-sm sm:text-base">
+            <AlertTriangle className="w-5 h-5 text-amber-600" />
             Lỗi Thường Gặp &amp; Lưu Ý Kỹ Thuật (Caveats)
           </div>
-          <ul className="space-y-2 list-disc list-inside text-amber-900/90 leading-relaxed">
+          <ul className="space-y-2 list-disc list-inside text-amber-900/95 leading-relaxed">
             {module.caveatsAndErrors.map((err, i) => (
               <li key={i}>{err}</li>
             ))}
@@ -314,15 +314,15 @@ export const ModuleDetailView: React.FC<ModuleDetailViewProps> = ({
         </div>
 
         {/* Hardware & Runtime Requirements */}
-        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2 text-xs text-slate-800">
-          <div className="font-bold flex items-center gap-2 text-slate-900 text-sm">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3 text-xs sm:text-sm text-slate-800">
+          <div className="font-bold flex items-center gap-2 text-slate-900 text-sm sm:text-base">
+            <ShieldCheck className="w-5 h-5 text-emerald-600" />
             Điều Kiện Triển Khai Thực Tế &amp; An Toàn
           </div>
           <p className="text-slate-600 leading-relaxed mb-2">
             Khi chuyển từ môi trường mô phỏng sang robot thật Jetson Nano:
           </p>
-          <ul className="space-y-1.5 list-disc list-inside text-slate-700">
+          <ul className="space-y-2 list-disc list-inside text-slate-700 leading-relaxed">
             {module.hardwareRequirements.map((req, i) => (
               <li key={i}>{req}</li>
             ))}

@@ -95,16 +95,16 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ questions, onSelectModule 
               }`}
             >
               {/* Question title */}
-              <div className="flex items-start justify-between gap-3 mb-3">
-                <div className="flex items-start gap-2.5">
-                  <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div className="flex items-start gap-3">
+                  <span className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 font-bold text-sm flex items-center justify-center shrink-0 mt-0.5">
                     {qIndex + 1}
                   </span>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">
                       Chủ đề: {q.topic}
                     </span>
-                    <h4 className="text-sm font-bold text-slate-900 leading-relaxed">
+                    <h4 className="text-base font-bold text-slate-900 leading-relaxed">
                       {q.question}
                     </h4>
                   </div>
@@ -113,32 +113,32 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ questions, onSelectModule 
                 {showResults && (
                   <span className="shrink-0">
                     {isCorrect ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                      <CheckCircle2 className="w-6 h-6 text-emerald-600" />
                     ) : (
-                      <XCircle className="w-5 h-5 text-rose-600" />
+                      <XCircle className="w-6 h-6 text-rose-600" />
                     )}
                   </span>
                 )}
               </div>
 
               {/* Options */}
-              <div className="space-y-2 mb-3">
+              <div className="space-y-2.5 mb-4">
                 {q.options.map((opt, optIndex) => {
                   const isSelected = userAnswer === optIndex;
                   const isCorrectAnswer = optIndex === q.correctIndex;
 
-                  let optClasses = 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700';
+                  let optClasses = 'border-slate-200 bg-white hover:bg-slate-50 text-slate-800';
 
                   if (showResults) {
                     if (isCorrectAnswer) {
-                      optClasses = 'border-emerald-500 bg-emerald-100 text-emerald-900 font-bold';
+                      optClasses = 'border-emerald-500 bg-emerald-100 text-emerald-950 font-bold';
                     } else if (isSelected && !isCorrect) {
-                      optClasses = 'border-rose-400 bg-rose-100 text-rose-900 font-medium';
+                      optClasses = 'border-rose-400 bg-rose-100 text-rose-950 font-medium';
                     } else {
                       optClasses = 'border-slate-200 bg-slate-50 text-slate-400 opacity-60';
                     }
                   } else if (isSelected) {
-                    optClasses = 'border-indigo-600 bg-indigo-50 text-indigo-900 font-bold ring-2 ring-indigo-200';
+                    optClasses = 'border-indigo-600 bg-indigo-50 text-indigo-950 font-bold ring-2 ring-indigo-200';
                   }
 
                   return (
@@ -146,11 +146,11 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ questions, onSelectModule 
                       key={optIndex}
                       onClick={() => handleSelectOption(q.id, optIndex)}
                       disabled={showResults}
-                      className={`w-full text-left p-3 rounded-xl border text-xs transition flex items-center justify-between ${optClasses}`}
+                      className={`w-full text-left p-3.5 rounded-xl border text-sm sm:text-base transition flex items-center justify-between ${optClasses}`}
                     >
-                      <span>{opt}</span>
+                      <span className="leading-relaxed">{opt}</span>
                       {showResults && isCorrectAnswer && (
-                        <span className="text-[11px] font-bold text-emerald-700 ml-2">Đáp án đúng</span>
+                        <span className="text-xs font-bold text-emerald-700 ml-2 shrink-0">Đáp án đúng</span>
                       )}
                     </button>
                   );
@@ -159,11 +159,11 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ questions, onSelectModule 
 
               {/* Pedagogical Explanation when revealed */}
               {showResults && (
-                <div className="mt-3 pt-3 border-t border-slate-200/80 text-xs space-y-2">
-                  <div className="p-3 bg-white rounded-xl border border-slate-200 flex items-start gap-2 text-slate-700">
-                    <Lightbulb className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                    <div>
-                      <strong className="text-slate-900">Giải thích chi tiết: </strong>
+                <div className="mt-4 pt-3.5 border-t border-slate-200/80 text-sm space-y-2.5">
+                  <div className="p-4 bg-white rounded-xl border border-slate-200 flex items-start gap-2.5 text-slate-800">
+                    <Lightbulb className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                    <div className="leading-relaxed">
+                      <strong className="text-slate-950">Giải thích chi tiết: </strong>
                       {q.explanation}
                     </div>
                   </div>
@@ -171,9 +171,9 @@ export const QuizPanel: React.FC<QuizPanelProps> = ({ questions, onSelectModule 
                   <div className="flex justify-end">
                     <button
                       onClick={() => onSelectModule(q.relatedModuleId)}
-                      className="text-indigo-600 hover:text-indigo-800 text-[11px] font-bold flex items-center gap-1"
+                      className="text-indigo-600 hover:text-indigo-800 text-xs sm:text-sm font-bold flex items-center gap-1.5"
                     >
-                      Xem lại Module liên quan <ArrowRight className="w-3 h-3" />
+                      Xem lại Module liên quan <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>

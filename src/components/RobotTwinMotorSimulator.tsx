@@ -179,45 +179,45 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
       {/* Header bar */}
-      <div className="px-6 py-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300">
-            <Compass className="w-6 h-6 animate-spin-slow" />
+      <div className="px-6 py-5 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300">
+            <Compass className="w-7 h-7 animate-spin-slow" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold">Mô Phỏng Robot Hai Động Cơ (Differential Drive)</h2>
-              <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-xl font-extrabold">Mô Phỏng Robot Hai Động Cơ (Differential Drive)</h2>
+              <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
                 MÔ PHỎNG AN TOÀN
               </span>
             </div>
-            <p className="text-xs text-slate-300">
+            <p className="text-sm text-slate-300 mt-0.5">
               Mô hình hóa động học vi sai của JetBot: hai bánh xe điều khiển độc lập (-1.0 đến +1.0)
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={() => setIsRunning(!isRunning)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition ${
+            className={`px-3.5 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition ${
               isRunning ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30'
             }`}
           >
-            {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            {isRunning ? <Pause className="w-4.5 h-4.5" /> : <Play className="w-4.5 h-4.5" />}
             {isRunning ? 'Tạm Dừng' : 'Tiếp Tục'}
           </button>
           <button
             onClick={handleReset}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-1.5 transition"
+            className="px-3.5 py-2 rounded-xl text-sm font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 flex items-center gap-2 transition"
           >
-            <RotateCcw className="w-4 h-4" /> Đặt Lại Vị Trí
+            <RotateCcw className="w-4.5 h-4.5" /> Đặt Lại Vị Trí
           </button>
           <button
             onClick={handleEmergencyStop}
-            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white flex items-center gap-1.5 shadow-sm transition"
+            className="px-4 py-2 rounded-xl text-sm font-extrabold bg-rose-600 hover:bg-rose-500 text-white flex items-center gap-2 shadow-sm transition"
           >
-            <AlertTriangle className="w-4 h-4" /> DỪNG KHẨN CẤP
+            <AlertTriangle className="w-4.5 h-4.5" /> DỪNG KHẨN CẤP
           </button>
         </div>
       </div>
@@ -399,27 +399,27 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
         </div>
 
         {/* Right: Kinematic Controls & Live Code Binding */}
-        <div className="lg:col-span-5 p-5 bg-slate-50 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-slate-200">
+        <div className="lg:col-span-5 p-6 bg-slate-50 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-slate-200">
           <div>
             {/* Live motion diagnosis card */}
-            <div className={`p-4 rounded-xl border mb-5 ${explanation.badgeColor}`}>
-              <div className="flex items-center gap-2 font-bold text-sm mb-1">
-                <Gauge className="w-4 h-4" />
+            <div className={`p-4.5 rounded-2xl border mb-5 ${explanation.badgeColor}`}>
+              <div className="flex items-center gap-2.5 font-bold text-base mb-1.5">
+                <Gauge className="w-5 h-5" />
                 <span>{explanation.title}</span>
               </div>
-              <p className="text-xs leading-relaxed opacity-90">{explanation.desc}</p>
+              <p className="text-sm leading-relaxed opacity-95">{explanation.desc}</p>
             </div>
 
             {/* Motor Dual Sliders */}
             <div className="space-y-4 mb-6">
               {/* Left Motor Control */}
-              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex justify-between items-center mb-1.5">
+              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+                <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <label className="text-xs font-bold text-slate-700">robot.left_motor.value</label>
+                    <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
+                    <label className="text-sm font-bold text-slate-800">robot.left_motor.value</label>
                   </div>
-                  <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
+                  <span className={`text-sm font-mono font-bold px-2.5 py-0.5 rounded-lg ${
                     leftSpeed > 0 ? 'bg-emerald-100 text-emerald-800' : leftSpeed < 0 ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-700'
                   }`}>
                     {leftSpeed > 0 ? `+${leftSpeed.toFixed(2)}` : leftSpeed.toFixed(2)}
@@ -433,9 +433,9 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
                   value={leftSpeed}
                   onChange={(e) => setLeftSpeed(parseFloat(e.target.value))}
                   disabled={isExternalControlled}
-                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                 />
-                <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
+                <div className="flex justify-between text-xs text-slate-500 mt-1.5 font-mono">
                   <span>-1.0 (Lùi tối đa)</span>
                   <span>0.0 (Dừng)</span>
                   <span>+1.0 (Tiến tối đa)</span>
@@ -443,13 +443,13 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
               </div>
 
               {/* Right Motor Control */}
-              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-                <div className="flex justify-between items-center mb-1.5">
+              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+                <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
-                    <label className="text-xs font-bold text-slate-700">robot.right_motor.value</label>
+                    <span className="w-3 h-3 rounded-full bg-indigo-500"></span>
+                    <label className="text-sm font-bold text-slate-800">robot.right_motor.value</label>
                   </div>
-                  <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
+                  <span className={`text-sm font-mono font-bold px-2.5 py-0.5 rounded-lg ${
                     rightSpeed > 0 ? 'bg-emerald-100 text-emerald-800' : rightSpeed < 0 ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-700'
                   }`}>
                     {rightSpeed > 0 ? `+${rightSpeed.toFixed(2)}` : rightSpeed.toFixed(2)}
@@ -463,9 +463,9 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
                   value={rightSpeed}
                   onChange={(e) => setRightSpeed(parseFloat(e.target.value))}
                   disabled={isExternalControlled}
-                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                 />
-                <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
+                <div className="flex justify-between text-xs text-slate-500 mt-1.5 font-mono">
                   <span>-1.0 (Lùi tối đa)</span>
                   <span>0.0 (Dừng)</span>
                   <span>+1.0 (Tiến tối đa)</span>
@@ -475,65 +475,65 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
 
             {/* Quick Presets from Specification (Section 5.4) */}
             <div className="mb-5">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-2">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-2.5">
                 Kịch bản thử nghiệm nhanh (Mục 5.4 Đặc tả):
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2.5">
                 <button
                   onClick={() => setPreset(0.6, 0.6)}
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs text-slate-700 font-medium transition shadow-2xs"
+                  className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs sm:text-sm text-slate-800 font-medium transition shadow-2xs"
                 >
-                  <span className="font-bold text-emerald-600">1. Tiến:</span> +0.6, +0.6
+                  <span className="font-bold text-emerald-600 block">1. Tiến:</span> +0.6, +0.6
                 </button>
                 <button
                   onClick={() => setPreset(-0.5, -0.5)}
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs text-slate-700 font-medium transition shadow-2xs"
+                  className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs sm:text-sm text-slate-800 font-medium transition shadow-2xs"
                 >
-                  <span className="font-bold text-amber-600">2. Lùi:</span> -0.5, -0.5
+                  <span className="font-bold text-amber-600 block">2. Lùi:</span> -0.5, -0.5
                 </button>
                 <button
                   onClick={() => setPreset(0.2, 0.8)}
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs text-slate-700 font-medium transition shadow-2xs"
+                  className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs sm:text-sm text-slate-800 font-medium transition shadow-2xs"
                 >
-                  <span className="font-bold text-blue-600">3. Rẽ cong:</span> +0.2, +0.8
+                  <span className="font-bold text-blue-600 block">3. Rẽ cong:</span> +0.2, +0.8
                 </button>
                 <button
                   onClick={() => setPreset(0.0, 0.7)}
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs text-slate-700 font-medium transition shadow-2xs"
+                  className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs sm:text-sm text-slate-800 font-medium transition shadow-2xs"
                 >
-                  <span className="font-bold text-indigo-600">4. Quanh bánh trái:</span> 0.0, +0.7
+                  <span className="font-bold text-indigo-600 block">4. Quanh bánh trái:</span> 0.0, +0.7
                 </button>
                 <button
                   onClick={() => setPreset(-0.5, 0.5)}
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs text-slate-700 font-medium transition shadow-2xs"
+                  className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-left text-xs sm:text-sm text-slate-800 font-medium transition shadow-2xs"
                 >
-                  <span className="font-bold text-cyan-600">5. Xoay tại chỗ:</span> -0.5, +0.5
+                  <span className="font-bold text-cyan-600 block">5. Xoay tại chỗ:</span> -0.5, +0.5
                 </button>
                 <button
                   onClick={() => setPreset(0.0, 0.0)}
-                  className="px-2.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-left text-xs text-rose-700 font-bold transition shadow-2xs"
+                  className="p-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-left text-xs sm:text-sm text-rose-700 font-bold transition shadow-2xs"
                 >
-                  6. Dừng an toàn: 0.0, 0.0
+                  <span className="block">6. Dừng an toàn:</span> 0.0, 0.0
                 </button>
               </div>
             </div>
 
             {/* Differential Drive Math Box */}
-            <div className="p-3 bg-indigo-50/60 rounded-xl border border-indigo-100 text-xs text-indigo-950 font-mono space-y-1">
-              <div className="font-sans font-bold text-indigo-900 text-[11px] uppercase tracking-wide">
+            <div className="p-4 bg-indigo-50/70 rounded-2xl border border-indigo-100 text-xs sm:text-sm text-indigo-950 font-mono space-y-1.5">
+              <div className="font-sans font-bold text-indigo-900 text-xs uppercase tracking-wide">
                 Mô hình Toán học Vi sai:
               </div>
-              <div>Vận tốc tiến: v = (v_R + v_L) / 2 = <span className="font-bold">{((rightSpeed + leftSpeed) / 2).toFixed(2)}</span></div>
-              <div>Vận tốc góc: ω = (v_R - v_L) / b = <span className="font-bold">{((rightSpeed - leftSpeed) / WHEEL_BASE * 10).toFixed(2)} rad/s</span></div>
+              <div>Vận tốc tiến: v = (v_R + v_L) / 2 = <span className="font-bold text-indigo-700">{((rightSpeed + leftSpeed) / 2).toFixed(2)}</span></div>
+              <div>Vận tốc góc: ω = (v_R - v_L) / b = <span className="font-bold text-indigo-700">{((rightSpeed - leftSpeed) / WHEEL_BASE * 10).toFixed(2)} rad/s</span></div>
             </div>
           </div>
 
           {/* Educational Code Mapping note */}
-          <div className="pt-4 border-t border-slate-200 mt-4 text-[11px] text-slate-500 flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              <Shield className="w-3.5 h-3.5 text-emerald-600" /> Giới hạn an toàn mô phỏng: [-1.0, +1.0]
+          <div className="pt-4 border-t border-slate-200 mt-4 text-xs text-slate-600 flex items-center justify-between">
+            <span className="flex items-center gap-1.5 font-medium">
+              <Shield className="w-4 h-4 text-emerald-600" /> Giới hạn an toàn: [-1.0, +1.0]
             </span>
-            <span className="text-slate-400">Notebook: teleoperation.ipynb & live_demo.ipynb</span>
+            <span className="text-slate-500 font-mono">teleoperation.ipynb &amp; live_demo.ipynb</span>
           </div>
         </div>
       </div>

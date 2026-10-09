@@ -71,30 +71,30 @@ export const SourcesAndCaveats: React.FC<SourcesAndCaveatsProps> = ({ modules, o
         </h2>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
-            <thead className="bg-slate-100 text-slate-700 font-bold uppercase text-[10px] tracking-wider">
+          <table className="w-full text-left text-xs sm:text-sm border border-slate-200 rounded-xl overflow-hidden">
+            <thead className="bg-slate-100 text-slate-700 font-bold uppercase text-xs tracking-wider">
               <tr>
-                <th className="p-3">#</th>
-                <th className="p-3">Tên Tệp Notebook</th>
-                <th className="p-3">Nhiệm Vụ / Bài Toán</th>
-                <th className="p-3">Mô Hình &amp; Công Nghệ</th>
-                <th className="p-3">Đầu Ra Quan Trọng</th>
-                <th className="p-3 text-right">Chi Tiết</th>
+                <th className="p-3.5">#</th>
+                <th className="p-3.5">Tên Tệp Notebook</th>
+                <th className="p-3.5">Nhiệm Vụ / Bài Toán</th>
+                <th className="p-3.5">Mô Hình &amp; Công Nghệ</th>
+                <th className="p-3.5">Đầu Ra Quan Trọng</th>
+                <th className="p-3.5 text-right">Chi Tiết</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 text-slate-600">
+            <tbody className="divide-y divide-slate-200 text-slate-700">
               {modules.map((m) => (
                 <tr key={m.id} className="hover:bg-slate-50 transition">
-                  <td className="p-3 font-bold text-slate-900">{m.number}</td>
-                  <td className="p-3 font-mono text-indigo-700 font-bold">{m.notebookName}</td>
-                  <td className="p-3">
-                    <span className="font-semibold text-slate-800 block">{m.taskTypeVi}</span>
-                    <span className="text-[11px] text-slate-500">{m.categoryNameVi}</span>
+                  <td className="p-3.5 font-bold text-slate-900">{m.number}</td>
+                  <td className="p-3.5 font-mono text-indigo-700 font-bold">{m.notebookName}</td>
+                  <td className="p-3.5">
+                    <span className="font-bold text-slate-900 block">{m.taskTypeVi}</span>
+                    <span className="text-xs text-slate-500">{m.categoryNameVi}</span>
                   </td>
-                  <td className="p-3 font-mono text-[11px] text-slate-700">
+                  <td className="p-3.5 font-mono text-xs text-slate-700">
                     {m.keyFunctions.slice(0, 2).join(', ')}
                   </td>
-                  <td className="p-3 font-mono text-[11px] text-emerald-700 font-medium">
+                  <td className="p-3.5 font-mono text-xs text-emerald-700 font-bold">
                     {m.id === 'train_model' && 'best_steering_model_xy.pth'}
                     {m.id === 'train_model_plot' && 'best_model.pth'}
                     {m.id === 'train_model_resnet18' && 'best_model_resnet18.pth'}
@@ -104,10 +104,10 @@ export const SourcesAndCaveats: React.FC<SourcesAndCaveatsProps> = ({ modules, o
                     {m.id === 'teleoperation' && 'snapshots/*.jpg'}
                     {m.id.startsWith('live_demo') && !m.id.includes('build') && 'Lệnh động cơ 2 bánh'}
                   </td>
-                  <td className="p-3 text-right">
+                  <td className="p-3.5 text-right">
                     <button
                       onClick={() => onSelectModule(m.id)}
-                      className="px-2.5 py-1 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold transition"
+                      className="px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold transition text-xs sm:text-sm"
                     >
                       Mở Module
                     </button>
@@ -120,39 +120,39 @@ export const SourcesAndCaveats: React.FC<SourcesAndCaveatsProps> = ({ modules, o
       </div>
 
       {/* Critical Hardware Caveats for Physical Deployment */}
-      <div className="bg-amber-50/70 border border-amber-300 rounded-2xl p-6 shadow-sm space-y-4 text-xs text-amber-950">
-        <div className="flex items-center gap-2 font-bold text-amber-900 text-sm">
+      <div className="bg-amber-50/70 border border-amber-300 rounded-2xl p-6 sm:p-7 shadow-sm space-y-4 text-sm text-amber-950">
+        <div className="flex items-center gap-2.5 font-bold text-amber-900 text-base">
           <ShieldAlert className="w-5 h-5 text-amber-700" />
           Cảnh Báo Kỹ Thuật Quan Trọng Khi Chạy Trên Phần Cứng Thật Jetson Nano
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 bg-white/80 rounded-xl border border-amber-200 space-y-1">
-            <span className="font-bold text-amber-900 block">1. Giải phóng Camera CSI MIPI (camera.stop()):</span>
-            <p className="leading-relaxed text-amber-900/90">
+          <div className="p-4.5 bg-white/90 rounded-2xl border border-amber-200 space-y-1.5">
+            <span className="font-bold text-amber-900 block text-sm">1. Giải phóng Camera CSI MIPI (camera.stop()):</span>
+            <p className="leading-relaxed text-amber-950/90 text-xs sm:text-sm">
               Nếu chuyển đổi giữa các notebook mà không gọi <code>camera.stop()</code>, tiến trình GStreamer daemon
               (nvarguscamerasrc) sẽ bị khóa vĩnh viễn cho đến khi khởi động lại dịch vụ hoặc reboot hệ thống.
             </p>
           </div>
 
-          <div className="p-4 bg-white/80 rounded-xl border border-amber-200 space-y-1">
-            <span className="font-bold text-amber-900 block">2. Cạm bẫy chia tập test 50 mẫu (random_split):</span>
-            <p className="leading-relaxed text-amber-900/90">
+          <div className="p-4.5 bg-white/90 rounded-2xl border border-amber-200 space-y-1.5">
+            <span className="font-bold text-amber-900 block text-sm">2. Cạm bẫy chia tập test 50 mẫu (random_split):</span>
+            <p className="leading-relaxed text-amber-950/90 text-xs sm:text-sm">
               Lệnh <code>random_split(dataset, [len(dataset) - 50, 50])</code> trong notebook tránh va chạm sẽ lập tức
               báo lỗi nếu học sinh thu thập ít hơn 50 bức ảnh. Khuyến cáo nên kiểm tra kích thước dataset trước khi chia.
             </p>
           </div>
 
-          <div className="p-4 bg-white/80 rounded-xl border border-amber-200 space-y-1">
-            <span className="font-bold text-amber-900 block">3. Phân biệt rõ hai file TensorRT (.pth):</span>
-            <p className="leading-relaxed text-amber-900/90">
+          <div className="p-4.5 bg-white/90 rounded-2xl border border-amber-200 space-y-1.5">
+            <span className="font-bold text-amber-900 block text-sm">3. Phân biệt rõ hai file TensorRT (.pth):</span>
+            <p className="leading-relaxed text-amber-950/90 text-xs sm:text-sm">
               Không được dùng lẫn lộn <code>best_model_trt.pth</code> (2 ngõ ra phân loại) và 
               <code>best_steering_model_xy_trt.pth</code> (hồi quy góc lái) vì cấu trúc ngõ ra và tiền xử lý hoàn toàn khác nhau.
             </p>
           </div>
 
-          <div className="p-4 bg-white/80 rounded-xl border border-amber-200 space-y-1">
-            <span className="font-bold text-amber-900 block">4. Nguồn điện và an toàn pin 18650:</span>
-            <p className="leading-relaxed text-amber-900/90">
+          <div className="p-4.5 bg-white/90 rounded-2xl border border-amber-200 space-y-1.5">
+            <span className="font-bold text-amber-900 block text-sm">4. Nguồn điện và an toàn pin 18650:</span>
+            <p className="leading-relaxed text-amber-950/90 text-xs sm:text-sm">
               Khi hai động cơ tăng tốc đột ngột, điện áp có thể sụt giảm tức thời (brownout) khiến Jetson Nano bị reset.
               Luôn sạc đầy pin trước khi chạy demo suy luận TensorRT tốc độ cao.
             </p>

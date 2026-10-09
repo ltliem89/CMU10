@@ -1,1 +1,27 @@
 @import "tailwindcss";
+
+@layer base {
+  html {
+    font-size: 17.5px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html.font-size-large {
+    font-size: 19.5px;
+  }
+
+  html.font-size-xlarge {
+    font-size: 21.5px;
+  }
+
+  body {
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+  }
+
+  /* Make code blocks and pre elements clear and legible */
+  pre, code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+}
