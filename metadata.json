@@ -1,0 +1,6 @@
+{
+  "name": "JetBot AI & Robotics Interactive Studio",
+  "description": "Ứng dụng giảng dạy lập trình, thị giác máy tính và AI trên robot di động JetBot với mô phỏng hai động cơ tương tác, sơ đồ 12 module notebook, thư viện hàm và quy trình tối ưu TensorRT.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
