@@ -38,7 +38,8 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
   inspectionMode = 'realistic',
   onInspectionModeChange
 }) => {
-  const mountRef = useRef<HTMLDivElement>(null);
+  const canvasMountRef = useRef<HTMLDivElement>(null);
+  const [webglError, setWebglError] = useState<boolean>(false);
   const [internalMode, setInternalMode] = useState<InspectionMode>(inspectionMode);
   const [activeComp, setActiveComp] = useState<ComponentSpec | null>(null);
 
@@ -134,30 +135,37 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
 
   // Build the complete 3D mechanical model
   useEffect(() => {
-    const container = mountRef.current;
+    const container = canvasMountRef.current;
     if (!container) return;
 
-    const width = container.clientWidth || 580;
-    const height = container.clientHeight || 420;
+    let renderer: THREE.WebGLRenderer | null = null;
+    let animId: number | null = null;
 
-    // 1. Scene
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a101f);
-    sceneRef.current = scene;
+    try {
+      const width = container.clientWidth || 580;
+      const height = container.clientHeight || 420;
 
-    // 2. Camera
-    const camera = new THREE.PerspectiveCamera(42, width / height, 0.02, 10);
-    cameraRef.current = camera;
-    updateCameraPosition();
+      // 1. Scene
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0a101f);
+      sceneRef.current = scene;
 
-    // 3. Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    rendererRef.current = renderer;
-    container.replaceChildren(renderer.domElement);
+      // 2. Camera
+      const camera = new THREE.PerspectiveCamera(42, width / height, 0.02, 10);
+      cameraRef.current = camera;
+      updateCameraPosition();
+
+      // 3. Renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'default' });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      rendererRef.current = renderer;
+
+      // Ensure empty and safely append canvas DOM element
+      container.innerHTML = '';
+      container.appendChild(renderer.domElement);
 
     // 4. Lighting (Studio PBR Rig)
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
@@ -822,7 +830,9 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
         rightWheelGroupRef.current.rotation.x -= omegaR * dt;
       }
 
-      renderer.render(scene, camera);
+      if (renderer) {
+        renderer.render(scene, camera);
+      }
       animFrameRef.current = requestAnimationFrame(animate);
     };
 
@@ -844,13 +854,24 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      if (animId) cancelAnimationFrame(animId);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-      renderer.dispose();
-      if (container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
+      if (renderer) {
+        try {
+          renderer.dispose();
+          if (container && renderer.domElement && container.contains(renderer.domElement)) {
+            container.removeChild(renderer.domElement);
+          }
+        } catch {
+          // Ignore disposal errors
+        }
       }
     };
-  }, []);
+  } catch (err) {
+    console.warn('WebGL setup failed or not supported in current environment:', err);
+    setWebglError(true);
+  }
+}, []);
 
   // Sync Inspection Mode with Three.js Scene Visibility
   useEffect(() => {
@@ -1015,14 +1036,29 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
 
       {/* Main 3D Canvas Area */}
       <div
-        ref={mountRef}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onWheel={handleWheel}
         onContextMenu={(e) => e.preventDefault()}
-        className="w-full flex-1 min-h-[340px] cursor-grab active:cursor-grabbing relative"
+        className="w-full flex-1 min-h-[340px] cursor-grab active:cursor-grabbing relative overflow-hidden"
       >
+        {/* Dedicated Three.js canvas DOM container (Empty so React DOM tree is never touched) */}
+        <div ref={canvasMountRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+
+        {/* Fallback in case WebGL is disabled in user browser */}
+        {webglError && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#070D1B] p-6 text-center z-20">
+            <div className="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 mb-3">
+              <Box className="w-6 h-6" />
+            </div>
+            <h4 className="text-sm font-bold text-white mb-1">Mô Phỏng 2.5D Chuẩn CMU10</h4>
+            <p className="text-xs text-slate-400 max-w-sm mb-3">
+              Môi trường trình duyệt đang tắt tăng tốc phần cứng WebGL. Bạn có thể sử dụng Chế độ Sân Đua Bám Đường 2D hoặc tra cứu danh mục kích thước linh kiện CAD bên dưới.
+            </p>
+          </div>
+        )}
+
         {/* Floating Controls Overlay: 7 Inspection Modes Bar */}
         <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1 bg-[#091122]/90 backdrop-blur-md p-1.5 rounded-xl border border-cyan-500/30 text-[11px] z-10 shadow-lg">
           <button

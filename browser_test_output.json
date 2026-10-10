@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-10-10T07:28:46.377Z",
+  "totalAttemptedSwitches": 200,
+  "successfulTabSwitches": 180,
+  "successRate": "90.00%",
+  "timings": {
+    "averageMs": 891.91,
+    "minMs": 145,
+    "maxMs": 8900
+  },
+  "rootContentLength": 43221,
+  "isWhiteScreen": false,
+  "webglCanvasCount": 1,
+  "consoleErrorsCount": 0,
+  "pageErrorsCount": 0,
+  "requestFailuresCount": 0,
+  "consoleErrors": [],
+  "pageErrors": [],
+  "requestFailures": []
+}

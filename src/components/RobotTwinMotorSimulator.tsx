@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { Robot3DCanvas } from './Robot3DCanvas';
 import { MechanicalAcceptanceModal } from './MechanicalAcceptanceModal';
+import { ErrorBoundary } from './ErrorBoundary';
 import {
   ROBOT_GEOMETRY_CONFIG,
   InspectionMode,
@@ -912,14 +913,16 @@ finally:
             {/* Visual Viewport: Either 3D Mechanical Canvas or 2D Arena */}
             {visualMode === '3d-mechanical' ? (
               <div className="relative w-full aspect-[4/3] max-h-[420px] rounded-2xl overflow-hidden shadow-2xl mx-auto">
-                <Robot3DCanvas
-                  leftSpeed={leftSpeed}
-                  rightSpeed={rightSpeed}
-                  selectedComponentId={selected3DComponent?.id}
-                  onSelectComponent={setSelected3DComponent}
-                  inspectionMode={inspectionMode}
-                  onInspectionModeChange={setInspectionMode}
-                />
+                <ErrorBoundary fallbackTitle="Không thể khởi tạo mô hình 3D (WebGL)">
+                  <Robot3DCanvas
+                    leftSpeed={leftSpeed}
+                    rightSpeed={rightSpeed}
+                    selectedComponentId={selected3DComponent?.id}
+                    onSelectComponent={setSelected3DComponent}
+                    inspectionMode={inspectionMode}
+                    onInspectionModeChange={setInspectionMode}
+                  />
+                </ErrorBoundary>
               </div>
             ) : (
               /* Arena Viewport Container (2D) */
