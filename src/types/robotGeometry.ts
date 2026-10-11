@@ -96,7 +96,7 @@ export const ROBOT_GEOMETRY_CONFIG: RobotGeometryConfigType = {
   centerOfMassOffset: [0.0, 0.042, -0.008], // Hạ thấp gần sàn đáy nhờ khay pin
   tierSpacing: 0.035, // Khoảng cách giữa sàn đáy và sàn trên là 35 mm
   
-  coordinateConvention: 'ROS Right-Hand Rule: +X (Phải), +Y (Lên trên), +Z (Tiến phía trước)',
+  coordinateConvention: 'World Frame: +X (East/Tiến tại yaw=0), +Z (South/Phải tại yaw=0), +Y (Lên trên). Body Frame: Forward u=(cosθ, sinθ), Left u_left=(sinθ, -cosθ). Three.js CAD Model: Front +Z xoay -PI/2 vào World +X',
   originDescription: 'Gốc tọa độ (0,0,0) đặt tại tâm điểm tiếp đất của trục 2 bánh dẫn động chủ động',
   
   collisionGeometry: {

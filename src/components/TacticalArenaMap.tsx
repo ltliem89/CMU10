@@ -504,13 +504,15 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
 
     let left = 0.35;
     let right = 0.35;
-    if (Math.abs(normAngle) > 0.2) {
+    if (Math.abs(normAngle) > 0.15) {
       if (normAngle > 0) {
-        left = 0.15;
-        right = 0.45;
-      } else {
+        // Goal is to the right (+Z): turn Right (Left wheel faster)
         left = 0.45;
         right = 0.15;
+      } else {
+        // Goal is to the left (-Z): turn Left (Right wheel faster)
+        left = 0.15;
+        right = 0.45;
       }
     }
 

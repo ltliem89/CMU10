@@ -218,15 +218,19 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         simulationStore.setMotorSpeeds(0.5, 0.5, 'Bàn Phím: Phím Lên (Tiến)');
+        if (simulationStore.getState().executionState !== 'RUNNING') simulationStore.run();
       } else if (e.key === 'ArrowDown') {
         e.preventDefault();
         simulationStore.setMotorSpeeds(-0.4, -0.4, 'Bàn Phím: Phím Xuống (Lùi)');
+        if (simulationStore.getState().executionState !== 'RUNNING') simulationStore.run();
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
         simulationStore.setMotorSpeeds(-0.4, 0.4, 'Bàn Phím: Phím Trái (Xoay Trái)');
+        if (simulationStore.getState().executionState !== 'RUNNING') simulationStore.run();
       } else if (e.key === 'ArrowRight') {
         e.preventDefault();
         simulationStore.setMotorSpeeds(0.4, -0.4, 'Bàn Phím: Phím Phải (Xoay Phải)');
+        if (simulationStore.getState().executionState !== 'RUNNING') simulationStore.run();
       }
     };
 
@@ -831,7 +835,10 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
                           <div className="grid grid-cols-3 gap-1.5 w-32 shrink-0">
                             <div></div>
                             <button
-                              onClick={() => simulationStore.setMotorSpeeds(0.5, 0.5, 'D-Pad: Tiến')}
+                              onClick={() => {
+                                simulationStore.setMotorSpeeds(0.5, 0.5, 'D-Pad: Tiến');
+                                if (simulationStore.getState().executionState !== 'RUNNING') simulationStore.run();
+                              }}
                               className="p-2 rounded-xl bg-cyan-600/30 hover:bg-cyan-500 text-cyan-200 hover:text-white flex items-center justify-center border border-cyan-400/40 transition active:scale-95"
                               title="Tiến thẳng"
                             >
@@ -840,7 +847,10 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
                             <div></div>
 
                             <button
-                              onClick={() => simulationStore.setMotorSpeeds(-0.4, 0.4, 'D-Pad: Xoay Trái')}
+                              onClick={() => {
+                                simulationStore.setMotorSpeeds(-0.4, 0.4, 'D-Pad: Xoay Trái');
+                                if (simulationStore.getState().executionState !== 'RUNNING') simulationStore.run();
+                              }}
                               className="p-2 rounded-xl bg-cyan-600/30 hover:bg-cyan-500 text-cyan-200 hover:text-white flex items-center justify-center border border-cyan-400/40 transition active:scale-95"
                               title="Xoay trái"
                             >
@@ -854,7 +864,10 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
                               <Square className="w-3.5 h-3.5 fill-current" />
                             </button>
                             <button
-                              onClick={() => simulationStore.setMotorSpeeds(0.4, -0.4, 'D-Pad: Xoay Phải')}
+                              onClick={() => {
+                                simulationStore.setMotorSpeeds(0.4, -0.4, 'D-Pad: Xoay Phải');
+                                if (simulationStore.getState().executionState !== 'RUNNING') simulationStore.run();
+                              }}
                               className="p-2 rounded-xl bg-cyan-600/30 hover:bg-cyan-500 text-cyan-200 hover:text-white flex items-center justify-center border border-cyan-400/40 transition active:scale-95"
                               title="Xoay phải"
                             >
@@ -863,7 +876,10 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
 
                             <div></div>
                             <button
-                              onClick={() => simulationStore.setMotorSpeeds(-0.4, -0.4, 'D-Pad: Lùi')}
+                              onClick={() => {
+                                simulationStore.setMotorSpeeds(-0.4, -0.4, 'D-Pad: Lùi');
+                                if (simulationStore.getState().executionState !== 'RUNNING') simulationStore.run();
+                              }}
                               className="p-2 rounded-xl bg-cyan-600/30 hover:bg-cyan-500 text-cyan-200 hover:text-white flex items-center justify-center border border-cyan-400/40 transition active:scale-95"
                               title="Lùi lại"
                             >

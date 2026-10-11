@@ -485,8 +485,11 @@ class SimulationStore {
     const newWheelAngleL = s.leftWheelAngle + omegaL * dt;
     const newWheelAngleR = s.rightWheelAngle + omegaR * dt;
 
-    // Integrate pose in 2D plane (X = forward/right, Z = down/forward in 3D world, Yaw angle)
-    const newYaw = s.yaw + angularW * dt;
+    // Integrate pose in 2D plane (World frame: +X East, +Z South)
+    // When turning Left (vR > vL, angularW > 0), robot rotates towards North (-Z): dYaw/dt = -angularW.
+    // When turning Right (vL > vR, angularW < 0), robot rotates towards South (+Z): dYaw/dt = -angularW.
+    const rawYaw = s.yaw - angularW * dt;
+    const newYaw = Math.atan2(Math.sin(rawYaw), Math.cos(rawYaw));
     let newX = s.x + linearV * Math.cos(newYaw) * dt;
     let newZ = s.z + linearV * Math.sin(newYaw) * dt;
 

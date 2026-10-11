@@ -1,0 +1,74 @@
+[
+  {
+    "id": "T01",
+    "name": "Xác định hướng ban đầu (Initial Pose & Cardinal Vectors)",
+    "passed": true,
+    "details": "yaw=0rad, forward=(1, 0), left=(0, -1), right=(0, 1)"
+  },
+  {
+    "id": "T02",
+    "name": "Tiến (Forward Drive: +X Translation, Invariant Yaw)",
+    "passed": true,
+    "details": "Δx = +0.459m (tien ve truoc), Δz = 0.0000m, Δyaw = 0.0000rad"
+  },
+  {
+    "id": "T03",
+    "name": "Lùi (Backward Drive: -X Translation, Invariant Yaw)",
+    "passed": true,
+    "details": "Δx = -0.383m (lui ve sau), Δz = 0.0000m, Δyaw = 0.0000rad"
+  },
+  {
+    "id": "T04",
+    "name": "Quay tại chỗ trái (Spin Left: Center Stationary, Turn towards North/-Z)",
+    "passed": true,
+    "details": "Δyaw = -1.196rad (< 0, re trai ve huong Bac/-Z), center drift = (0.0000, 0.0000)m, ω = 3.36rad/s"
+  },
+  {
+    "id": "T05",
+    "name": "Quay tại chỗ phải (Spin Right: Center Stationary, Turn towards South/+Z)",
+    "passed": true,
+    "details": "Δyaw = +1.196rad (> 0, re phai ve huong Nam/+Z), center drift = (0.0000, 0.0000)m, ω = -3.36rad/s"
+  },
+  {
+    "id": "T06",
+    "name": "Đường cong (Curved Path: Smooth Continuous Arc without Pose Jumps)",
+    "passed": true,
+    "details": "vL=0.2, vR=0.6 -> curved to z=-0.078m, yaw=-1.265rad, trajectory points=3"
+  },
+  {
+    "id": "T07",
+    "name": "Kiểm tra bốn hướng (Four Cardinal Headings: Forward Vector Consistency)",
+    "passed": true,
+    "details": "0° (Đông / +X): dx=0.16, dz=0.00 [OK] | 90° (Nam / +Z): dx=0.00, dz=0.16 [OK] | 180° (Tây / -X): dx=-0.16, dz=0.00 [OK] | 270° (Bắc / -Z): dx=0.00, dz=-0.16 [OK]"
+  },
+  {
+    "id": "T08",
+    "name": "Cảm biến (Ultrasonic Raycast: Target in front detected, clear space ignored)",
+    "passed": true,
+    "details": "Facing obs-1: 35cm (detected=true) | Facing clear North: 63cm (detected=false)"
+  },
+  {
+    "id": "T09",
+    "name": "Đồng bộ bản đồ/3D/FPV (Multi-View Pose & Direction Synchronization)",
+    "passed": true,
+    "details": "yaw=0.785rad: SVG angle=45.0°, FPV Look=(0.71, 0.71), 3D rotY=-2.36rad"
+  },
+  {
+    "id": "T10",
+    "name": "Điều khiển qua các phương thức (Multi-Modal: D-Pad Left auto-runs & sets vL < 0, vR > 0)",
+    "passed": true,
+    "details": "D-Pad Left result: vL=-0.48, vR=0.48, executionState=RUNNING"
+  },
+  {
+    "id": "T11",
+    "name": "Collision Geometry (Soft Bounce & Hull Clearance Invariant)",
+    "passed": true,
+    "details": "Distance to obstacle=0.230m >= min allowable boundary 0.230m"
+  },
+  {
+    "id": "T12",
+    "name": "Pause và E-STOP (Immediate Motor Cutoff & Safety Latch Integrity)",
+    "passed": true,
+    "details": "E-STOP State=true, PWM=0%, New Motor Commands Blocked=true"
+  }
+]

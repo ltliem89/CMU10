@@ -54,6 +54,7 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const leftWheelGroupRef = useRef<THREE.Group | null>(null);
   const rightWheelGroupRef = useRef<THREE.Group | null>(null);
+  const robotRootRef = useRef<THREE.Group | null>(null);
   const gridHelperRef = useRef<THREE.GridHelper | null>(null);
   const gridOffsetRef = useRef(0);
   const componentsMapRef = useRef<Map<string, THREE.Object3D>>(new Map());
@@ -263,9 +264,13 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
     scene.add(headingArrow);
 
     // 6. ROBOT ROOT GROUP (Origin is at wheel contact on ground: (0, 0, 0))
+    // Model CAD orientation: front is +Z, left is -X, right is +X.
+    // Fixed base offset of -PI/2 aligns CAD front (+Z) with World forward (+X).
     const robotRoot = new THREE.Group();
     robotRoot.name = 'robotRoot';
+    robotRoot.rotation.y = -Math.PI / 2;
     scene.add(robotRoot);
+    robotRootRef.current = robotRoot;
 
     const componentsMap = new Map<string, THREE.Object3D>();
     componentsMapRef.current = componentsMap;
@@ -890,27 +895,33 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
         lastFpsTime = now;
       }
 
+      // Synchronize robotRoot heading in real time from central simulationStore
+      const s = simulationStore.getState();
+      if (robotRootRef.current) {
+        // Base offset -Math.PI / 2 aligns model front (+Z) with World +X.
+        // Clockwise world yaw rotates around vertical Y axis by -s.yaw.
+        robotRootRef.current.rotation.y = -Math.PI / 2 - s.yaw;
+      }
+
       // Rotate wheels based on real-time motor speeds v_L & v_R
       if (leftWheelGroupRef.current && rightWheelGroupRef.current) {
         const { left, right } = speedsRef.current;
-        // Angular velocity omega = v / R
-        // In our simulator speed scale: 1.0 corresponds to ~ 6.0 rad/s
+        // In local model frame (axle along X, front along +Z):
+        // Rolling forward towards +Z is positive rotation around local X axis.
         const omegaL = (left * 6.0);
         const omegaR = (right * 6.0);
-
-        // Rotation around X axis of the wheel group (or its internal axis)
-        leftWheelGroupRef.current.rotation.x -= omegaL * dt;
-        rightWheelGroupRef.current.rotation.x -= omegaR * dt;
+        leftWheelGroupRef.current.rotation.x += omegaL * dt;
+        rightWheelGroupRef.current.rotation.x += omegaR * dt;
       }
 
-      // Dynamic floor motion (Treadmill conveyor effect): ground grid shifts beneath wheels
+      // Dynamic floor motion (Treadmill conveyor effect): ground grid shifts backwards along heading
       if (gridHelperRef.current) {
-        const s = simulationStore.getState();
         const linearV = s.linearVel;
         if (Math.abs(linearV) > 0.001) {
           // 0.05m is grid cell size (1.2m / 24 cells)
           gridOffsetRef.current = (gridOffsetRef.current + linearV * dt) % 0.05;
-          gridHelperRef.current.position.x = -gridOffsetRef.current;
+          gridHelperRef.current.position.x = -gridOffsetRef.current * Math.cos(s.yaw);
+          gridHelperRef.current.position.z = -gridOffsetRef.current * Math.sin(s.yaw);
         }
       }
 
