@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-10-11T07:30:36.557Z",
+  "timestamp": "2026-10-11T08:32:46.391Z",
   "status": "PASS",
   "webglInitialized": true,
   "canvasesCount": 2,
   "layoutTransitionsCompleted": 20,
-  "avgLayoutTransitionMs": 2056.2,
+  "avgLayoutTransitionMs": 2270.9,
   "consoleErrorsCount": 0,
   "consoleWarningsCount": 12,
   "consoleErrors": [],

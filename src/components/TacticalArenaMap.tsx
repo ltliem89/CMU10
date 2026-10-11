@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { simulationStore, SimulationState } from '../stores/useSimulationStore';
 import { 
   Compass, 
@@ -18,8 +18,24 @@ import {
   LocateFixed, 
   Radio, 
   Eye, 
-  Sparkles 
+  Sparkles,
+  AlertTriangle,
+  CheckCircle2
 } from 'lucide-react';
+import {
+  worldToSvg,
+  svgToWorld,
+  screenToWorld,
+  worldToScreen,
+  zoomAtPoint,
+  zoomAtCenter,
+  panByScreenDelta,
+  focusWorldPoint,
+  fitAllBounds,
+  validateGoalPoint,
+  Point2D,
+  ViewportTransform
+} from '../utils/coordinateTransforms';
 
 export interface TacticalArenaMapProps {
   className?: string;
@@ -28,6 +44,8 @@ export interface TacticalArenaMapProps {
 }
 
 export type MapInteractionMode = 'inspect' | 'goal' | 'pan' | 'waypoint';
+export type ObservationState = 'FREE' | 'FOLLOW_ROBOT' | 'FOCUS_ROBOT' | 'FOCUS_GOAL' | 'FIT_ALL';
+export type GoalExecutionStatus = 'IDLE' | 'CONFIRMING' | 'RUNNING' | 'REACHED' | 'BLOCKED' | 'FAILED';
 
 export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({ 
   className = '',
@@ -47,29 +65,54 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
   const [zoom, setZoom] = useState<number>(1.0);
   const [panX, setPanX] = useState<number>(0);
   const [panY, setPanY] = useState<number>(0);
-  const [isFollowingRobot, setIsFollowingRobot] = useState<boolean>(false);
+  const [observationState, setObservationState] = useState<ObservationState>('FREE');
   const [interactionMode, setInteractionMode] = useState<MapInteractionMode>('inspect');
 
-  // Fullscreen Map State
+  // Fullscreen & Container Resize State
   const [isFullscreenMap, setIsFullscreenMap] = useState<boolean>(false);
 
-  // Cursor & Hover Tracking
-  const [cursorWorldPos, setCursorWorldPos] = useState<{ x: number; z: number } | null>(null);
-  const [pendingGoal, setPendingGoal] = useState<{ x: number; z: number } | null>(null);
-  const [activeGoalConfirmed, setActiveGoalConfirmed] = useState<boolean>(false);
+  // Cursor & Hover Tracking (World coordinates)
+  const [cursorWorldPos, setCursorWorldPos] = useState<Point2D | null>(null);
+  
+  // Click-to-Goal Lifecycle State
+  const [pendingGoal, setPendingGoal] = useState<Point2D | null>(null);
+  const [goalStatus, setGoalStatus] = useState<GoalExecutionStatus>('IDLE');
+  const [goalFeedbackMessage, setGoalFeedbackMessage] = useState<string | null>(null);
 
-  // Drag / Pan interaction refs
+  // DOM Refs
   const svgRef = useRef<SVGSVGElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const isDraggingRef = useRef<boolean>(false);
-  const dragStartRef = useRef<{ clientX: number; clientY: number; startPanX: number; startPanY: number }>({
-    clientX: 0,
-    clientY: 0,
-    startPanX: 0,
-    startPanY: 0
-  });
+
+  // Fresh-value refs to eliminate closure stale-state during high-frequency events
+  const currentTransformRef = useRef<ViewportTransform>({ zoom: 1.0, panX: 0, panY: 0 });
+  const interactionModeRef = useRef<MapInteractionMode>('inspect');
+  const observationStateRef = useRef<ObservationState>('FREE');
+  const isSpacePressedRef = useRef<boolean>(false);
+  const isMouseOverMapRef = useRef<boolean>(false);
+
+  // Pointer drag state
+  const isPointerDownRef = useRef<boolean>(false);
+  const isPanDragRef = useRef<boolean>(false);
+  const activePointerIdRef = useRef<number | null>(null);
+  const pointerDownPosRef = useRef<{ clientX: number; clientY: number }>({ clientX: 0, clientY: 0 });
+  const dragStartTransformRef = useRef<ViewportTransform>({ zoom: 1.0, panX: 0, panY: 0 });
+  const hasExceededDragThresholdRef = useRef<boolean>(false);
+  
   const [isSpacePressed, setIsSpacePressed] = useState<boolean>(false);
   const [isActivelyPanning, setIsActivelyPanning] = useState<boolean>(false);
+
+  // Synchronize refs with state
+  useEffect(() => {
+    currentTransformRef.current = { zoom, panX, panY };
+  }, [zoom, panX, panY]);
+
+  useEffect(() => {
+    interactionModeRef.current = interactionMode;
+  }, [interactionMode]);
+
+  useEffect(() => {
+    observationStateRef.current = observationState;
+  }, [observationState]);
 
   // Subscribe to simulation store
   useEffect(() => {
@@ -79,236 +122,370 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
     return unsub;
   }, []);
 
-  // Map coordinate conversion rules:
-  // World: X: -1.5m .. 1.5m (width 3.0m), Z: -1.0m .. 1.0m (length 2.0m)
-  // Base SVG Canvas: viewBox 0 0 600 400
-  const worldToSvgX = useCallback((x: number) => ((x + 1.5) / 3.0) * 600, []);
-  const worldToSvgY = useCallback((z: number) => ((z + 1.0) / 2.0) * 400, []);
-  const svgToWorldX = useCallback((u: number) => (u / 600) * 3.0 - 1.5, []);
-  const svgToWorldZ = useCallback((v: number) => (v / 400) * 2.0 - 1.0, []);
-
-  const robotSvgX = worldToSvgX(simState.x);
-  const robotSvgY = worldToSvgY(simState.z);
+  // Real-time Robot coordinates in SVG space
+  const robotSvg = worldToSvg({ x: simState.x, z: simState.z });
   const robotAngleDeg = (simState.yaw * 180) / Math.PI;
 
-  // Follow Robot Camera Logic
+  // Follow Robot camera logic: continuously centers on robot when state is FOLLOW_ROBOT
   useEffect(() => {
-    if (!isFollowingRobot) return;
-    // Keep robot at SVG center (300, 200)
-    setPanX(300 - zoom * robotSvgX);
-    setPanY(200 - zoom * robotSvgY);
-  }, [isFollowingRobot, robotSvgX, robotSvgY, zoom]);
+    if (observationState !== 'FOLLOW_ROBOT') return;
+    const targetPanX = 300 - zoom * robotSvg.u;
+    const targetPanY = 200 - zoom * robotSvg.v;
+    currentTransformRef.current = { zoom, panX: targetPanX, panY: targetPanY };
+    setPanX(targetPanX);
+    setPanY(targetPanY);
+  }, [observationState, robotSvg.u, robotSvg.v, zoom]);
 
-  // Spacebar tracking for Pan interaction
+  // Non-passive wheel event listener on SVG: enables e.preventDefault() without console warnings
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.code === 'Space' && !e.repeat) {
-        setIsSpacePressed(true);
+    const svg = svgRef.current;
+    if (!svg) return;
+
+    const handleWheelNative = (e: WheelEvent) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
+      const nextTransform = zoomAtPoint(
+        { clientX: e.clientX, clientY: e.clientY },
+        currentTransformRef.current,
+        zoomFactor,
+        svg
+      );
+
+      if (observationStateRef.current === 'FOLLOW_ROBOT') {
+        setObservationState('FREE');
       }
+
+      currentTransformRef.current = nextTransform;
+      setZoom(nextTransform.zoom);
+      setPanX(nextTransform.panX);
+      setPanY(nextTransform.panY);
     };
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.code === 'Space') {
-        setIsSpacePressed(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
+
+    svg.addEventListener('wheel', handleWheelNative, { passive: false });
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
+      svg.removeEventListener('wheel', handleWheelNative);
     };
   }, []);
 
-  // Convert client mouse event to base SVG and World coordinates
-  const getCoordinatesFromEvent = useCallback((clientX: number, clientY: number) => {
-    if (!svgRef.current) return null;
-    const rect = svgRef.current.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return null;
+  // Spacebar listener with event capture: intercepts Space over the map for panning without triggering emergency modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || (e.target as HTMLElement)?.isContentEditable) {
+        return;
+      }
+      if (e.code === 'Space') {
+        if (isMouseOverMapRef.current) {
+          e.stopPropagation();
+          e.preventDefault();
+          isSpacePressedRef.current = true;
+          setIsSpacePressed(true);
+        }
+      }
+    };
 
-    // View coordinates inside SVG viewport [0, 600] x [0, 400]
-    const uSvg = ((clientX - rect.left) / rect.width) * 600;
-    const vSvg = ((clientY - rect.top) / rect.height) * 400;
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        if (isMouseOverMapRef.current) {
+          e.stopPropagation();
+        }
+        isSpacePressedRef.current = false;
+        setIsSpacePressed(false);
+      }
+    };
 
-    // Inverse display transform: uBase = (uSvg - panX) / zoom
-    const uBase = (uSvg - panX) / zoom;
-    const vBase = (vSvg - panY) / zoom;
+    const handleWindowBlur = () => {
+      isSpacePressedRef.current = false;
+      setIsSpacePressed(false);
+      isPointerDownRef.current = false;
+      isPanDragRef.current = false;
+      setIsActivelyPanning(false);
+    };
 
-    // World coordinates in meters
-    const worldX = Math.max(-1.5, Math.min(1.5, parseFloat(svgToWorldX(uBase).toFixed(3))));
-    const worldZ = Math.max(-1.0, Math.min(1.0, parseFloat(svgToWorldZ(vBase).toFixed(3))));
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    window.addEventListener('keyup', handleKeyUp, { capture: true });
+    window.addEventListener('blur', handleWindowBlur);
 
-    return { uSvg, vSvg, uBase, vBase, worldX, worldZ };
-  }, [panX, zoom, svgToWorldX, svgToWorldZ]);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown, { capture: true });
+      window.removeEventListener('keyup', handleKeyUp, { capture: true });
+      window.removeEventListener('blur', handleWindowBlur);
+    };
+  }, []);
 
-  // Zoom Handler with Focal Point Anchoring
-  const handleWheel = (e: React.WheelEvent<SVGSVGElement>) => {
-    e.preventDefault();
-    const coords = getCoordinatesFromEvent(e.clientX, e.clientY);
-    if (!coords) return;
+  // Monitor arrival at pending goal
+  useEffect(() => {
+    if (goalStatus !== 'RUNNING' || !pendingGoal) return;
+    const dist = Math.hypot(pendingGoal.x - simState.x, pendingGoal.z - simState.z);
+    
+    // Arrival threshold: 0.08 meters (8 cm)
+    if (dist <= 0.08) {
+      setGoalStatus('REACHED');
+      simulationStore.setMotorSpeeds(0, 0, `Đích Đến Thành Công: Đã tới (${pendingGoal.x.toFixed(2)}, ${pendingGoal.z.toFixed(2)})m`);
+      simulationStore.addLog({
+        type: 'event',
+        source: 'Click-to-Goal',
+        pythonCode: `# Target reached at (${pendingGoal.x.toFixed(2)}, ${pendingGoal.z.toFixed(2)})m`,
+        leftVal: 0,
+        rightVal: 0,
+        linearVel: 0,
+        angularVel: 0,
+        actionText: `Mục tiêu đã đạt: (${pendingGoal.x.toFixed(2)}, ${pendingGoal.z.toFixed(2)})m`,
+        explanation: 'Robot đã tiến vào bán kính mục tiêu thành công.',
+        badgeColor: 'bg-emerald-100 text-emerald-900 border-emerald-400'
+      });
+    } else if (simState.sensors.isObstacleDetected && simState.sensors.obstacleDistanceM < 0.15) {
+      setGoalStatus('BLOCKED');
+      simulationStore.setMotorSpeeds(0, 0, 'Cảnh báo chướng ngại vật cản đường mục tiêu!');
+    }
+  }, [simState.x, simState.z, simState.sensors, goalStatus, pendingGoal]);
 
-    const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
-    const newZoom = Math.max(0.5, Math.min(5.0, zoom * zoomFactor));
-    if (Math.abs(newZoom - zoom) < 0.001) return;
+  // Fullscreen change & ResizeObserver handling
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const resizeObserver = new ResizeObserver(() => {
+      // Trigger smooth re-render without tearing or resetting state
+    });
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
 
-    // Focal point preservation formula:
-    // P = uSvg; newPan = P - (newZoom / zoom) * (P - pan)
-    const ratio = newZoom / zoom;
-    const newPanX = coords.uSvg - ratio * (coords.uSvg - panX);
-    const newPanY = coords.vSvg - ratio * (coords.vSvg - panY);
-
-    if (isFollowingRobot) setIsFollowingRobot(false);
-    setZoom(newZoom);
-    setPanX(newPanX);
-    setPanY(newPanY);
+  // --------------------------------------------------------------------------
+  // ZOOM ACTIONS
+  // --------------------------------------------------------------------------
+  const handleZoomCenter = (factor: number) => {
+    const nextTransform = zoomAtCenter(currentTransformRef.current, factor);
+    if (observationStateRef.current === 'FOLLOW_ROBOT') {
+      setObservationState('FREE');
+    }
+    currentTransformRef.current = nextTransform;
+    setZoom(nextTransform.zoom);
+    setPanX(nextTransform.panX);
+    setPanY(nextTransform.panY);
   };
 
-  // Zoom Button Handlers (Centered on Viewport Center 300, 200)
-  const zoomAtCenter = (factor: number) => {
-    const newZoom = Math.max(0.5, Math.min(5.0, zoom * factor));
-    const ratio = newZoom / zoom;
-    const centerX = 300;
-    const centerY = 200;
-    const newPanX = centerX - ratio * (centerX - panX);
-    const newPanY = centerY - ratio * (centerY - panY);
-
-    if (isFollowingRobot) setIsFollowingRobot(false);
-    setZoom(newZoom);
-    setPanX(newPanX);
-    setPanY(newPanY);
-  };
-
-  // Focus Modes
+  // --------------------------------------------------------------------------
+  // CAMERA OBSERVATION MODES
+  // --------------------------------------------------------------------------
   const handleFocusRobot = () => {
-    setPanX(300 - zoom * robotSvgX);
-    setPanY(200 - zoom * robotSvgY);
+    const nextTransform = focusWorldPoint({ x: simState.x, z: simState.z }, zoom);
+    currentTransformRef.current = nextTransform;
+    setPanX(nextTransform.panX);
+    setPanY(nextTransform.panY);
+    setObservationState('FOCUS_ROBOT');
   };
 
   const handleToggleFollowRobot = () => {
-    const next = !isFollowingRobot;
-    setIsFollowingRobot(next);
-    if (next) {
-      setPanX(300 - zoom * robotSvgX);
-      setPanY(200 - zoom * robotSvgY);
+    if (observationState === 'FOLLOW_ROBOT') {
+      setObservationState('FREE');
+    } else {
+      setObservationState('FOLLOW_ROBOT');
+      const nextTransform = focusWorldPoint({ x: simState.x, z: simState.z }, zoom);
+      currentTransformRef.current = nextTransform;
+      setPanX(nextTransform.panX);
+      setPanY(nextTransform.panY);
     }
   };
 
   const handleFocusGoal = () => {
-    if (pendingGoal) {
-      const gx = worldToSvgX(pendingGoal.x);
-      const gz = worldToSvgY(pendingGoal.z);
-      setPanX(300 - zoom * gx);
-      setPanY(200 - zoom * gz);
-      if (isFollowingRobot) setIsFollowingRobot(false);
-    } else if (simState.plannedTrajectory.length > 0) {
-      const wp = simState.plannedTrajectory[simState.plannedTrajectory.length - 1];
-      const gx = worldToSvgX(wp.x);
-      const gz = worldToSvgY(wp.z);
-      setPanX(300 - zoom * gx);
-      setPanY(200 - zoom * gz);
-      if (isFollowingRobot) setIsFollowingRobot(false);
+    const targetPoint = pendingGoal || (
+      simState.plannedTrajectory.length > 0
+        ? { x: simState.plannedTrajectory[simState.plannedTrajectory.length - 1].x, z: simState.plannedTrajectory[simState.plannedTrajectory.length - 1].z }
+        : null
+    );
+
+    if (targetPoint) {
+      const nextTransform = focusWorldPoint(targetPoint, zoom);
+      currentTransformRef.current = nextTransform;
+      setPanX(nextTransform.panX);
+      setPanY(nextTransform.panY);
+      setObservationState('FOCUS_GOAL');
     }
   };
 
   const handleFitAll = () => {
-    setZoom(1.0);
-    setPanX(0);
-    setPanY(0);
-    setIsFollowingRobot(false);
+    const nextTransform = fitAllBounds();
+    currentTransformRef.current = nextTransform;
+    setZoom(nextTransform.zoom);
+    setPanX(nextTransform.panX);
+    setPanY(nextTransform.panY);
+    setObservationState('FIT_ALL');
   };
 
-  // Pointer / Mouse Down (Start Pan or Goal Selection)
-  const handleMouseDown = (e: React.MouseEvent<SVGSVGElement>) => {
+  // --------------------------------------------------------------------------
+  // POINTER EVENT HANDLERS (POINTER CAPTURE & DRAG THRESHOLD)
+  // --------------------------------------------------------------------------
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // If clicking on any interactive overlay button, do not capture or start map drag
+    if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a') || (e.target as HTMLElement).closest('[role="button"]')) {
+      return;
+    }
+
+    // Only handle primary left click (0) or middle click (1)
+    if (e.button !== 0 && e.button !== 1) return;
+
+    if (e.button === 1) {
+      e.preventDefault();
+    }
+
+    isPointerDownRef.current = true;
+    activePointerIdRef.current = e.pointerId;
+    pointerDownPosRef.current = { clientX: e.clientX, clientY: e.clientY };
+    dragStartTransformRef.current = { ...currentTransformRef.current };
+    hasExceededDragThresholdRef.current = false;
+
     const isMiddleClick = e.button === 1;
     const isLeftClick = e.button === 0;
-    const shouldPan = isMiddleClick || (isLeftClick && (isSpacePressed || interactionMode === 'pan'));
+    const isPanIntent = isMiddleClick || (isLeftClick && (isSpacePressedRef.current || interactionModeRef.current === 'pan'));
 
-    if (shouldPan) {
-      e.preventDefault();
-      isDraggingRef.current = true;
+    isPanDragRef.current = isPanIntent;
+
+    if (isPanIntent) {
       setIsActivelyPanning(true);
-      dragStartRef.current = {
-        clientX: e.clientX,
-        clientY: e.clientY,
-        startPanX: panX,
-        startPanY: panY
-      };
-      if (isFollowingRobot) setIsFollowingRobot(false);
-      return;
-    }
-
-    // Goal or Waypoint placement on primary left click
-    if (isLeftClick && !isSpacePressed) {
-      const coords = getCoordinatesFromEvent(e.clientX, e.clientY);
-      if (!coords) return;
-
-      if (interactionMode === 'goal') {
-        setPendingGoal({ x: coords.worldX, z: coords.worldZ });
-        setActiveGoalConfirmed(false);
-      } else if (interactionMode === 'waypoint') {
-        const newWp = {
-          id: `wp_${Date.now()}`,
-          x: coords.worldX,
-          z: coords.worldZ,
-          speed: 0.35
-        };
-        const updatedTrajectory = [...simState.plannedTrajectory, newWp];
-        simulationStore.addLog({
-          type: 'command',
-          source: 'Bản Đồ Sa Bàn',
-          pythonCode: `add_waypoint(${newWp.x.toFixed(2)}, ${newWp.z.toFixed(2)})`,
-          leftVal: 0,
-          rightVal: 0,
-          linearVel: simState.linearVel,
-          angularVel: simState.angularVel,
-          actionText: `Thêm Waypoint WP${updatedTrajectory.length} tại (${newWp.x.toFixed(2)}, ${newWp.z.toFixed(2)})m`,
-          explanation: 'Tọa độ thế giới tính từ phép biến đổi nghịch đảo chính xác của Map Controller.',
-          badgeColor: 'bg-amber-100 text-amber-900 border-amber-400'
-        });
+      if (observationStateRef.current === 'FOLLOW_ROBOT') {
+        setObservationState('FREE');
       }
     }
+
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Ignore
+    }
   };
 
-  // Mouse Move: Pan update or cursor coordinate hover calculation
-  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
-    if (isDraggingRef.current && svgRef.current) {
-      const rect = svgRef.current.getBoundingClientRect();
-      const deltaScreenX = e.clientX - dragStartRef.current.clientX;
-      const deltaScreenY = e.clientY - dragStartRef.current.clientY;
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Track cursor in World coordinates for HUD
+    if (svgRef.current) {
+      const worldPos = screenToWorld(
+        { clientX: e.clientX, clientY: e.clientY },
+        svgRef.current,
+        currentTransformRef.current
+      );
+      setCursorWorldPos(worldPos);
+    }
 
-      const deltaSvgX = (deltaScreenX / rect.width) * 600;
-      const deltaSvgY = (deltaScreenY / rect.height) * 400;
+    if (!isPointerDownRef.current) return;
 
-      setPanX(dragStartRef.current.startPanX + deltaSvgX);
-      setPanY(dragStartRef.current.startPanY + deltaSvgY);
+    const deltaX = e.clientX - pointerDownPosRef.current.clientX;
+    const deltaY = e.clientY - pointerDownPosRef.current.clientY;
+    const distanceMoved = Math.hypot(deltaX, deltaY);
+
+    // Enforce 5px drag threshold
+    if (distanceMoved > 5) {
+      hasExceededDragThresholdRef.current = true;
+    }
+
+    if (isPanDragRef.current && hasExceededDragThresholdRef.current && svgRef.current) {
+      const nextTransform = panByScreenDelta(
+        deltaX,
+        deltaY,
+        dragStartTransformRef.current,
+        svgRef.current
+      );
+      currentTransformRef.current = nextTransform;
+      setPanX(nextTransform.panX);
+      setPanY(nextTransform.panY);
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isPointerDownRef.current) return;
+
+    if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a') || (e.target as HTMLElement).closest('[role="button"]')) {
+      isPointerDownRef.current = false;
+      isPanDragRef.current = false;
+      setIsActivelyPanning(false);
       return;
     }
 
-    const coords = getCoordinatesFromEvent(e.clientX, e.clientY);
-    if (coords) {
-      setCursorWorldPos({ x: coords.worldX, z: coords.worldZ });
+    const wasDragging = hasExceededDragThresholdRef.current;
+    isPointerDownRef.current = false;
+    isPanDragRef.current = false;
+    setIsActivelyPanning(false);
+
+    try {
+      if (activePointerIdRef.current !== null && e.currentTarget.hasPointerCapture(activePointerIdRef.current)) {
+        e.currentTarget.releasePointerCapture(activePointerIdRef.current);
+      }
+    } catch {
+      // Ignore
+    }
+    activePointerIdRef.current = null;
+
+    // Strict Rule: If user dragged (> 5px), DO NOT place Goal or Waypoint!
+    if (wasDragging) {
+      return;
+    }
+
+    // Only handle primary left click for placement
+    if (e.button !== 0 || interactionModeRef.current === 'pan') {
+      return;
+    }
+
+    if (!svgRef.current) return;
+    const clickedWorld = screenToWorld(
+      { clientX: e.clientX, clientY: e.clientY },
+      svgRef.current,
+      currentTransformRef.current
+    );
+
+    if (interactionModeRef.current === 'goal') {
+      // Validate candidate goal position
+      const validation = validateGoalPoint(clickedWorld, simState.obstacles);
+      if (!validation.isValid) {
+        setGoalFeedbackMessage(validation.reason || 'Vị trí mục tiêu không hợp lệ');
+        setPendingGoal(null);
+        setGoalStatus('BLOCKED');
+        setTimeout(() => setGoalFeedbackMessage(null), 4000);
+        return;
+      }
+
+      setPendingGoal(clickedWorld);
+      setGoalStatus('CONFIRMING');
+      setGoalFeedbackMessage(null);
+    } else if (interactionModeRef.current === 'waypoint') {
+      const newWp = {
+        id: `wp_${Date.now()}`,
+        x: clickedWorld.x,
+        z: clickedWorld.z,
+        speed: 0.35
+      };
+      const updatedTrajectory = [...simState.plannedTrajectory, newWp];
+      simulationStore.addLog({
+        type: 'command',
+        source: 'Bản Đồ Sa Bàn',
+        pythonCode: `add_waypoint(${newWp.x.toFixed(2)}, ${newWp.z.toFixed(2)})`,
+        leftVal: 0,
+        rightVal: 0,
+        linearVel: simState.linearVel,
+        angularVel: simState.angularVel,
+        actionText: `Thêm Waypoint WP${updatedTrajectory.length} tại (${newWp.x.toFixed(2)}, ${newWp.z.toFixed(2)})m`,
+        explanation: 'Tọa độ tính toán từ phép biến đổi nghịch đảo chính xác của Coordinate Engine.',
+        badgeColor: 'bg-amber-100 text-amber-900 border-amber-400'
+      });
     }
   };
 
-  const handleMouseUp = () => {
-    if (isDraggingRef.current) {
-      isDraggingRef.current = false;
-      setIsActivelyPanning(false);
+  const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    isPointerDownRef.current = false;
+    isPanDragRef.current = false;
+    setIsActivelyPanning(false);
+    try {
+      if (activePointerIdRef.current !== null && e.currentTarget.hasPointerCapture(activePointerIdRef.current)) {
+        e.currentTarget.releasePointerCapture(activePointerIdRef.current);
+      }
+    } catch {
+      // Ignore
     }
+    activePointerIdRef.current = null;
   };
 
-  const handleMouseLeave = () => {
-    if (isDraggingRef.current) {
-      isDraggingRef.current = false;
-      setIsActivelyPanning(false);
-    }
-    setCursorWorldPos(null);
-  };
-
-  // Start Navigation to Pending Goal
+  // --------------------------------------------------------------------------
+  // CLICK-TO-GOAL EXECUTION
+  // --------------------------------------------------------------------------
   const handleStartNavigationToGoal = () => {
     if (!pendingGoal) return;
-    setActiveGoalConfirmed(true);
+    setGoalStatus('RUNNING');
 
     const dx = pendingGoal.x - simState.x;
     const dz = pendingGoal.z - simState.z;
@@ -340,19 +517,20 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
     }
   };
 
-  // Cancel Goal
   const handleCancelGoal = () => {
     setPendingGoal(null);
-    setActiveGoalConfirmed(false);
+    setGoalStatus('IDLE');
+    setGoalFeedbackMessage(null);
   };
 
-  // Cursor style determination
   const getCursorClass = () => {
     if (isActivelyPanning) return 'cursor-grabbing';
     if (isSpacePressed || interactionMode === 'pan') return 'cursor-grab';
     if (interactionMode === 'goal' || interactionMode === 'waypoint') return 'cursor-crosshair';
     return 'cursor-default';
   };
+
+  const isFollowing = observationState === 'FOLLOW_ROBOT';
 
   return (
     <div 
@@ -382,48 +560,52 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
       <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1 p-1 bg-slate-950/85 backdrop-blur-md rounded-xl border border-cyan-500/30 text-[11px] shadow-sm pointer-events-auto">
         <button
           onClick={() => setShowPlannedPath(!showPlannedPath)}
-          className={`px-2 py-0.5 rounded-lg font-bold border transition ${
+          className={`min-h-[24px] min-w-[24px] px-2 py-0.5 rounded-lg font-bold border transition ${
             showPlannedPath
               ? 'bg-amber-500/20 border-amber-400/50 text-amber-200'
               : 'bg-slate-800/80 border-slate-700 text-slate-400'
           }`}
           title="Bật/Tắt Quỹ Đạo Dự Kiến"
+          aria-label="Toggle Planned Path"
         >
           Mẫu
         </button>
 
         <button
           onClick={() => setShowActualTrail(!showActualTrail)}
-          className={`px-2 py-0.5 rounded-lg font-bold border transition ${
+          className={`min-h-[24px] min-w-[24px] px-2 py-0.5 rounded-lg font-bold border transition ${
             showActualTrail
               ? 'bg-cyan-500/20 border-cyan-400/50 text-cyan-200'
               : 'bg-slate-800/80 border-slate-700 text-slate-400'
           }`}
           title="Bật/Tắt Vết Đường Đi Thực Tế"
+          aria-label="Toggle Actual Trail"
         >
           Vết
         </button>
 
         <button
           onClick={() => setShowSensorRays(!showSensorRays)}
-          className={`px-2 py-0.5 rounded-lg font-bold border transition ${
+          className={`min-h-[24px] min-w-[24px] px-2 py-0.5 rounded-lg font-bold border transition ${
             showSensorRays
               ? 'bg-emerald-500/20 border-emerald-400/50 text-emerald-200'
               : 'bg-slate-800/80 border-slate-700 text-slate-400'
           }`}
           title="Bật/Tắt Tia Cảm Biến"
+          aria-label="Toggle Sensor Rays"
         >
           Tia
         </button>
 
         <button
           onClick={() => setShowGrid(!showGrid)}
-          className={`px-2 py-0.5 rounded-lg font-bold border transition ${
+          className={`min-h-[24px] min-w-[24px] px-2 py-0.5 rounded-lg font-bold border transition ${
             showGrid
               ? 'bg-blue-500/20 border-blue-400/50 text-blue-200'
               : 'bg-slate-800/80 border-slate-700 text-slate-400'
           }`}
           title="Bật/Tắt Lưới Tọa Độ"
+          aria-label="Toggle Grid"
         >
           Lưới
         </button>
@@ -433,27 +615,31 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
         <button
           data-testid="fullscreen-map-btn"
           onClick={() => setIsFullscreenMap(!isFullscreenMap)}
-          className="p-1 rounded-lg bg-slate-800/80 hover:bg-cyan-600 text-slate-300 hover:text-white transition"
+          className="min-h-[24px] min-w-[24px] p-1 rounded-lg bg-slate-800/80 hover:bg-cyan-600 text-slate-300 hover:text-white transition flex items-center justify-center"
           title={isFullscreenMap ? "Thoát toàn màn hình bản đồ" : "Toàn màn hình bản đồ"}
+          aria-label="Toggle Fullscreen Map"
         >
           {isFullscreenMap ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
         </button>
       </div>
 
       {/* ============================================================================== */}
-      {/* 3. SVG VECTOR ARENA MAP CANVAS                                                 */}
+      {/* 3. SVG VECTOR ARENA MAP CANVAS (POINTER EVENTS ENGINE)                          */}
       {/* ============================================================================== */}
-      <div className="relative w-full h-full flex-1 min-h-0 bg-[#050914] flex items-center justify-center p-1 sm:p-2 overflow-hidden">
+      <div 
+        className="relative w-full h-full flex-1 min-h-0 bg-[#050914] flex items-center justify-center p-1 sm:p-2 overflow-hidden touch-none"
+        onPointerEnter={() => { isMouseOverMapRef.current = true; }}
+        onPointerLeave={() => { isMouseOverMapRef.current = false; setCursorWorldPos(null); }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
+      >
         <svg
           ref={svgRef}
           className={`w-full h-full rounded-xl border border-slate-800/80 ${getCursorClass()}`}
           viewBox="0 0 600 400"
           preserveAspectRatio="xMidYMid meet"
-          onWheel={handleWheel}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
         >
           <defs>
             {/* Grid Pattern */}
@@ -519,7 +705,10 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
               <g>
                 <polyline
                   points={simState.plannedTrajectory
-                    .map((wp) => `${worldToSvgX(wp.x)},${worldToSvgY(wp.z)}`)
+                    .map((wp) => {
+                      const svgPt = worldToSvg({ x: wp.x, z: wp.z });
+                      return `${svgPt.u},${svgPt.v}`;
+                    })
                     .join(' ')}
                   fill="none"
                   stroke="#F59E0B"
@@ -527,14 +716,17 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
                   strokeDasharray="6 4"
                   opacity="0.8"
                 />
-                {simState.plannedTrajectory.map((wp, idx) => (
-                  <g key={wp.id} transform={`translate(${worldToSvgX(wp.x)}, ${worldToSvgY(wp.z)})`}>
-                    <circle r="5" fill="#F59E0B" stroke="#78350F" strokeWidth="1.5" />
-                    <text y="-8" textAnchor="middle" fill="#FDE68A" fontSize="9" fontFamily="monospace" fontWeight="bold">
-                      WP{idx + 1}
-                    </text>
-                  </g>
-                ))}
+                {simState.plannedTrajectory.map((wp, idx) => {
+                  const svgPt = worldToSvg({ x: wp.x, z: wp.z });
+                  return (
+                    <g key={wp.id} transform={`translate(${svgPt.u}, ${svgPt.v})`}>
+                      <circle r="5" fill="#F59E0B" stroke="#78350F" strokeWidth="1.5" />
+                      <text y="-8" textAnchor="middle" fill="#FDE68A" fontSize="9" fontFamily="monospace" fontWeight="bold">
+                        WP{idx + 1}
+                      </text>
+                    </g>
+                  );
+                })}
               </g>
             )}
 
@@ -542,7 +734,10 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
             {showActualTrail && simState.actualTrajectory.length > 1 && (
               <polyline
                 points={simState.actualTrajectory
-                  .map((p) => `${worldToSvgX(p.x)},${worldToSvgY(p.z)}`)
+                  .map((p) => {
+                    const svgPt = worldToSvg({ x: p.x, z: p.z });
+                    return `${svgPt.u},${svgPt.v}`;
+                  })
                   .join(' ')}
                 fill="none"
                 stroke="#38BDF8"
@@ -555,20 +750,19 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
 
             {/* Obstacles on Arena with Real Physics Bounds */}
             {showObstacles && simState.obstacles.map((obs) => {
-              const ox = worldToSvgX(obs.x);
-              const oy = worldToSvgY(obs.z);
+              const svgPt = worldToSvg({ x: obs.x, z: obs.z });
               const rPx = (obs.radius / 3.0) * 600;
 
               return (
                 <g key={obs.id}>
                   {/* Physical collision bounding radius */}
-                  <circle cx={ox} cy={oy} r={rPx + 15} fill="none" stroke="rgba(239, 68, 68, 0.3)" strokeWidth="1" strokeDasharray="3 3" />
+                  <circle cx={svgPt.u} cy={svgPt.v} r={rPx + 15} fill="none" stroke="rgba(239, 68, 68, 0.3)" strokeWidth="1" strokeDasharray="3 3" />
                   {obs.type === 'cylinder' ? (
-                    <circle cx={ox} cy={oy} r={rPx} fill={obs.color} stroke="#7F1D1D" strokeWidth="2" />
+                    <circle cx={svgPt.u} cy={svgPt.v} r={rPx} fill={obs.color} stroke="#7F1D1D" strokeWidth="2" />
                   ) : (
                     <rect
-                      x={ox - rPx}
-                      y={oy - rPx}
+                      x={svgPt.u - rPx}
+                      y={svgPt.v - rPx}
                       width={rPx * 2}
                       height={rPx * 2}
                       fill={obs.color}
@@ -577,7 +771,7 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
                       rx="3"
                     />
                   )}
-                  <text x={ox} y={oy + rPx + 12} textAnchor="middle" fill="#CBD5E1" fontSize="9" fontFamily="monospace" fontWeight="bold">
+                  <text x={svgPt.u} y={svgPt.v + rPx + 12} textAnchor="middle" fill="#CBD5E1" fontSize="9" fontFamily="monospace" fontWeight="bold">
                     {obs.nameVi}
                   </text>
                 </g>
@@ -586,7 +780,7 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
 
             {/* Pending Click-to-Goal Target Pin Indicator */}
             {pendingGoal && (
-              <g transform={`translate(${worldToSvgX(pendingGoal.x)}, ${worldToSvgY(pendingGoal.z)})`}>
+              <g transform={`translate(${worldToSvg(pendingGoal).u}, ${worldToSvg(pendingGoal).v})`}>
                 <circle r="22" fill="url(#targetBeacon)" className="animate-ping" opacity="0.75" />
                 <circle r="8" fill="#EC4899" stroke="#FFF" strokeWidth="2" />
                 <line x1="-12" y1="0" x2="12" y2="0" stroke="#FFF" strokeWidth="1.5" />
@@ -598,7 +792,7 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
             )}
 
             {/* Robot Representation */}
-            <g transform={`translate(${robotSvgX}, ${robotSvgY}) rotate(${robotAngleDeg})`}>
+            <g transform={`translate(${robotSvg.u}, ${robotSvg.v}) rotate(${robotAngleDeg})`}>
               {/* Ultrasonic & Camera Sensor Rays */}
               {showSensorRays && (
                 <g>
@@ -652,10 +846,11 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
             <button
               data-testid="mode-inspect-btn"
               onClick={() => setInteractionMode('inspect')}
-              className={`px-2 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
+              className={`min-h-[24px] min-w-[24px] px-2 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
                 interactionMode === 'inspect' ? 'bg-cyan-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
               }`}
-              title="Chế độ Quan Sát (Inspect)"
+              title="Chế độ Quan Sát (Inspect) - Xem vị trí và đo tọa độ"
+              aria-label="Mode Inspect"
             >
               <Eye className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Quan Sát</span>
@@ -664,10 +859,11 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
             <button
               data-testid="mode-pan-btn"
               onClick={() => setInteractionMode('pan')}
-              className={`px-2 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
+              className={`min-h-[24px] min-w-[24px] px-2 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
                 interactionMode === 'pan' ? 'bg-cyan-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
               }`}
-              title="Chế độ Kéo Bản Đồ (Pan) - Có thể giữ chuột giữa hoặc Space + chuột trái"
+              title="Chế độ Kéo Bản Đồ (Pan) - Có thể kéo chuột hoặc Space + chuột trái"
+              aria-label="Mode Pan"
             >
               <Move className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Kéo</span>
@@ -676,10 +872,11 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
             <button
               data-testid="mode-goal-btn"
               onClick={() => setInteractionMode('goal')}
-              className={`px-2 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
+              className={`min-h-[24px] min-w-[24px] px-2 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
                 interactionMode === 'goal' ? 'bg-pink-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
               }`}
               title="Chế độ Click-to-Goal: Bấm lên bản đồ để đặt mục tiêu"
+              aria-label="Mode Goal"
             >
               <Crosshair className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Mục Tiêu</span>
@@ -693,8 +890,9 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
             <button
               data-testid="focus-robot-btn"
               onClick={handleFocusRobot}
-              className="px-2 py-1 rounded-lg font-bold bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1"
+              className="min-h-[24px] min-w-[24px] px-2 py-1 rounded-lg font-bold bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1"
               title="Đưa Robot vào trung tâm tầm nhìn (Focus Robot)"
+              aria-label="Focus Robot"
             >
               <LocateFixed className="w-3.5 h-3.5 text-cyan-400" />
               <span className="hidden md:inline">Tâm Robot</span>
@@ -703,22 +901,24 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
             <button
               data-testid="follow-robot-btn"
               onClick={handleToggleFollowRobot}
-              className={`px-2 py-1 rounded-lg font-bold border transition flex items-center gap-1 ${
-                isFollowingRobot
+              className={`min-h-[24px] min-w-[24px] px-2 py-1 rounded-lg font-bold border transition flex items-center gap-1 ${
+                isFollowing
                   ? 'bg-emerald-500/20 border-emerald-400/50 text-emerald-200'
                   : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:text-white'
               }`}
-              title={isFollowingRobot ? "Đang khóa camera theo robot (Bấm để hủy)" : "Tự động di chuyển camera theo Robot (Follow Robot)"}
+              title={isFollowing ? "Đang khóa camera theo robot (Bấm để hủy)" : "Tự động di chuyển camera theo Robot (Follow Robot)"}
+              aria-label="Toggle Follow Robot"
             >
-              <Radio className={`w-3.5 h-3.5 ${isFollowingRobot ? 'text-emerald-400 animate-pulse' : ''}`} />
-              <span className="hidden md:inline">{isFollowingRobot ? 'Đang Theo' : 'Theo Robot'}</span>
+              <Radio className={`w-3.5 h-3.5 ${isFollowing ? 'text-emerald-400 animate-pulse' : ''}`} />
+              <span className="hidden md:inline">{isFollowing ? 'Đang Theo' : 'Theo Robot'}</span>
             </button>
 
             <button
               data-testid="focus-goal-btn"
               onClick={handleFocusGoal}
-              className="p-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition"
+              className="min-h-[24px] min-w-[24px] p-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center justify-center"
               title="Căn tâm theo mục tiêu (Focus Goal)"
+              aria-label="Focus Goal"
             >
               <Target className="w-3.5 h-3.5 text-pink-400" />
             </button>
@@ -726,8 +926,9 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
             <button
               data-testid="fit-all-btn"
               onClick={handleFitAll}
-              className="px-2 py-1 rounded-lg font-bold bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition text-[10px]"
+              className="min-h-[24px] min-w-[24px] px-2 py-1 rounded-lg font-bold bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition text-[10px]"
               title="Vừa khung hình toàn bộ bản đồ (Fit to Frame / Fit All)"
+              aria-label="Fit All"
             >
               Vừa Khung
             </button>
@@ -739,9 +940,10 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
           <div className="flex items-center gap-1">
             <button
               data-testid="zoom-out-btn"
-              onClick={() => zoomAtCenter(0.8)}
-              className="p-1 rounded-lg bg-slate-800/80 hover:bg-cyan-600 text-slate-200 hover:text-white transition"
+              onClick={() => handleZoomCenter(0.8)}
+              className="min-h-[24px] min-w-[24px] p-1 rounded-lg bg-slate-800/80 hover:bg-cyan-600 text-slate-200 hover:text-white transition flex items-center justify-center"
               title="Thu nhỏ bản đồ (-)"
+              aria-label="Zoom Out"
             >
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
@@ -749,17 +951,19 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
             <button
               data-testid="zoom-badge"
               onClick={handleFitAll}
-              className="px-1.5 py-0.5 rounded-lg bg-slate-900 border border-slate-700 font-mono text-[10px] text-cyan-300 font-bold hover:border-cyan-400 transition"
+              className="min-h-[24px] px-1.5 py-0.5 rounded-lg bg-slate-900 border border-slate-700 font-mono text-[10px] text-cyan-300 font-bold hover:border-cyan-400 transition"
               title="Mức phóng to hiện tại (Bấm để đặt lại 100%)"
+              aria-label="Current Zoom Percentage"
             >
               {Math.round(zoom * 100)}%
             </button>
 
             <button
               data-testid="zoom-in-btn"
-              onClick={() => zoomAtCenter(1.25)}
-              className="p-1 rounded-lg bg-slate-800/80 hover:bg-cyan-600 text-slate-200 hover:text-white transition"
+              onClick={() => handleZoomCenter(1.25)}
+              className="min-h-[24px] min-w-[24px] p-1 rounded-lg bg-slate-800/80 hover:bg-cyan-600 text-slate-200 hover:text-white transition flex items-center justify-center"
               title="Phóng to bản đồ (+)"
+              aria-label="Zoom In"
             >
               <ZoomIn className="w-3.5 h-3.5" />
             </button>
@@ -784,28 +988,53 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
         </div>
 
         {/* ============================================================================== */}
-        {/* 6. GOAL CONFIRMATION PILL (WHEN PENDING GOAL IS SET)                          */}
+        {/* 6. GOAL CONFIRMATION PILL & FEEDBACK BANNER                                   */}
         {/* ============================================================================== */}
         {pendingGoal && (
           <div className="absolute top-12 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2.5 px-3 py-1.5 bg-slate-950/95 backdrop-blur-lg border border-pink-500/50 rounded-2xl shadow-2xl pointer-events-auto animate-bounce-subtle">
             <Target className="w-4 h-4 text-pink-400 animate-pulse" />
             <span className="text-xs font-mono text-white">
               Đích: X=<strong className="text-pink-300">{pendingGoal.x.toFixed(2)}m</strong>, Z=<strong className="text-pink-300">{pendingGoal.z.toFixed(2)}m</strong>
+              <span className="text-slate-400 ml-1">
+                ({Math.hypot(pendingGoal.x - simState.x, pendingGoal.z - simState.z).toFixed(2)}m)
+              </span>
             </span>
-            <button
-              onClick={handleStartNavigationToGoal}
-              className="px-2.5 py-1 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs flex items-center gap-1 shadow-md transition"
-              title="Bắt đầu điều hướng robot tới mục tiêu đã chọn"
-            >
-              <Check className="w-3.5 h-3.5" /> Bắt Đầu
-            </button>
+
+            {goalStatus === 'RUNNING' ? (
+              <span className="px-2 py-0.5 rounded-lg bg-pink-500/20 text-pink-300 border border-pink-400/40 text-[10px] font-bold animate-pulse">
+                Đang Chạy...
+              </span>
+            ) : goalStatus === 'REACHED' ? (
+              <span className="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[10px] font-bold flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" /> Đã Đến!
+              </span>
+            ) : (
+              <button
+                onClick={handleStartNavigationToGoal}
+                className="min-h-[24px] px-2.5 py-1 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs flex items-center gap-1 shadow-md transition"
+                title="Bắt đầu điều hướng robot tới mục tiêu đã chọn"
+                aria-label="Start Navigation to Goal"
+              >
+                <Check className="w-3.5 h-3.5" /> Bắt Đầu
+              </button>
+            )}
+
             <button
               onClick={handleCancelGoal}
-              className="p-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
+              className="min-h-[24px] min-w-[24px] p-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center justify-center"
               title="Hủy chọn mục tiêu"
+              aria-label="Cancel Goal"
             >
               <X className="w-3.5 h-3.5" />
             </button>
+          </div>
+        )}
+
+        {/* Validation Warning Feedback Toast */}
+        {goalFeedbackMessage && (
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-3.5 py-1.5 bg-red-950/90 backdrop-blur-md border border-red-500/60 rounded-xl shadow-xl text-red-200 text-xs font-mono animate-fade-in pointer-events-auto">
+            <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+            <span>{goalFeedbackMessage}</span>
           </div>
         )}
       </div>

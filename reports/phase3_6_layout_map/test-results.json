@@ -1,0 +1,94 @@
+{
+  "timestamp": "2026-10-11T08:29:37.229Z",
+  "tests": [
+    {
+      "name": "WCAG 2.2 Target Size Compliance",
+      "status": "PASS",
+      "details": "Interactive map buttons satisfy >= 24x24px hit area"
+    },
+    {
+      "name": "Map Zoom Buttons",
+      "status": "PASS",
+      "details": "Zoom: 100% -> In: 125% -> Out: 80%"
+    },
+    {
+      "name": "Wheel Zoom Focal Anchoring",
+      "status": "PASS",
+      "details": "Wheel zoom verified: 92% -> 78%"
+    },
+    {
+      "name": "Pan Mode Drag",
+      "status": "PASS",
+      "details": "Transform changed: translate(0, 0) scale(1) -> translate(9.316770186335404, 8.528216403491239) scale(1)"
+    },
+    {
+      "name": "Space + Left Click Pan",
+      "status": "PASS",
+      "details": "Space drag translated map: translate(-7.763975155279503, -6.396162302618428) scale(1)"
+    },
+    {
+      "name": "Drag Threshold (>5px) Defense",
+      "status": "PASS",
+      "details": "Pan drag release did not accidentally place Goal"
+    },
+    {
+      "name": "Click-to-Goal Accuracy",
+      "status": "PASS",
+      "details": "Goal created at valid coordinates: Đích: X=-0.28m, Z=0.10m(0.53m)"
+    },
+    {
+      "name": "Invalid Goal Collision Check",
+      "status": "PASS",
+      "details": "Detected collision and rejected: Va chạm vật cản: Khối LEGO Vàng (cách tâm 0.13m < an toàn 0.23m)"
+    },
+    {
+      "name": "Observation State Auto-Transition",
+      "status": "PASS",
+      "details": "Manual pan automatically transitioned out of Follow mode to Free mode"
+    },
+    {
+      "name": "Map Fullscreen & Restore",
+      "status": "PASS",
+      "details": "Map entered and restored from fullscreen mode cleanly"
+    },
+    {
+      "name": "Responsive Viewports (1920/1440/1280/1024)",
+      "status": "PASS",
+      "details": "Zero unwanted horizontal scrollbars across all viewports"
+    },
+    {
+      "name": "Multi-viewport Pose Sync",
+      "status": "PASS",
+      "details": "Pose state verified synchronized across Telemetry Strip and Map"
+    },
+    {
+      "name": "Pan/Zoom Physics Isolation",
+      "status": "PASS",
+      "details": "Zero velocities or pose changes emitted during camera viewport transforms"
+    },
+    {
+      "name": "E-STOP Safety Priority",
+      "status": "PASS",
+      "details": "E-STOP instantly halts simulation with highest execution priority"
+    },
+    {
+      "name": "Pointer Cancellation & Cleanup",
+      "status": "PASS",
+      "details": "Pointer cancel event safely cleans up drag listeners without exceptions"
+    },
+    {
+      "name": "Console Error Free",
+      "status": "PASS",
+      "details": "0 console errors throughout entire Phase 3.6 test run"
+    },
+    {
+      "name": "Phase 3.4 & 3.5 Regression Compliance",
+      "status": "PASS",
+      "details": "Triple View cockpit and CAD inspection modes fully intact"
+    }
+  ],
+  "metrics": {
+    "jsHeapUsedMB": 51,
+    "jsHeapTotalMB": 78
+  }
+}
