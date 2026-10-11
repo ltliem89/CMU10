@@ -1,0 +1,199 @@
+{
+  "timestamp": "2026-10-11T09:47:08.590Z",
+  "tests": [
+    {
+      "name": "Workspace Root Rendered",
+      "passed": true,
+      "details": "cmu-simulation-workspace selector visible"
+    },
+    {
+      "name": "Lesson Sidebar Interaction",
+      "passed": true,
+      "details": "Selected Lesson 2 successfully"
+    },
+    {
+      "name": "Lesson Sidebar Collapse/Expand",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Robot Status Panel Visible",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "D-Pad Control Interaction",
+      "passed": true,
+      "details": "Up button clicked"
+    },
+    {
+      "name": "Simulation Run Control",
+      "passed": true,
+      "details": "Clicked Chạy"
+    },
+    {
+      "name": "Simulation Pause Control",
+      "passed": true,
+      "details": "Clicked Tạm dừng"
+    },
+    {
+      "name": "Simulation Reset Control",
+      "passed": true,
+      "details": "Clicked Đặt lại"
+    },
+    {
+      "name": "Physics Chart Metric Switching",
+      "passed": true,
+      "details": "Switched to a-t"
+    },
+    {
+      "name": "Realtime Telemetry Table Present",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "FPV Mode Switch",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Floating Minimap Toggle",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "E-STOP Trigger & Modal",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Tab Switch: Bài học",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Tab Switch: Lập trình",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Tab Switch: Phân tích",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Tab Switch: Báo cáo",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Responsive 1586x992",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Responsive 1280x800",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Responsive 1024x768",
+      "passed": true,
+      "details": ""
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "01_simulation_reference_match",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\01_simulation_reference_match.png",
+      "description": "Reconstructed simulation workspace matching reference design"
+    },
+    {
+      "name": "02_lesson_sidebar_expanded",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\02_lesson_sidebar_expanded.png",
+      "description": "Lesson sidebar with Grade 10 Physics lessons and objectives"
+    },
+    {
+      "name": "03_lesson_sidebar_collapsed",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\03_lesson_sidebar_collapsed.png",
+      "description": "Sidebar collapsed for maximum simulation area"
+    },
+    {
+      "name": "04_robot_status_sensors",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\04_robot_status_sensors.png",
+      "description": "Robot Status Panel with live battery and ultrasonic sensors"
+    },
+    {
+      "name": "05_dpad_control_active",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\05_dpad_control_active.png",
+      "description": "D-Pad control activated"
+    },
+    {
+      "name": "06_simulation_running_speedometer",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\06_simulation_running_speedometer.png",
+      "description": "Simulation actively running with dynamic circular speedometer HUD"
+    },
+    {
+      "name": "07_analytics_row_physics_charts",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\07_analytics_row_physics_charts.png",
+      "description": "Physics Chart Panel displaying acceleration a-t curve"
+    },
+    {
+      "name": "08_analytics_row_telemetry_table",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\08_analytics_row_telemetry_table.png",
+      "description": "Realtime Telemetry Table with CSV export"
+    },
+    {
+      "name": "09_camera_view_gallery_fpv",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\09_camera_view_gallery_fpv.png",
+      "description": "FPV Mode active with dynamic camera gallery"
+    },
+    {
+      "name": "10_minimap_expanded_collapsed",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\10_minimap_expanded_collapsed.png",
+      "description": "Floating minimap toggled in viewport"
+    },
+    {
+      "name": "11_estop_modal_active",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\11_estop_modal_active.png",
+      "description": "Emergency Stop E-STOP Safety Modal active"
+    },
+    {
+      "name": "12_tab_lessons_view",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\12_tab_lessons_view.png",
+      "description": "Pillar Tab: Bài học (Detailed Curriculum Module View)"
+    },
+    {
+      "name": "13_tab_code_editor",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\13_tab_code_editor.png",
+      "description": "Pillar Tab: Lập trình (Robotics Control Code Editor)"
+    },
+    {
+      "name": "14_tab_analytics_dashboard",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\14_tab_analytics_dashboard.png",
+      "description": "Pillar Tab: Phân tích (Kinematics & Dynamics Analytics)"
+    },
+    {
+      "name": "15_tab_report_export",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\15_tab_report_export.png",
+      "description": "Pillar Tab: Báo cáo (Physics 10 Lab Report Export)"
+    },
+    {
+      "name": "16_responsive_desktop_1586x992",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\16_responsive_desktop_1586x992.png",
+      "description": "Target Reference Resolution 1586x992 layout"
+    },
+    {
+      "name": "17_responsive_laptop_1280x800",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\17_responsive_laptop_1280x800.png",
+      "description": "Laptop viewport 1280x800 layout"
+    },
+    {
+      "name": "18_responsive_tablet_1024x768",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\18_responsive_tablet_1024x768.png",
+      "description": "Tablet viewport 1024x768 layout"
+    }
+  ],
+  "consoleErrors": [],
+  "consoleWarnings": []
+}

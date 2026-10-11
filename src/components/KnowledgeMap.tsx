@@ -36,7 +36,7 @@ export const KnowledgeMap: React.FC<KnowledgeMapProps> = ({ onSelectModule, modu
 
         <div className="max-w-3xl relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/25 backdrop-blur-md border border-white/25 text-yellow-300 text-xs font-black tracking-wide mb-3">
-            <Sparkles className="w-4 h-4 text-yellow-300" /> BẢN ĐỒ KIẾN THỨC VIBRANT STEM — JETBOT LỚP 11
+            <Sparkles className="w-4 h-4 text-yellow-300" /> BẢN ĐỒ KIẾN THỨC VẬT LÍ 10 STEM — JETBOT ROBOTICS
           </div>
           <h1 className="text-2xl sm:text-4xl font-black tracking-tight mb-3 text-white drop-shadow-sm">
             Hành Trình AI &amp; Robotics: Từ Lái Thủ Công Đến Tự Hành TensorRT

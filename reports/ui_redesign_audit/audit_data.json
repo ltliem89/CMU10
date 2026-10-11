@@ -1,0 +1,150 @@
+{
+  "timestamp": "2026-10-11T09:02:48.960Z",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "tabs": {
+    "home": {
+      "title": "JetBot AI & Robotics Interactive Studio - Khám Phá & Mô Phỏng Giảng Dạy",
+      "elementsCount": 409,
+      "status": "VERIFIED_WORKING"
+    },
+    "robot-sim": {
+      "cockpitTitleBox": {
+        "x": 426.125,
+        "y": 144.375,
+        "width": 406.375,
+        "height": 24.375
+      },
+      "mapHeaderBox": {
+        "x": 1085.828125,
+        "y": 378.1875,
+        "width": 175.984375,
+        "height": 19.484375
+      },
+      "robot3dHeaderBox": {
+        "x": 431,
+        "y": 378.1875,
+        "width": 145.890625,
+        "height": 19.484375
+      },
+      "fpvHeaderBox": {
+        "x": 1085.828125,
+        "y": 544.46875,
+        "width": 137.53125,
+        "height": 19.484375
+      },
+      "status": "VERIFIED_WORKING"
+    },
+    "modules": {
+      "status": "VERIFIED_WORKING"
+    },
+    "pipeline": {
+      "status": "VERIFIED_WORKING"
+    },
+    "functions": {
+      "status": "VERIFIED_WORKING"
+    },
+    "training-charts": {
+      "status": "VERIFIED_WORKING"
+    },
+    "what-if": {
+      "status": "VERIFIED_WORKING"
+    },
+    "quiz": {
+      "status": "VERIFIED_WORKING"
+    },
+    "glossary": {
+      "status": "VERIFIED_WORKING"
+    },
+    "sources": {
+      "status": "VERIFIED_WORKING"
+    }
+  },
+  "layouts": {
+    "focus": {
+      "verified": true,
+      "name": "Focus"
+    },
+    "split": {
+      "verified": true,
+      "name": "Split View"
+    },
+    "triple": {
+      "verified": true,
+      "name": "Triple View"
+    },
+    "pip": {
+      "verified": true,
+      "name": "Picture-in-Picture"
+    },
+    "standard": {
+      "verified": true,
+      "name": "Standard"
+    }
+  },
+  "inspectionModes": {
+    "realistic": {
+      "verified": true,
+      "name": "Thực Tế (PBR)"
+    },
+    "wireframe": {
+      "verified": true,
+      "name": "Khung Dây"
+    },
+    "components": {
+      "verified": true,
+      "name": "Linh Kiện"
+    },
+    "collision": {
+      "verified": true,
+      "name": "Va Chạm"
+    },
+    "coordinates": {
+      "verified": true,
+      "name": "Tọa Độ XYZ"
+    },
+    "sensors": {
+      "verified": true,
+      "name": "Góc FOV"
+    },
+    "dimensions": {
+      "verified": true,
+      "name": "CAD"
+    }
+  },
+  "responsiveMetrics": {
+    "1080p_desktop": {
+      "width": 1920,
+      "height": 1080,
+      "hasHeader": true
+    },
+    "1280x800_laptop": {
+      "width": 1280,
+      "height": 800,
+      "hasHeader": true
+    },
+    "1024x768_tablet_landscape": {
+      "width": 1024,
+      "height": 768,
+      "hasHeader": true
+    }
+  },
+  "performance": {
+    "loadTimeMs": 722,
+    "domCount": 725,
+    "memory": {
+      "usedJSHeapSizeMB": 45,
+      "totalJSHeapSizeMB": 54
+    }
+  },
+  "consoleSummary": {
+    "errors": [],
+    "warnings": [
+      "WARNING: Invalid layout total size: 82%. Layout normalization will be applied.",
+      "WARNING: Panel id and order props recommended when panels are dynamically rendered",
+      "WARNING: Panel id and order props recommended when panels are dynamically rendered"
+    ]
+  }
+}

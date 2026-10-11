@@ -1,0 +1,329 @@
+{
+  "timestamp": "2026-10-11T12:24:23.189Z",
+  "viewports": {
+    "1586x992_reference": {
+      "name": "1586x992_reference",
+      "width": 1586,
+      "height": 992,
+      "label": "Chuẩn đối chiếu tham chiếu (Reference Match)",
+      "metrics": {
+        "header": {
+          "width": 1586,
+          "height": 81
+        },
+        "sidebar": {
+          "width": 285,
+          "height": 720
+        },
+        "rightPanel": {
+          "width": 270,
+          "height": 720
+        },
+        "workspace": {
+          "width": 1586,
+          "height": 1023
+        },
+        "centerViewport": {
+          "width": 979,
+          "height": 659,
+          "area": 644786
+        },
+        "hasHorizontalOverflow": false,
+        "scrollWidth": 1586,
+        "innerWidth": 1586
+      }
+    },
+    "1536x960_desktop": {
+      "name": "1536x960_desktop",
+      "width": 1536,
+      "height": 960,
+      "label": "Màn hình máy bàn Full HD / 2K scale",
+      "metrics": {
+        "header": {
+          "width": 1536,
+          "height": 81
+        },
+        "sidebar": {
+          "width": 285,
+          "height": 720
+        },
+        "rightPanel": {
+          "width": 270,
+          "height": 720
+        },
+        "workspace": {
+          "width": 1536,
+          "height": 1023
+        },
+        "centerViewport": {
+          "width": 929,
+          "height": 659,
+          "area": 611838
+        },
+        "hasHorizontalOverflow": false,
+        "scrollWidth": 1536,
+        "innerWidth": 1536
+      }
+    },
+    "1440x900_laptop": {
+      "name": "1440x900_laptop",
+      "width": 1440,
+      "height": 900,
+      "label": "Laptop 14-inch tiêu chuẩn",
+      "metrics": {
+        "header": {
+          "width": 1440,
+          "height": 81
+        },
+        "sidebar": {
+          "width": 285,
+          "height": 720
+        },
+        "rightPanel": {
+          "width": 270,
+          "height": 720
+        },
+        "workspace": {
+          "width": 1440,
+          "height": 1023
+        },
+        "centerViewport": {
+          "width": 833,
+          "height": 659,
+          "area": 548578
+        },
+        "hasHorizontalOverflow": false,
+        "scrollWidth": 1440,
+        "innerWidth": 1440
+      }
+    },
+    "1280x800_compact": {
+      "name": "1280x800_compact",
+      "width": 1280,
+      "height": 800,
+      "label": "Laptop học sinh nhỏ gọn",
+      "metrics": {
+        "header": {
+          "width": 1280,
+          "height": 81
+        },
+        "sidebar": {
+          "width": 285,
+          "height": 720
+        },
+        "rightPanel": {
+          "width": 270,
+          "height": 720
+        },
+        "workspace": {
+          "width": 1280,
+          "height": 1023
+        },
+        "centerViewport": {
+          "width": 673,
+          "height": 617,
+          "area": 415195
+        },
+        "hasHorizontalOverflow": false,
+        "scrollWidth": 1280,
+        "innerWidth": 1280
+      }
+    },
+    "1024x768_tablet": {
+      "name": "1024x768_tablet",
+      "width": 1024,
+      "height": 768,
+      "label": "Máy tính bảng Tablet STEM",
+      "metrics": {
+        "header": {
+          "width": 1024,
+          "height": 81
+        },
+        "sidebar": {
+          "width": 285,
+          "height": 720
+        },
+        "rightPanel": {
+          "width": 270,
+          "height": 720
+        },
+        "workspace": {
+          "width": 1024,
+          "height": 1049
+        },
+        "centerViewport": {
+          "width": 417,
+          "height": 617,
+          "area": 257143
+        },
+        "hasHorizontalOverflow": false,
+        "scrollWidth": 1024,
+        "innerWidth": 1024
+      }
+    },
+    "390x844_mobile": {
+      "name": "390x844_mobile",
+      "width": 390,
+      "height": 844,
+      "label": "Điện thoại thông minh (Mobile View)",
+      "metrics": {
+        "header": {
+          "width": 390,
+          "height": 77
+        },
+        "sidebar": {
+          "width": 373,
+          "height": 645
+        },
+        "rightPanel": {
+          "width": 373,
+          "height": 720
+        },
+        "workspace": {
+          "width": 390,
+          "height": 2782
+        },
+        "centerViewport": {
+          "width": 373,
+          "height": 460,
+          "area": 171350
+        },
+        "hasHorizontalOverflow": false,
+        "scrollWidth": 390,
+        "innerWidth": 390
+      }
+    }
+  },
+  "visualMetrics": {
+    "typographyAndColors": {
+      "headerBg": "rgb(8, 43, 89)",
+      "headerBorder": "oklab(0.411355 -0.0309545 -0.11646 / 0.5)",
+      "brandFontSize": "26.25px",
+      "brandFontWeight": "900",
+      "bodyBg": "rgb(238, 245, 252)",
+      "bodyFontFamily": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", \"Noto Sans\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""
+    },
+    "textClippingIssues": []
+  },
+  "cameraFraming": {
+    "3D": {
+      "canvasWidth": 975,
+      "canvasHeight": 655,
+      "viewportWidth": 979,
+      "viewportHeight": 659,
+      "ratioWidth": "1.00",
+      "ratioHeight": "0.99"
+    },
+    "fitScenePreservesPose": {
+      "passed": true,
+      "poseBeforeFit": {
+        "x": -0.8,
+        "z": 0,
+        "yaw": 0,
+        "t": 0
+      },
+      "poseAfterFit": {
+        "x": -0.8,
+        "z": 0,
+        "yaw": 0,
+        "t": 0
+      }
+    }
+  },
+  "mapControls": {
+    "zoomAfterWheel": "115%",
+    "panDeltaVerified": true,
+    "panDoesNotSendMotors": true,
+    "goalPlacedSuccessfully": true,
+    "goalCancelledByEscape": true
+  },
+  "physicsKinematics": {
+    "forwardKinematics": {
+      "measuredV": 0.2663918655272573,
+      "measuredW": 0,
+      "passed": true
+    },
+    "spinKinematics": {
+      "measuredV": 0,
+      "measuredW": 5.290133593456774,
+      "passed": true
+    }
+  },
+  "simulationClock": {
+    "t0": 0,
+    "tStoppedSame": true,
+    "tSteppedExact": true,
+    "tRunAdvanced": true,
+    "tPausedFrozen": true
+  },
+  "stateConsistency": {
+    "sharedStorePose": {
+      "x": -0.78,
+      "z": 0,
+      "yawDeg": 353,
+      "v": 0.14,
+      "time": 0.5
+    },
+    "rightPanelReflectsPose": true,
+    "hudReflectsTime": true
+  },
+  "controlAndSafety": {
+    "estopAudit": {
+      "state": "EMERGENCY_STOP",
+      "pwmL": 0,
+      "pwmR": 0,
+      "targetL": 0,
+      "targetR": 0,
+      "isHalted": true
+    },
+    "commandBlockedUnderEstop": true
+  },
+  "sensorsAndCharts": {},
+  "performance": {
+    "domCompleteMs": 822,
+    "loadEventEndMs": 822,
+    "memory": {
+      "usedJSHeapSize": 51,
+      "totalJSHeapSize": 61
+    }
+  },
+  "screenshots": [
+    {
+      "name": "vp_1586x992_reference",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_c\\screenshots\\vp_1586x992_reference.png",
+      "description": "Viewport capture: Chuẩn đối chiếu tham chiếu (Reference Match) (1586x992)"
+    },
+    {
+      "name": "vp_1536x960_desktop",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_c\\screenshots\\vp_1536x960_desktop.png",
+      "description": "Viewport capture: Màn hình máy bàn Full HD / 2K scale (1536x960)"
+    },
+    {
+      "name": "vp_1440x900_laptop",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_c\\screenshots\\vp_1440x900_laptop.png",
+      "description": "Viewport capture: Laptop 14-inch tiêu chuẩn (1440x900)"
+    },
+    {
+      "name": "vp_1280x800_compact",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_c\\screenshots\\vp_1280x800_compact.png",
+      "description": "Viewport capture: Laptop học sinh nhỏ gọn (1280x800)"
+    },
+    {
+      "name": "vp_1024x768_tablet",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_c\\screenshots\\vp_1024x768_tablet.png",
+      "description": "Viewport capture: Máy tính bảng Tablet STEM (1024x768)"
+    },
+    {
+      "name": "vp_390x844_mobile",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_c\\screenshots\\vp_390x844_mobile.png",
+      "description": "Viewport capture: Điện thoại thông minh (Mobile View) (390x844)"
+    },
+    {
+      "name": "09_camera_framing_3d",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_c\\screenshots\\09_camera_framing_3d.png",
+      "description": "3D Robot Canvas framing and perspective"
+    }
+  ],
+  "consoleErrors": [],
+  "consoleWarnings": []
+}

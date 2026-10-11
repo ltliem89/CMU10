@@ -219,6 +219,10 @@ class SimulationStore {
   // --- ACTIONS ---
 
   public setMotorSpeeds(left: number, right: number, source: string = 'Thao tác tay') {
+    if (this.state.executionState === 'EMERGENCY_STOP' && (left !== 0 || right !== 0)) {
+      // E-STOP safety lock active: ignore speed update until Reset or Clear
+      return;
+    }
     const clampedL = Math.max(-1.0, Math.min(1.0, parseFloat(left.toFixed(2))));
     const clampedR = Math.max(-1.0, Math.min(1.0, parseFloat(right.toFixed(2))));
 
@@ -594,3 +598,7 @@ class SimulationStore {
 
 // Global Singleton Instance
 export const simulationStore = new SimulationStore();
+
+if (typeof window !== 'undefined') {
+  (window as unknown as { __CMU_SIM_STORE__: SimulationStore }).__CMU_SIM_STORE__ = simulationStore;
+}

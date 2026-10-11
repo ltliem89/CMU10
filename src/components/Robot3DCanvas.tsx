@@ -29,6 +29,7 @@ interface Robot3DCanvasProps {
   onSelectComponent?: (comp: ComponentSpec | null) => void;
   inspectionMode?: InspectionMode;
   onInspectionModeChange?: (mode: InspectionMode) => void;
+  className?: string;
 }
 
 export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
@@ -37,7 +38,8 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
   selectedComponentId = null,
   onSelectComponent,
   inspectionMode = 'realistic',
-  onInspectionModeChange
+  onInspectionModeChange,
+  className = ''
 }) => {
   const canvasMountRef = useRef<HTMLDivElement>(null);
   const [webglError, setWebglError] = useState<boolean>(false);
@@ -1089,7 +1091,7 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
     <div
       data-testid="robot-3d-canvas"
       data-active-cad-mode={internalMode}
-      className="relative w-full h-full flex flex-col bg-[#070D1B] rounded-2xl overflow-hidden border border-cyan-500/25 select-none shadow-2xl"
+      className={`relative w-full h-full flex flex-col bg-[#070D1B] rounded-2xl overflow-hidden border border-cyan-500/25 select-none shadow-2xl ${className}`}
     >
       {/* Main 3D Canvas Area */}
       <div

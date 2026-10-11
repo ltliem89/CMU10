@@ -487,7 +487,7 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
                 JetBot Virtual Lab • Simulation Workspace
               </h1>
               <span className="px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                Lớp 11 STEM
+                Vật lí 10 STEM
               </span>
             </div>
             <p className="text-[10px] text-cyan-200/80">

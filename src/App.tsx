@@ -1,39 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Compass, 
-  Layers, 
-  BookOpen, 
-  Sliders, 
-  GitFork, 
-  LineChart, 
-  HelpCircle, 
-  BookA, 
   ShieldCheck, 
-  AlertTriangle, 
-  Bot, 
-  Menu, 
-  X, 
-  FileText,
-  ChevronRight,
-  ChevronDown,
-  Sparkles,
+  X,
   Sun,
   Moon,
-  Atom,
-  Cpu,
-  Zap,
-  Palette
+  Keyboard,
+  Info,
+  Layers,
+  Sparkles,
+  BookOpen
 } from 'lucide-react';
 
-import { ViewTab, ModuleMeta } from './types/jetbot';
+import { ModuleMeta } from './types/jetbot';
 import { modulesData } from './data/modulesData';
 import { functionsData } from './data/functionsData';
 import { glossaryData, quizData } from './data/glossaryData';
-import { MODULE_THEMES, STEM_PALETTE } from './theme/stemTokens';
+import { PHYSICS_10_LESSONS, Physics10Lesson } from './data/physics10LessonsData';
+import { simulationStore } from './stores/useSimulationStore';
 
+import { CMUHeader, MainWorkspaceTab } from './components/CMUHeader';
+import { CMUSimulationWorkspace } from './components/CMUSimulationWorkspace';
 import { KnowledgeMap } from './components/KnowledgeMap';
-import { RobotTwinMotorSimulator } from './components/RobotTwinMotorSimulator';
-import { TripleViewCockpit } from './components/TripleViewCockpit';
 import { ModuleDetailView } from './components/ModuleDetailView';
 import { FunctionExplorer } from './components/FunctionExplorer';
 import { PipelineDiagram } from './components/PipelineDiagram';
@@ -44,40 +31,36 @@ import { GlossaryView } from './components/GlossaryView';
 import { SourcesAndCaveats } from './components/SourcesAndCaveats';
 import { EmergencyStopModal } from './components/EmergencyStopModal';
 
-interface NavItemDef {
-  id: ViewTab;
-  label: string;
-  icon: React.ReactNode;
-  badge?: string;
-  activeColor: string; // Tailwind class
-  activeBorder: string;
-  badgeColor: string;
-}
-
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<ViewTab>('home');
+  // Main Workspace Tab (Default: 'simulation' as in CMU10 reference design)
+  const [activeTab, setActiveTab] = useState<MainWorkspaceTab>('simulation');
+  const [selectedLesson, setSelectedLesson] = useState<Physics10Lesson>(PHYSICS_10_LESSONS[0]);
   const [selectedModuleId, setSelectedModuleId] = useState<string>('teleoperation');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+
+  // Utility Modals State
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState<boolean>(false);
+  const [isLibraryModalOpen, setIsLibraryModalOpen] = useState<boolean>(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState<boolean>(false);
+
+  // Appearance Settings
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
-  const [fontSize, setFontSize] = useState<'standard' | 'large' | 'xlarge'>('large');
+  const [fontSize, setFontSize] = useState<'standard' | 'large' | 'xlarge'>('standard');
 
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
-  const [isWorkspaceFullscreen, setIsWorkspaceFullscreen] = useState<boolean>(false);
-  const [isModulesSectionOpen, setIsModulesSectionOpen] = useState<boolean>(false);
-  const [isPaletteSectionOpen, setIsPaletteSectionOpen] = useState<boolean>(false);
+  // Lessons workspace sub-tab: 'modules' | 'map' | 'pipeline'
+  const [lessonsSubTab, setLessonsSubTab] = useState<'modules' | 'map' | 'pipeline'>('modules');
 
-  // Selected module object
   const currentModule = modulesData.find((m) => m.id === selectedModuleId) || modulesData[0];
 
   const handleSelectModule = (id: string) => {
     setSelectedModuleId(id);
-    setCurrentTab('modules');
-    setIsMobileMenuOpen(false);
+    setActiveTab('lessons');
+    setLessonsSubTab('modules');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleEmergencyStop = () => {
+    simulationStore.emergencyStop();
     setIsEmergencyModalOpen(true);
   };
 
@@ -102,485 +85,313 @@ export default function App() {
     }
   }, [isDarkMode]);
 
-  // Vibrant STEM Navigation Definition (Compact & concise)
-  const navItems: NavItemDef[] = [
-    { 
-      id: 'home', 
-      label: 'Kiến Thức', 
-      icon: <Layers className="w-4 h-4" />, 
-      activeColor: 'bg-blue-600 text-white shadow-blue-500/25',
-      activeBorder: 'border-blue-400',
-      badgeColor: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200'
-    },
-    { 
-      id: 'robot-sim', 
-      label: 'Robot 2 Động Cơ', 
-      icon: <Compass className="w-4 h-4" />, 
-      badge: 'Mô phỏng',
-      activeColor: 'bg-orange-600 text-white shadow-orange-500/25',
-      activeBorder: 'border-orange-400',
-      badgeColor: 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-200'
-    },
-    { 
-      id: 'modules', 
-      label: '12 Modules', 
-      icon: <Bot className="w-4 h-4" />, 
-      badge: '12 Bài',
-      activeColor: 'bg-purple-600 text-white shadow-purple-500/25',
-      activeBorder: 'border-purple-400',
-      badgeColor: 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200'
-    },
-    { 
-      id: 'pipeline', 
-      label: 'Sơ Đồ Quy Trình', 
-      icon: <GitFork className="w-4 h-4" />, 
-      activeColor: 'bg-teal-600 text-white shadow-teal-500/25',
-      activeBorder: 'border-teal-400',
-      badgeColor: 'bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-200'
-    },
-    { 
-      id: 'functions', 
-      label: 'Thư Viện Hàm', 
-      icon: <BookOpen className="w-4 h-4" />, 
-      badge: `${functionsData.length}+`,
-      activeColor: 'bg-amber-600 text-white shadow-amber-500/25',
-      activeBorder: 'border-amber-400',
-      badgeColor: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200'
-    },
-    { 
-      id: 'training-charts', 
-      label: 'Đồ Thị AI', 
-      icon: <LineChart className="w-4 h-4" />, 
-      badge: 'Bokeh',
-      activeColor: 'bg-teal-600 text-white shadow-teal-500/25',
-      activeBorder: 'border-teal-400',
-      badgeColor: 'bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-200'
-    },
-    { 
-      id: 'what-if', 
-      label: 'Thí Nghiệm Nếu-Như', 
-      icon: <Sliders className="w-4 h-4" />, 
-      badge: 'Lab',
-      activeColor: 'bg-pink-600 text-white shadow-pink-500/25',
-      activeBorder: 'border-pink-400',
-      badgeColor: 'bg-pink-100 text-pink-800 dark:bg-pink-900/50 dark:text-pink-200'
-    },
-    { 
-      id: 'quiz', 
-      label: 'Trắc Nghiệm', 
-      icon: <HelpCircle className="w-4 h-4" />, 
-      badge: '10 Câu',
-      activeColor: 'bg-green-600 text-white shadow-green-500/25',
-      activeBorder: 'border-green-400',
-      badgeColor: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200'
-    },
-    { 
-      id: 'glossary', 
-      label: 'Thuật Ngữ', 
-      icon: <BookA className="w-4 h-4" />, 
-      activeColor: 'bg-purple-600 text-white shadow-purple-500/25',
-      activeBorder: 'border-purple-400',
-      badgeColor: 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200'
-    },
-    { 
-      id: 'sources', 
-      label: 'Nguồn & Lưu Ý', 
-      icon: <FileText className="w-4 h-4" />, 
-      activeColor: 'bg-blue-600 text-white shadow-blue-500/25',
-      activeBorder: 'border-blue-400',
-      badgeColor: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200'
-    }
-  ];
+  // Global Keyboard Shortcuts (Spacebar = E-STOP, Arrows = Motors)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        (e.target as HTMLElement)?.isContentEditable
+      ) {
+        return;
+      }
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        handleEmergencyStop();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        simulationStore.setMotorSpeeds(0.6, 0.6, 'Phím Mũi Tên: Tiến');
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        simulationStore.setMotorSpeeds(-0.5, -0.5, 'Phím Mũi Tên: Lùi');
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        simulationStore.setMotorSpeeds(-0.4, 0.4, 'Phím Mũi Tên: Xoay Trái');
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        simulationStore.setMotorSpeeds(0.4, -0.4, 'Phím Mũi Tên: Xoay Phải');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B1120] text-[#172033] dark:text-[#F8FAFC] flex flex-col font-sans text-base transition-colors duration-200 stem-lab-grid">
-      {/* Top Global Vibrant STEM Header */}
-      <header className="sticky top-0 z-40 bg-gradient-to-r from-blue-700 via-indigo-900 to-purple-900 text-white shadow-md border-b border-indigo-700/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between gap-3">
-          {/* Logo & Project Title */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition"
-              aria-label="Toggle Navigation"
-            >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+    <div className="min-h-screen bg-[#EEF5FC] dark:bg-[#0B1120] text-[#102B52] dark:text-[#F8FAFC] flex flex-col font-sans transition-colors duration-200">
+      {/* 1. Global CMU10 Reference Top Header */}
+      <CMUHeader
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        onOpenLibrary={() => setIsLibraryModalOpen(true)}
+        onOpenSettings={() => setIsSettingsModalOpen(true)}
+        onOpenHelp={() => setIsHelpModalOpen(true)}
+        onEmergencyStop={handleEmergencyStop}
+      />
 
-            <div
-              onClick={() => setCurrentTab('home')}
-              className="cursor-pointer flex items-center gap-3.5 group"
-            >
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#2563EB] via-[#8B5CF6] to-[#EC4899] p-0.5 shadow-lg group-hover:scale-105 transition-transform duration-200">
-                <div className="w-full h-full bg-slate-950/70 rounded-[14px] flex items-center justify-center text-white backdrop-blur-xs">
-                  <Bot className="w-6 h-6 text-cyan-300 animate-pulse" />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-black text-lg sm:text-xl tracking-tight text-white group-hover:text-cyan-200 transition">
-                    JetBot AI Studio
-                  </span>
-                  <span className="hidden sm:inline-block px-2.5 py-0.5 text-xs font-black rounded-full bg-emerald-400 text-emerald-950 shadow-xs">
-                    VIBRANT STEM
-                  </span>
-                  <span className="hidden md:inline-block px-2 py-0.5 text-xs font-bold rounded-full bg-white/15 text-pink-200 border border-pink-300/30">
-                    Lớp 11
-                  </span>
-                </div>
-                <p className="text-xs text-indigo-100 hidden sm:block">
-                  Phòng thí nghiệm lập trình robot vi sai &amp; AI bám đường / tránh va chạm
-                </p>
-              </div>
-            </div>
-          </div>
+      {/* 2. Main Workspaces (Switch according to activeTab) */}
+      <main className="flex-1 w-full flex flex-col">
+        {/* Workspace 1: Simulation-First (Reference Screen View) */}
+        {activeTab === 'simulation' && (
+          <CMUSimulationWorkspace
+            selectedLesson={selectedLesson}
+            onSelectLesson={setSelectedLesson}
+            selectedModuleId={selectedModuleId}
+            onSelectModule={(m) => handleSelectModule(m.id)}
+            onEmergencyStop={handleEmergencyStop}
+          />
+        )}
 
-          {/* Controls: Dark Mode, Font Size, Safety Indicator & Emergency Button */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Dark / Light Mode Switcher */}
-            <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              title={isDarkMode ? 'Chuyển sang Chế độ sáng' : 'Chuyển sang Chế độ phòng thí nghiệm đêm (Neon)'}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition flex items-center justify-center border border-white/15"
-              aria-label="Toggle Dark Mode"
-            >
-              {isDarkMode ? (
-                <Sun className="w-5 h-5 text-amber-300" />
-              ) : (
-                <Moon className="w-5 h-5 text-indigo-200" />
-              )}
-            </button>
-
-            {/* Font Size Adjuster Control */}
-            <div className="flex items-center bg-black/30 rounded-xl p-1 border border-white/15 text-xs backdrop-blur-xs">
-              <span className="text-slate-300 font-semibold px-2 hidden lg:inline">Cỡ chữ:</span>
-              <button
-                onClick={() => setFontSize('standard')}
-                title="Cỡ chữ Chuẩn (17.5px)"
-                className={`px-2 py-1 rounded-lg font-bold transition text-xs ${
-                  fontSize === 'standard' ? 'bg-[#2563EB] text-white shadow-xs' : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                A
-              </button>
-              <button
-                onClick={() => setFontSize('large')}
-                title="Cỡ chữ Lớn (19.5px)"
-                className={`px-2 py-1 rounded-lg font-bold transition text-sm ${
-                  fontSize === 'large' ? 'bg-[#2563EB] text-white shadow-xs' : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                A+
-              </button>
-              <button
-                onClick={() => setFontSize('xlarge')}
-                title="Cỡ chữ Cực Lớn (21.5px)"
-                className={`px-2 py-1 rounded-lg font-bold transition text-base ${
-                  fontSize === 'xlarge' ? 'bg-[#2563EB] text-white shadow-xs' : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                A++
-              </button>
-            </div>
-
-            {/* Safety Mode Badge */}
-            <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Mô phỏng an toàn</span>
-            </div>
-
-            {/* Emergency Stop Button */}
-            <button
-              onClick={handleEmergencyStop}
-              className="px-3.5 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 active:scale-95 text-white text-xs sm:text-sm font-black flex items-center gap-1.5 shadow-md transition border border-red-400/30"
-            >
-              <AlertTriangle className="w-4.5 h-4.5 animate-bounce" />
-              <span className="tracking-tight">DỪNG KHẨN CẤP</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Body Layout */}
-      <div className={`w-full px-3 sm:px-4 py-3 sm:py-4 flex-1 flex gap-3 sm:gap-4 ${currentTab === 'robot-sim' ? 'max-w-[1680px] mx-auto' : 'max-w-7xl mx-auto'}`}>
-        {/* Desktop Sidebar Navigation */}
-        <aside className={`hidden md:flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'w-16' : 'w-56 lg:w-60'} shrink-0 space-y-2.5 select-none`}>
-          {/* Main Navigation Deck */}
-          <nav className="bg-white dark:bg-[#131E36] rounded-2xl border border-slate-200 dark:border-slate-800 p-2 shadow-sm space-y-1">
-            <div className="px-2 py-1.5 text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center justify-between">
-              {!isSidebarCollapsed && <span>ĐIỀU HƯỚNG STEM LAB</span>}
-              <button 
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                title={isSidebarCollapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên (56-72px)"}
-                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 ml-auto"
-              >
-                <Atom className="w-3.5 h-3.5 text-purple-500" />
-              </button>
-            </div>
-
-            {navItems.map((item) => {
-              const isActive = currentTab === item.id;
-              return (
+        {/* Workspace 2: Lessons (Bài học & 12 Chuyên đề) */}
+        {activeTab === 'lessons' && (
+          <div className="max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-4">
+            {/* Sub-navigation bar inside Lessons */}
+            <div className="flex items-center justify-between gap-3 bg-white dark:bg-[#131E36] p-2.5 rounded-2xl border border-[#D6E3F2] dark:border-slate-800 shadow-xs">
+              <div className="flex items-center gap-1.5 text-xs font-bold">
                 <button
-                  key={item.id}
-                  onClick={() => {
-                    setCurrentTab(item.id);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  title={isSidebarCollapsed ? item.label : undefined}
-                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center px-1.5 py-1.5' : 'justify-between px-2.5 py-1.5'} rounded-xl text-xs font-semibold transition-all duration-150 ${
-                    isActive
-                      ? `${item.activeColor} font-bold shadow-md scale-[1.01]`
-                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-950 dark:hover:text-white'
+                  onClick={() => setLessonsSubTab('modules')}
+                  className={`px-3 py-1.5 rounded-xl transition ${
+                    lessonsSubTab === 'modules'
+                      ? 'bg-[#1677FF] text-white shadow-xs'
+                      : 'text-[#102B52] dark:text-slate-300 hover:bg-slate-100'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5 truncate">
-                    <span className={isActive ? 'text-white shrink-0' : 'text-slate-400 dark:text-slate-500 shrink-0'}>
-                      {item.icon}
-                    </span>
-                    {!isSidebarCollapsed && <span className="truncate">{item.label}</span>}
-                  </div>
-                  {!isSidebarCollapsed && item.badge && (
-                    <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
-                        isActive
-                          ? 'bg-white/20 text-white'
-                          : item.badgeColor
-                      }`}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
+                  12 Chuyên Đề Chi Tiết
                 </button>
-              );
-            })}
-          </nav>
-
-          {!isSidebarCollapsed && (
-            <>
-              {/* Collapsible 12-Module Color Coded List */}
-              <div className="bg-white dark:bg-[#131E36] rounded-2xl border border-slate-200 dark:border-slate-800 p-2.5 shadow-sm space-y-1.5">
                 <button
-                  onClick={() => setIsModulesSectionOpen(!isModulesSectionOpen)}
-                  className="w-full flex items-center justify-between px-1.5 text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition"
-                  title="Bấm để mở/thu gọn danh sách 12 modules"
+                  onClick={() => setLessonsSubTab('map')}
+                  className={`px-3 py-1.5 rounded-xl transition ${
+                    lessonsSubTab === 'map'
+                      ? 'bg-[#1677FF] text-white shadow-xs'
+                      : 'text-[#102B52] dark:text-slate-300 hover:bg-slate-100'
+                  }`}
                 >
-                  <span className="flex items-center gap-1.5">
-                    <Palette className="w-3.5 h-3.5 text-pink-500" />
-                    12 Modules
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-bold">
-                      M1-M12
-                    </span>
-                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isModulesSectionOpen ? 'rotate-180' : ''}`} />
-                  </div>
+                  Bản Đồ Mạng Lưới Kiến Thức
                 </button>
-                {isModulesSectionOpen && (
-                  <div className="space-y-0.5 max-h-48 overflow-y-auto pr-1 pt-1 border-t border-slate-100 dark:border-slate-800/80">
-                    {modulesData.map((m) => {
-                      const theme = MODULE_THEMES[m.id] || MODULE_THEMES['teleoperation'];
-                      const isSelected = currentTab === 'modules' && selectedModuleId === m.id;
-                      return (
-                        <button
-                          key={m.id}
-                          onClick={() => handleSelectModule(m.id)}
-                          className={`w-full text-left px-2 py-1 rounded-lg text-xs transition-all flex items-center justify-between ${
-                            isSelected
-                              ? `${theme.accentBg} ${theme.accentText} font-black border ${theme.accentBorder} shadow-xs`
-                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-medium'
-                          }`}
-                          title={`Module ${m.number}: ${m.nameVi}`}
-                        >
-                          <div className="flex items-center gap-1.5 truncate">
-                            <span 
-                              className="w-2 h-2 rounded-full shrink-0 shadow-2xs" 
-                              style={{ backgroundColor: theme.primaryHex }}
-                            />
-                            <span className="truncate text-[11px]">
-                              M{m.number}: {m.nameVi}
-                            </span>
-                          </div>
-                          <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Collapsible Vibrant STEM Palette Visual Guide Card */}
-              <div className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 dark:from-indigo-950/40 dark:via-purple-950/40 dark:to-pink-950/40 p-2.5 rounded-2xl border border-indigo-200/50 dark:border-indigo-800/40 space-y-1.5">
                 <button
-                  onClick={() => setIsPaletteSectionOpen(!isPaletteSectionOpen)}
-                  className="w-full font-bold text-slate-800 dark:text-slate-200 text-[11px] flex items-center justify-between hover:text-slate-950 dark:hover:text-white transition"
-                  title="Bấm để mở/thu gọn quy chuẩn màu"
+                  onClick={() => setLessonsSubTab('pipeline')}
+                  className={`px-3 py-1.5 rounded-xl transition ${
+                    lessonsSubTab === 'pipeline'
+                      ? 'bg-[#1677FF] text-white shadow-xs'
+                      : 'text-[#102B52] dark:text-slate-300 hover:bg-slate-100'
+                  }`}
                 >
-                  <span className="flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-                    Màu STEM Chuẩn
-                  </span>
-                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isPaletteSectionOpen ? 'rotate-180' : ''}`} />
-                </button>
-                {isPaletteSectionOpen && (
-                  <div className="grid grid-cols-2 gap-1 text-[10px] pt-1 border-t border-indigo-200/30 dark:border-indigo-800/30">
-                    <div className="flex items-center gap-1.5 text-blue-700 dark:text-blue-300">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                      <span>Xanh: Điều khiển</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-purple-700 dark:text-purple-300">
-                      <span className="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
-                      <span>Tím: AI &amp; Mạng</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-pink-700 dark:text-pink-300">
-                      <span className="w-1.5 h-1.5 rounded-full bg-pink-600"></span>
-                      <span>Hồng: Sáng tạo</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-orange-700 dark:text-orange-300">
-                      <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
-                      <span>Cam: Thử nghiệm</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                      <span>Vàng: Khám phá</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-teal-700 dark:text-teal-300">
-                      <span className="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
-                      <span>Ngọc: Cảm biến</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </aside>
-
-        {/* Mobile Navigation Drawer */}
-        {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-950/70 md:hidden flex">
-            <div className="w-80 bg-white dark:bg-[#131E36] h-full p-4 overflow-y-auto space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                <span className="font-black text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                  <Bot className="w-5 h-5 text-blue-600" />
-                  Danh Mục Bài Học JetBot
-                </span>
-                <button
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-                >
-                  <X className="w-5 h-5" />
+                  Sơ Đồ Hệ Thống &amp; Phần Cứng
                 </button>
               </div>
 
-              <div className="space-y-1">
-                {navItems.map((item) => {
-                  const isActive = currentTab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => {
-                        setCurrentTab(item.id);
-                        setIsMobileMenuOpen(false);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
-                        isActive
-                          ? `${item.activeColor} font-bold shadow-xs`
-                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        {item.icon}
-                        <span>{item.label}</span>
-                      </div>
-                      {item.badge && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
-                <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block mb-2">
-                  12 Modules Nguồn:
-                </span>
-                <div className="space-y-1 max-h-60 overflow-y-auto">
-                  {modulesData.map((m) => {
-                    const theme = MODULE_THEMES[m.id] || MODULE_THEMES['teleoperation'];
-                    return (
-                      <button
-                        key={m.id}
-                        onClick={() => handleSelectModule(m.id)}
-                        className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 truncate"
-                      >
-                        <span
-                          className="w-2 h-2 rounded-full shrink-0"
-                          style={{ backgroundColor: theme.primaryHex }}
-                        />
-                        <span className="truncate">
-                          M{m.number}: {m.nameVi}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <button
+                onClick={() => setActiveTab('simulation')}
+                className="px-3 py-1.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 transition shadow-xs"
+              >
+                <span>Mở Phòng Thí Nghiệm Cho Bài Này</span>
+                <span className="font-mono">&rarr;</span>
+              </button>
             </div>
+
+            {lessonsSubTab === 'modules' && (
+              <ModuleDetailView
+                module={currentModule}
+                allModules={modulesData}
+                onSelectModule={handleSelectModule}
+                onEmergencyStop={handleEmergencyStop}
+              />
+            )}
+
+            {lessonsSubTab === 'map' && (
+              <KnowledgeMap onSelectModule={handleSelectModule} modules={modulesData} />
+            )}
+
+            {lessonsSubTab === 'pipeline' && <PipelineDiagram />}
           </div>
         )}
 
-        {/* Main Content Workspace */}
-        <main className="flex-1 min-w-0">
-          {currentTab === 'home' && (
-            <KnowledgeMap onSelectModule={handleSelectModule} modules={modulesData} />
-          )}
-
-          {currentTab === 'robot-sim' && (
-            <div className={`space-y-6 ${isWorkspaceFullscreen ? 'fixed inset-0 z-[100] bg-[#050914] p-0' : 'h-full flex flex-col'}`}>
-              <TripleViewCockpit 
-                onEmergencyStop={handleEmergencyStop} 
-                isSidebarCollapsed={isSidebarCollapsed}
-                onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                isFullscreen={isWorkspaceFullscreen}
-                onToggleFullscreen={() => setIsWorkspaceFullscreen(!isWorkspaceFullscreen)}
-              />
+        {/* Workspace 3: Coding (Lập trình Python & Thư viện hàm) */}
+        {activeTab === 'coding' && (
+          <div className="max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-4">
+            <div className="bg-white dark:bg-[#131E36] p-4 rounded-2xl border border-[#D6E3F2] dark:border-slate-800 shadow-xs flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-[#102B52] dark:text-white">
+                  Studio Lập Trình Python JetBot
+                </h2>
+                <p className="text-xs text-[#526B8A] dark:text-slate-400">
+                  Tra cứu API và thực thi lệnh trực tiếp vào robot mô phỏng vi sai
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveTab('simulation')}
+                className="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-[#1677FF] text-white hover:bg-blue-600 shadow-xs"
+              >
+                Quan Sát Kết Quả Trên Sa Bàn &rarr;
+              </button>
             </div>
-          )}
-
-          {currentTab === 'modules' && (
-            <ModuleDetailView
-              module={currentModule}
-              allModules={modulesData}
-              onSelectModule={handleSelectModule}
-              onEmergencyStop={handleEmergencyStop}
-            />
-          )}
-
-          {currentTab === 'pipeline' && <PipelineDiagram />}
-
-          {currentTab === 'functions' && (
             <FunctionExplorer functions={functionsData} onSelectModule={handleSelectModule} />
-          )}
+          </div>
+        )}
 
-          {currentTab === 'training-charts' && <TrainingChartsView />}
+        {/* Workspace 4: Analytics (Phân tích đồ thị & Thí nghiệm nếu-như) */}
+        {activeTab === 'analytics' && (
+          <div className="max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6">
+            <div className="bg-white dark:bg-[#131E36] p-4 rounded-2xl border border-[#D6E3F2] dark:border-slate-800 shadow-xs">
+              <h2 className="text-lg font-bold text-[#102B52] dark:text-white">
+                Không Gian Phân Tích Thực Nghiệm Vật Lí 10 &amp; AI
+              </h2>
+              <p className="text-xs text-[#526B8A] dark:text-slate-400">
+                Khảo sát tác động của ma sát, khối lượng xe và quá trình hội tụ của mô hình học máy
+              </p>
+            </div>
+            <WhatIfPlayground />
+            <TrainingChartsView />
+          </div>
+        )}
 
-          {currentTab === 'what-if' && <WhatIfPlayground />}
-
-          {currentTab === 'quiz' && (
+        {/* Workspace 5: Reports (Báo cáo & Đánh giá kết quả) */}
+        {activeTab === 'reports' && (
+          <div className="max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6">
+            <div className="bg-white dark:bg-[#131E36] p-4 rounded-2xl border border-[#D6E3F2] dark:border-slate-800 shadow-xs">
+              <h2 className="text-lg font-bold text-[#102B52] dark:text-white">
+                Đánh Giá Kiến Thức &amp; Báo Cáo Thí Nghiệm
+              </h2>
+              <p className="text-xs text-[#526B8A] dark:text-slate-400">
+                Kiểm tra kiến thức Vật lí 10 &amp; Robotics thông qua bộ 10 câu hỏi tương tác có chấm điểm
+              </p>
+            </div>
             <QuizPanel questions={quizData} onSelectModule={handleSelectModule} />
-          )}
+          </div>
+        )}
+      </main>
 
-          {currentTab === 'glossary' && <GlossaryView terms={glossaryData} />}
+      {/* 3. Utility Modals */}
+      {/* Library Modal (Glossary) */}
+      {isLibraryModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#131E36] w-full max-w-4xl max-h-[85vh] rounded-3xl border border-[#D6E3F2] dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden">
+            <div className="px-5 py-4 border-b border-[#D6E3F2] dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-[#1677FF]" />
+                <h3 className="font-bold text-base text-[#102B52] dark:text-white">
+                  Thư Viện Tra Cứu Thuật Ngữ Vật Lí 10 &amp; Robotics
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsLibraryModalOpen(false)}
+                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto flex-1">
+              <GlossaryView terms={glossaryData} />
+            </div>
+          </div>
+        </div>
+      )}
 
-          {currentTab === 'sources' && (
-            <SourcesAndCaveats modules={modulesData} onSelectModule={handleSelectModule} />
-          )}
-        </main>
-      </div>
+      {/* Settings Modal */}
+      {isSettingsModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#131E36] w-full max-w-md rounded-3xl border border-[#D6E3F2] dark:border-slate-800 shadow-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="font-bold text-base text-[#102B52] dark:text-white">
+                Cài Đặt Giao Diện &amp; Trợ Năng
+              </h3>
+              <button
+                onClick={() => setIsSettingsModalOpen(false)}
+                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-[#F8FAFD] dark:bg-slate-800/50 border border-[#D6E3F2] dark:border-slate-700">
+                <span className="font-bold text-[#102B52] dark:text-white">Chế độ hiển thị:</span>
+                <button
+                  onClick={() => setIsDarkMode(!isDarkMode)}
+                  className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-[#D6E3F2] dark:border-slate-700 font-bold flex items-center gap-1.5 text-slate-800 dark:text-white"
+                >
+                  {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-400" />}
+                  <span>{isDarkMode ? 'Chế độ Sáng' : 'Chế độ Tối'}</span>
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-[#F8FAFD] dark:bg-slate-800/50 border border-[#D6E3F2] dark:border-slate-700">
+                <span className="font-bold text-[#102B52] dark:text-white">Cỡ chữ hiển thị:</span>
+                <div className="flex items-center gap-1 font-bold">
+                  <button
+                    onClick={() => setFontSize('standard')}
+                    className={`px-2.5 py-1 rounded-lg text-xs ${
+                      fontSize === 'standard' ? 'bg-[#1677FF] text-white' : 'bg-slate-100 dark:bg-slate-800'
+                    }`}
+                  >
+                    A
+                  </button>
+                  <button
+                    onClick={() => setFontSize('large')}
+                    className={`px-2.5 py-1 rounded-lg text-sm ${
+                      fontSize === 'large' ? 'bg-[#1677FF] text-white' : 'bg-slate-100 dark:bg-slate-800'
+                    }`}
+                  >
+                    A+
+                  </button>
+                  <button
+                    onClick={() => setFontSize('xlarge')}
+                    className={`px-2.5 py-1 rounded-lg text-base ${
+                      fontSize === 'xlarge' ? 'bg-[#1677FF] text-white' : 'bg-slate-100 dark:bg-slate-800'
+                    }`}
+                  >
+                    A++
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsSettingsModalOpen(false)}
+              className="w-full py-2.5 rounded-xl bg-[#1677FF] text-white font-bold text-xs hover:bg-blue-600 transition shadow-xs"
+            >
+              Hoàn Tất Cài Đặt
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Help Modal */}
+      {isHelpModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#131E36] w-full max-w-3xl max-h-[85vh] rounded-3xl border border-[#D6E3F2] dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden">
+            <div className="px-5 py-4 border-b border-[#D6E3F2] dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Info className="w-5 h-5 text-[#1677FF]" />
+                <h3 className="font-bold text-base text-[#102B52] dark:text-white">
+                  Hướng Dẫn &amp; Phím Tắt Điều Khiển CMU10
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsHelpModalOpen(false)}
+                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4 overflow-y-auto flex-1 text-xs text-[#526B8A] dark:text-slate-300">
+              <div className="bg-blue-50 dark:bg-blue-950/40 p-4 rounded-2xl border border-blue-200 dark:border-blue-900 text-[#102B52] dark:text-blue-200 space-y-2">
+                <h4 className="font-bold text-sm flex items-center gap-1.5">
+                  <Keyboard className="w-4 h-4 text-[#1677FF]" /> Phím Tắt Điều Khiển Bàn Phím
+                </h4>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>• <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 font-mono font-bold">Spacebar</kbd>: Dừng Khẩn Cấp (E-STOP)</div>
+                  <div>• <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 font-mono font-bold">Mũi Tên Lên</kbd>: Xe Tiến Thẳng</div>
+                  <div>• <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 font-mono font-bold">Mũi Tên Xuống</kbd>: Xe Chạy Lùi</div>
+                  <div>• <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 font-mono font-bold">Mũi Tên Trái/Phải</kbd>: Quay Xe Tại Chỗ</div>
+                </div>
+              </div>
+              <SourcesAndCaveats modules={modulesData} onSelectModule={handleSelectModule} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Global Emergency Stop Modal */}
       <EmergencyStopModal
@@ -588,32 +399,20 @@ export default function App() {
         onClose={() => setIsEmergencyModalOpen(false)}
       />
 
-      {/* Modern STEM Lab Footer */}
-      <footer className="bg-white dark:bg-[#131E36] border-t border-slate-200 dark:border-slate-800 py-6 mt-12 text-xs text-slate-500 dark:text-slate-400">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+      {/* Footer */}
+      <footer className="bg-white dark:bg-[#131E36] border-t border-[#D6E3F2] dark:border-slate-800 py-4 text-xs text-[#526B8A] dark:text-slate-400 select-none">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="font-black text-slate-900 dark:text-white">
-              JetBot AI Studio
+            <span className="font-black text-[#102B52] dark:text-white">
+              CMU10 JetBot AI Studio
             </span>
             <span>—</span>
-            <span>Phòng thí nghiệm STEM Colorful EdTech cho học sinh lớp 11</span>
+            <span>Phòng thí nghiệm STEM Robotics dành cho học sinh Vật lí 10 (Chương trình GDPT 2018)</span>
           </div>
-          <div className="flex items-center gap-3 text-slate-400 dark:text-slate-500">
-            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5" /> An Toàn 100%
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
+              <ShieldCheck className="w-3.5 h-3.5" /> Mô phỏng trình duyệt an toàn 100%
             </span>
-            <span>•</span>
-            <span>Mô phỏng trình duyệt</span>
-            <span>•</span>
-            <button
-              onClick={() => {
-                setCurrentTab('sources');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="text-blue-600 dark:text-blue-400 hover:underline font-bold"
-            >
-              Kiểm kê kỹ thuật 12 Notebooks
-            </button>
           </div>
         </div>
       </footer>

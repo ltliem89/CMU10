@@ -1,0 +1,130 @@
+{
+  "timestamp": "2026-10-11T12:25:47.597Z",
+  "invariants": [
+    {
+      "title": "Initial Pose & State Match Physics Bounds",
+      "passed": true,
+      "evidence": "Initial pose: x=-0.8m, z=0m, yaw=0rad, state=STOPPED"
+    },
+    {
+      "title": "Kinematics Continuous Integration (RUN)",
+      "passed": true,
+      "evidence": "Robot moved forward: x=-0.698m, time=0.43s, trajectory points=3"
+    },
+    {
+      "title": "Clock Freeze on PAUSE (No Zombie Integration)",
+      "passed": true,
+      "evidence": "simTimeSec frozen at 0.428s across 300ms pause interval"
+    },
+    {
+      "title": "Single Discrete Step (+0.1s)",
+      "passed": true,
+      "evidence": "Time stepped from 0.428s to 0.528s (exact delta 0.100s)"
+    },
+    {
+      "title": "State & Pose Parity Across View Transitions (2D/3D/FPV/TRIPLE)",
+      "passed": true,
+      "evidence": "All views switched smoothly preserving continuous coordinates: 3D: (-0.67, 0.00) -> FPV: (-0.67, 0.00) -> TRIPLE: (-0.67, 0.00) -> 2D: (-0.67, 0.00)"
+    },
+    {
+      "title": "E-STOP Immediate Motor Cutoff & Safety Latched",
+      "passed": true,
+      "evidence": "State=EMERGENCY_STOP, PWM=0%, Target=0, Action=\"NGẮT KHẨN CẤP AN TOÀN (EMERGENCY STOP)\""
+    },
+    {
+      "title": "RESET Restores Initial Pose & Clears Odometry",
+      "passed": true,
+      "evidence": "Reset verified: x=-0.8m, z=0m, yaw=0rad, simTime=0s, trajectory reset to start"
+    }
+  ],
+  "mapInteractions": [
+    {
+      "title": "Map Zoom In Functionality",
+      "passed": true,
+      "evidence": "Zoom ratio updated on UI: 125%"
+    },
+    {
+      "title": "Map Fit Scene Functionality",
+      "passed": true,
+      "evidence": "Zoom reset to 100% full arena bounding fit: 100%"
+    },
+    {
+      "title": "Map Focus Robot Functionality",
+      "passed": true,
+      "evidence": "Focus Robot button active and centers viewport on robot coordinate"
+    },
+    {
+      "title": "Click-to-Goal Interaction Mode Toggle",
+      "passed": true,
+      "evidence": "Target cursor / Click-to-goal mode engaged successfully"
+    },
+    {
+      "title": "Interactive Goal Placement on Arena Map",
+      "passed": true,
+      "evidence": "Goal waypoint placed and target coordinate badge surfaced on map HUD"
+    }
+  ],
+  "uiFidelity": [
+    {
+      "title": "CMUHeader Height Conformance",
+      "passed": true,
+      "evidence": "DOM height: 81px (Reference image: 84px navy strip, delta < 4px)"
+    },
+    {
+      "title": "GDPT 2018 Grade 10 Strict Compliance (Zero Grade 11 Copy)",
+      "passed": true,
+      "evidence": "Scanned full DOM text: PASS: Zero occurrences of Grade 11 found"
+    },
+    {
+      "title": "Grade 10 Physics Lessons Surfaced in Primary Sidebar",
+      "passed": true,
+      "evidence": "Lesson 1 \"Chuyển động thẳng đều\" rendered and interactive"
+    },
+    {
+      "title": "5 Main Educational Pillars Navigation Header",
+      "passed": true,
+      "evidence": "All 5 pillars rendered in top navigation (5/5 verified)"
+    },
+    {
+      "title": "RobotStatusPanel Real-time D-Pad Control",
+      "passed": true,
+      "evidence": "Status panel active, D-pad forward command set motor speed to 0.8"
+    },
+    {
+      "title": "SimulationHUD Real-time Gauge & Telemetry Strip",
+      "passed": true,
+      "evidence": "Speedometer gauge (m/s) and physics odometer overlay active"
+    },
+    {
+      "title": "Zero Console Errors & Unhandled Exceptions",
+      "passed": true,
+      "evidence": "Clean console: 0 errors detected across full test suite execution"
+    }
+  ],
+  "legacyParity": [
+    {
+      "title": "Curriculum Switcher to 12 Original JetBot Modules",
+      "passed": true,
+      "evidence": "12 JetBot Modules accessible via toggle: Module 01 visible"
+    },
+    {
+      "title": "Triple View Cockpit Mounting & Telemetry Integration",
+      "passed": true,
+      "evidence": "Triple-view cockpit fully mounted and active with independent telemetry HUD strip"
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "07_map_interaction_verified",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\07_map_interaction_verified.png",
+      "description": "Tactical Arena Map with Zoom, Pan, Fit, and Goal Placement verified"
+    },
+    {
+      "name": "08_triple_view_cockpit_verified",
+      "filePath": "C:\\Users\\ltlie\\Documents\\GIT-DA\\17.CMU10\\CMU10\\reports\\phase_b\\screenshots\\08_triple_view_cockpit_verified.png",
+      "description": "Triple View Cockpit mounted inside simulation workspace"
+    }
+  ],
+  "consoleErrors": [],
+  "consoleWarnings": []
+}

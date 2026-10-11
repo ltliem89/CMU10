@@ -1,5 +1,5 @@
 /**
- * Vibrant STEM Design System Tokens for CMU Grade 11 JetBot Studio
+ * Vibrant STEM Design System Tokens for CMU Grade 10 JetBot Studio (Vật lí 10)
  * Theme: Colorful EdTech - Interactive Science Lab
  */
 

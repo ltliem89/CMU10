@@ -173,6 +173,14 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || (e.target as HTMLElement)?.isContentEditable) {
         return;
       }
+      if (e.key === 'Escape') {
+        setPendingGoal(null);
+        setGoalStatus('IDLE');
+        setGoalFeedbackMessage(null);
+        if (interactionModeRef.current === 'goal') {
+          setInteractionMode('inspect');
+        }
+      }
       if (e.code === 'Space') {
         if (isMouseOverMapRef.current) {
           e.stopPropagation();
@@ -637,6 +645,7 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
       >
         <svg
           ref={svgRef}
+          data-testid="tactical-map-svg"
           className={`w-full h-full rounded-xl border border-slate-800/80 ${getCursorClass()}`}
           viewBox="0 0 600 400"
           preserveAspectRatio="xMidYMid meet"
@@ -991,7 +1000,7 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({
         {/* 6. GOAL CONFIRMATION PILL & FEEDBACK BANNER                                   */}
         {/* ============================================================================== */}
         {pendingGoal && (
-          <div className="absolute top-12 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2.5 px-3 py-1.5 bg-slate-950/95 backdrop-blur-lg border border-pink-500/50 rounded-2xl shadow-2xl pointer-events-auto animate-bounce-subtle">
+          <div data-testid="goal-confirmation-pill" className="absolute top-12 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2.5 px-3 py-1.5 bg-slate-950/95 backdrop-blur-lg border border-pink-500/50 rounded-2xl shadow-2xl pointer-events-auto animate-bounce-subtle">
             <Target className="w-4 h-4 text-pink-400 animate-pulse" />
             <span className="text-xs font-mono text-white">
               Đích: X=<strong className="text-pink-300">{pendingGoal.x.toFixed(2)}m</strong>, Z=<strong className="text-pink-300">{pendingGoal.z.toFixed(2)}m</strong>

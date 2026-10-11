@@ -36,6 +36,7 @@ import {
   Box,
   Ruler
 } from 'lucide-react';
+import { simulationStore } from '../stores/useSimulationStore';
 import { Robot3DCanvas } from './Robot3DCanvas';
 import { MechanicalAcceptanceModal } from './MechanicalAcceptanceModal';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -79,6 +80,13 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
   const [isSyncLocked, setIsSyncLocked] = useState<boolean>(false);
   const [isRunning, setIsRunning] = useState<boolean>(true);
   const [showVectors, setShowVectors] = useState<boolean>(true);
+
+  // Synchronize twin motor speeds with unified simulationStore
+  useEffect(() => {
+    if (isRunning && !isExternalControlled) {
+      simulationStore.setMotorSpeeds(leftSpeed, rightSpeed, 'TwinMotorSimulator Sync');
+    }
+  }, [leftSpeed, rightSpeed, isRunning, isExternalControlled]);
   const [showTrail, setShowTrail] = useState<boolean>(true);
   const [showCameraCone, setShowCameraCone] = useState<boolean>(true);
 
@@ -339,78 +347,51 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
     }
   }, [isExternalControlled, externalLeftSpeed, externalRightSpeed, logMotorCommand]);
 
-  // Animation simulation loop
+  // Synchronize 2D pose and kinematics with single source of truth simulationStore
   useEffect(() => {
-    if (!isRunning) return;
+    let lastTime = 0;
+    const unsub = simulationStore.subscribe(() => {
+      const now = performance.now();
+      if (now - lastTime < 33) return; // ~30 FPS sync
+      lastTime = now;
+      const s = simulationStore.getState();
 
-    const interval = setInterval(() => {
-      setPos((prev) => {
-        // Differential drive integration:
-        const v = ((rightSpeed + leftSpeed) / 2) * SPEED_SCALE;
-        const omega = ((rightSpeed - leftSpeed) / WHEEL_BASE) * SPEED_SCALE;
+      // Transform metric coordinates (x: -1.5..1.5, z: -1.0..1.0) to 600x400 canvas pixels
+      const canvasX = 300 + (s.x / 1.5) * 260;
+      const canvasY = 200 + (s.z / 1.0) * 160;
+      const canvasTheta = s.yaw - Math.PI / 2;
 
-        const newTheta = prev.theta + omega;
-        let newX = prev.x + v * Math.cos(newTheta);
-        let newY = prev.y + v * Math.sin(newTheta);
+      setPos({ x: canvasX, y: canvasY, theta: canvasTheta });
 
-        // Keep inside bounds (soft bounce at walls)
-        const margin = 26;
-        if (newX < margin) newX = margin;
-        if (newX > 600 - margin) newX = 600 - margin;
-        if (newY < margin) newY = margin;
-        if (newY > 400 - margin) newY = 400 - margin;
-
-        // Periodic Telemetry Odometry Heartbeat (~2.2s when moving)
-        if (Math.abs(leftSpeed) > 0.02 || Math.abs(rightSpeed) > 0.02) {
-          telemetryTickRef.current += 1;
-          if (telemetryTickRef.current >= 75) {
-            telemetryTickRef.current = 0;
-            const headingDeg = Math.round((((newTheta * 180) / Math.PI + 360) % 360));
-            addLog({
-              type: 'telemetry',
-              source: 'Odometry Động Cơ',
-              pythonCode: `# Telemetry: x=${newX.toFixed(1)}, y=${newY.toFixed(1)}, theta=${headingDeg}°`,
-              leftVal: leftSpeed,
-              rightVal: rightSpeed,
-              linearVel: v,
-              angularVel: omega,
-              actionText: `Cập nhật Vị Trí: (${newX.toFixed(0)}px, ${newY.toFixed(0)}px) | Hướng ${headingDeg}°`,
-              explanation: `Vận tốc dài v = ${v.toFixed(2)} px/bước | Tốc độ góc ω = ${(omega * 10).toFixed(2)} rad/s | PWM L: ${(leftSpeed * 100).toFixed(0)}%, R: ${(rightSpeed * 100).toFixed(0)}%`,
-              badgeColor: 'bg-cyan-100 text-cyan-900 dark:bg-cyan-950/80 dark:text-cyan-300 border-cyan-400'
-            });
-          }
-        }
-
-        return { x: newX, y: newY, theta: newTheta };
-      });
-
-      // Update trajectory trail if moved
-      if (Math.abs(leftSpeed) > 0.01 || Math.abs(rightSpeed) > 0.01) {
-        setTrail((prev) => {
-          const next = [...prev, { x: pos.x, y: pos.y }];
-          if (next.length > 200) return next.slice(next.length - 200);
-          return next;
-        });
+      if (s.actualTrajectory && s.actualTrajectory.length > 0) {
+        setTrail(
+          s.actualTrajectory.map((pt) => ({
+            x: 300 + (pt.x / 1.5) * 260,
+            y: 200 + (pt.z / 1.0) * 160
+          }))
+        );
       }
 
       // Record telemetry history for live graphing
-      setTelemetryHistory((prev) => {
-        const next = [
-          ...prev,
-          {
-            t: Date.now(),
-            left: leftSpeed,
-            right: rightSpeed,
-            v: linearVel
-          }
-        ];
-        if (next.length > 35) return next.slice(next.length - 35);
-        return next;
-      });
-    }, 30);
+      if (Math.abs(s.actualLeftSpeed) > 0.01 || Math.abs(s.actualRightSpeed) > 0.01) {
+        setTelemetryHistory((prev) => {
+          const next = [
+            ...prev,
+            {
+              t: Date.now(),
+              left: s.actualLeftSpeed,
+              right: s.actualRightSpeed,
+              v: s.linearVel * SPEED_SCALE
+            }
+          ];
+          if (next.length > 35) return next.slice(next.length - 35);
+          return next;
+        });
+      }
+    });
 
-    return () => clearInterval(interval);
-  }, [isRunning, leftSpeed, rightSpeed, pos.x, pos.y, SPEED_SCALE, WHEEL_BASE, linearVel, addLog]);
+    return unsub;
+  }, [SPEED_SCALE]);
 
   // Auto-scroll log console
   useEffect(() => {
@@ -420,6 +401,7 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
   }, [logs, autoScroll, activeTab, deckViewMode]);
 
   const handleReset = () => {
+    simulationStore.reset();
     setPos({ x: 300, y: 200, theta: -Math.PI / 2 });
     setTrail([]);
     setLeftSpeed(0.0);
@@ -440,6 +422,7 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
   };
 
   const handleEmergencyStop = () => {
+    simulationStore.emergencyStop();
     setLeftSpeed(0.0);
     setRightSpeed(0.0);
     setIsRunning(false);
@@ -535,7 +518,7 @@ export const RobotTwinMotorSimulator: React.FC<RobotTwinMotorSimulatorProps> = (
       .slice(-15);
 
     const script = `# ==============================================================================
-# NHẬT KÝ ĐIỀU KHIỂN ROBOT JETBOT (CMU STEM LAB LỚP 11)
+# NHẬT KÝ ĐIỀU KHIỂN ROBOT JETBOT (CMU STEM LAB VẬT LÍ 10)
 # Thời gian ghi: ${new Date().toLocaleString('vi-VN')}
 # Phần cứng: NVIDIA Jetson Nano + Motor Driver I2C (0x60)
 # ==============================================================================

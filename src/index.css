@@ -1,7 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  /* Vibrant STEM Design Tokens */
+  /* Official CMU10 Reference Design Tokens */
+  --cmu-navy-950: #082B59;
+  --cmu-navy-900: #0B356B;
+  --cmu-navy-800: #124A8A;
+  --cmu-blue-600: #1677FF;
+  --cmu-blue-500: #318BFF;
+  --cmu-blue-100: #E8F2FF;
+  --cmu-bg: #EEF5FC;
+  --cmu-surface: #FFFFFF;
+  --cmu-border: #D6E3F2;
+  --cmu-text: #102B52;
+  --cmu-text-secondary: #526B8A;
+  --cmu-green-600: #009E66;
+  --cmu-green-100: #E2F7EC;
+  --cmu-amber-500: #FFB020;
+  --cmu-amber-100: #FFF2D4;
+  --cmu-purple-600: #6828D9;
+  --cmu-cyan-500: #12B8E8;
+  --cmu-red-600: #F0182D;
+  --cmu-red-100: #FFE7EA;
+  --cmu-chart-grid: #DCE6F2;
+
+  /* Legacy STEM Design Tokens */
   --stem-electric-blue: #2563EB;
   --stem-neon-purple: #8B5CF6;
   --stem-hot-pink: #EC4899;
@@ -10,10 +32,10 @@
   --stem-teal-data: #14B8A6;
   --stem-active-green: #22C55E;
   
-  --stem-bg-light: #F8FAFC;
+  --stem-bg-light: #EEF5FC;
   --stem-card-bg: #FFFFFF;
-  --stem-text-main: #172033;
-  --stem-border-subtle: #E2E8F0;
+  --stem-text-main: #102B52;
+  --stem-border-subtle: #D6E3F2;
 
   --stem-bg-dark: #0B1120;
   --stem-card-dark: #131E36;
