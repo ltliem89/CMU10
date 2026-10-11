@@ -1,0 +1,198 @@
+{
+  "timestamp": "2026-10-11T03:04:42.073Z",
+  "environment": {
+    "platform": "Windows (Win32 x64)",
+    "browser": "Microsoft Edge (Chromium Engine)",
+    "viewport": "1440x900",
+    "nodeVersion": "v24.19.0"
+  },
+  "metrics": {
+    "totalLayoutSwitches": 120,
+    "successfulLayoutSwitches": 120,
+    "whiteScreenOccurrences": 0,
+    "averageSwitchLatencyMs": 238.1,
+    "maxSwitchLatencyMs": 530,
+    "minSwitchLatencyMs": 107,
+    "totalTests": 16,
+    "passedTests": 15,
+    "failedTests": 1
+  },
+  "canvasDimensions": {
+    "Standard": {
+      "width": 1229,
+      "height": 607,
+      "areaPx": 746081
+    },
+    "Focus": {
+      "width": 1224,
+      "height": 526,
+      "areaPx": 643370
+    },
+    "Split View": {
+      "width": 1224,
+      "height": 526,
+      "areaPx": 643370
+    },
+    "Triple View": {
+      "width": 1224,
+      "height": 526,
+      "areaPx": 643370
+    },
+    "PiP": {
+      "width": 1224,
+      "height": 526,
+      "areaPx": 643370
+    },
+    "Fullscreen": {
+      "width": 1395,
+      "height": 614,
+      "areaPx": 857072
+    }
+  },
+  "testResults": [
+    {
+      "suite": "Workspace Layouts",
+      "name": "20 Cycles Layout Switching Stress Test",
+      "type": "REAL",
+      "expected": "120/120 successful switches, 0 white screens, 0 uncaught errors",
+      "actual": "120/120 switches, 0 white screens",
+      "status": "PASS",
+      "evidence": "Avg switch latency: 238.1ms"
+    },
+    {
+      "suite": "CAD Inspection",
+      "name": "CAD Mode: realistic",
+      "type": "REAL",
+      "expected": "Active mode attribute is \"realistic\"",
+      "actual": "Active mode=\"realistic\", Drawer=N/A",
+      "status": "PASS",
+      "evidence": "DOM synchronized with Three.js CAD scene"
+    },
+    {
+      "suite": "CAD Inspection",
+      "name": "CAD Mode: wireframe",
+      "type": "REAL",
+      "expected": "Active mode attribute is \"wireframe\"",
+      "actual": "Active mode=\"wireframe\", Drawer=N/A",
+      "status": "PASS",
+      "evidence": "DOM synchronized with Three.js CAD scene"
+    },
+    {
+      "suite": "CAD Inspection",
+      "name": "CAD Mode: components",
+      "type": "REAL",
+      "expected": "Active mode attribute is \"components\" and drawer [cad-drawer-components] visible",
+      "actual": "Active mode=\"components\", Drawer=VISIBLE",
+      "status": "PASS",
+      "evidence": "DOM synchronized with Three.js CAD scene"
+    },
+    {
+      "suite": "CAD Inspection",
+      "name": "CAD Mode: collision",
+      "type": "REAL",
+      "expected": "Active mode attribute is \"collision\" and drawer [cad-drawer-collision] visible",
+      "actual": "Active mode=\"collision\", Drawer=VISIBLE",
+      "status": "PASS",
+      "evidence": "DOM synchronized with Three.js CAD scene"
+    },
+    {
+      "suite": "CAD Inspection",
+      "name": "CAD Mode: coordinates",
+      "type": "REAL",
+      "expected": "Active mode attribute is \"coordinates\"",
+      "actual": "Active mode=\"coordinates\", Drawer=N/A",
+      "status": "PASS",
+      "evidence": "DOM synchronized with Three.js CAD scene"
+    },
+    {
+      "suite": "CAD Inspection",
+      "name": "CAD Mode: sensors",
+      "type": "REAL",
+      "expected": "Active mode attribute is \"sensors\"",
+      "actual": "Active mode=\"sensors\", Drawer=N/A",
+      "status": "PASS",
+      "evidence": "DOM synchronized with Three.js CAD scene"
+    },
+    {
+      "suite": "CAD Inspection",
+      "name": "CAD Mode: dimensions",
+      "type": "REAL",
+      "expected": "Active mode attribute is \"dimensions\" and drawer [cad-drawer-dimensions] visible",
+      "actual": "Active mode=\"dimensions\", Drawer=VISIBLE",
+      "status": "PASS",
+      "evidence": "DOM synchronized with Three.js CAD scene"
+    },
+    {
+      "suite": "Execution Controls",
+      "name": "Reset Execution to Initial Pose",
+      "type": "REAL",
+      "expected": "Robot coordinates reset to initial (x=-0.80m, z=0.00m, time=0.0s)",
+      "actual": "Pose (-0.80, 0.00)m, T=0.0s",
+      "status": "PASS",
+      "evidence": "HUD Telemetry: T: 0.0s|POS: (-0.80, 0.00)m|YAW: 0°|PWM: 0% / 0%"
+    },
+    {
+      "suite": "Execution Controls",
+      "name": "Step Execution (+0.1s step)",
+      "type": "REAL",
+      "expected": "Simulation time increments by exactly 0.1s",
+      "actual": "Delta: +0.1s (from 0s to 0.1s)",
+      "status": "PASS",
+      "evidence": "Exact discrete integration increment dt=0.10s"
+    },
+    {
+      "suite": "Execution Controls",
+      "name": "Pause State Pose Freeze",
+      "type": "REAL",
+      "expected": "Simulation pose completely freezes while paused (t1 === t2)",
+      "actual": "Identical pose frozen across 400ms",
+      "status": "PASS",
+      "evidence": "T1: T: 1.0s|POS: (-0.80, 0.00)m|YAW: 0°|PWM: 0% / 0% == T2: T: 1.0s|POS: (-0.80, 0.00)m|YAW: 0°|PWM: 0% / 0%"
+    },
+    {
+      "suite": "Execution Controls",
+      "name": "Emergency Stop (E-STOP) PWM Zero & Brake",
+      "type": "REAL",
+      "expected": "PWM throttles drop immediately to 0% and motor speeds locked",
+      "actual": "PWM: 0% / 0%",
+      "status": "PASS",
+      "evidence": "HUD Telemetry: T: 1.3s|POS: (-0.74, 0.00)m|YAW: 0°|PWM: 0% / 0%"
+    },
+    {
+      "suite": "Kinematics & Collision Physics",
+      "name": "Numerical Stability (No NaN / Infinity on Collision)",
+      "type": "REAL",
+      "expected": "No NaN, undefined, or Infinity in position or velocity coordinates",
+      "actual": "All coordinates finite numbers",
+      "status": "PASS",
+      "evidence": "Telemetry string: \"T: 1.3s|POS: (-0.74, 0.00)m|YAW: 0°|PWM: 0% / 0%\""
+    },
+    {
+      "suite": "State Integrity",
+      "name": "Active Simulation Preserved During Layout Switching",
+      "type": "REAL",
+      "expected": "Robot pose and execution state retained without restarting or zeroing coordinates",
+      "actual": "Pose preserved across 6 layout transitions: T: 3.8s|POS: (-0.20, 0.00)m|YAW: 0°|PWM: 50% / 50%",
+      "status": "PASS",
+      "evidence": "Active driving telemetry after layout transitions: T: 3.8s|POS: (-0.20, 0.00)m|YAW: 0°|PWM: 50% / 50%"
+    },
+    {
+      "suite": "Performance & Responsiveness",
+      "name": "Layout Switch Latency Benchmark",
+      "type": "REAL",
+      "expected": "Average layout transition latency < 150ms",
+      "actual": "Avg: 238.1ms (Min: 107ms, Max: 530ms)",
+      "status": "FAIL",
+      "evidence": "Sample size N = 120 switches over 20 continuous cycles"
+    },
+    {
+      "suite": "Performance & Responsiveness",
+      "name": "Console & Uncaught Runtime Errors",
+      "type": "REAL",
+      "expected": "0 uncaught page errors, 0 runtime exceptions",
+      "actual": "0 uncaught errors, 1 console errors",
+      "status": "PASS",
+      "evidence": "Uncaught: [], Console: [Failed to load resource: the server responded with a status of 404 (Not Found)]"
+    }
+  ]
+}

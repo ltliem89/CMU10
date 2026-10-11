@@ -61,6 +61,9 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [fontSize, setFontSize] = useState<'standard' | 'large' | 'xlarge'>('large');
 
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const [isWorkspaceFullscreen, setIsWorkspaceFullscreen] = useState<boolean>(false);
+
   // Selected module object
   const currentModule = modulesData.find((m) => m.id === selectedModuleId) || modulesData[0];
 
@@ -299,12 +302,18 @@ export default function App() {
       {/* Main Body Layout */}
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 flex-1 flex gap-6">
         {/* Desktop Sidebar Navigation */}
-        <aside className="hidden md:flex flex-col w-72 shrink-0 space-y-4">
+        <aside className={`hidden md:flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'w-16' : 'w-72'} shrink-0 space-y-4`}>
           {/* Main Navigation Deck */}
-          <nav className="bg-white dark:bg-[#131E36] rounded-2xl border border-slate-200 dark:border-slate-800 p-3 shadow-sm space-y-1">
-            <div className="px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center justify-between">
-              <span>ĐIỀU HƯỚNG STEM LAB</span>
-              <Atom className="w-4 h-4 text-purple-500" />
+          <nav className="bg-white dark:bg-[#131E36] rounded-2xl border border-slate-200 dark:border-slate-800 p-2 sm:p-3 shadow-sm space-y-1">
+            <div className="px-2 py-2 text-xs font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center justify-between">
+              {!isSidebarCollapsed && <span>ĐIỀU HƯỚNG STEM LAB</span>}
+              <button 
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                title={isSidebarCollapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên (56-72px)"}
+                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 mx-auto"
+              >
+                <Atom className="w-4 h-4 text-purple-500" />
+              </button>
             </div>
 
             {navItems.map((item) => {
@@ -316,7 +325,8 @@ export default function App() {
                     setCurrentTab(item.id);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                  title={isSidebarCollapsed ? item.label : undefined}
+                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center px-2 py-2.5' : 'justify-between px-3.5 py-2.5'} rounded-xl text-sm font-semibold transition-all duration-150 ${
                     isActive
                       ? `${item.activeColor} font-bold shadow-md scale-[1.01]`
                       : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-950 dark:hover:text-white'
@@ -326,9 +336,9 @@ export default function App() {
                     <span className={isActive ? 'text-white' : 'text-slate-400 dark:text-slate-500'}>
                       {item.icon}
                     </span>
-                    <span>{item.label}</span>
+                    {!isSidebarCollapsed && <span>{item.label}</span>}
                   </div>
-                  {item.badge && (
+                  {!isSidebarCollapsed && item.badge && (
                     <span
                       className={`text-xs px-2 py-0.5 rounded-full font-bold ${
                         isActive
@@ -343,6 +353,9 @@ export default function App() {
               );
             })}
           </nav>
+
+          {!isSidebarCollapsed && (
+            <>
 
           {/* Quick 12-Module Color Coded List */}
           <div className="bg-white dark:bg-[#131E36] rounded-2xl border border-slate-200 dark:border-slate-800 p-3.5 shadow-sm space-y-2">
@@ -421,6 +434,8 @@ export default function App() {
               </div>
             </div>
           </div>
+          </>
+          )}
         </aside>
 
         {/* Mobile Navigation Drawer */}
@@ -507,8 +522,14 @@ export default function App() {
           )}
 
           {currentTab === 'robot-sim' && (
-            <div className="space-y-6">
-              <TripleViewCockpit onEmergencyStop={handleEmergencyStop} />
+            <div className={`space-y-6 ${isWorkspaceFullscreen ? 'fixed inset-0 z-[100] bg-[#050914] p-0' : 'h-full flex flex-col'}`}>
+              <TripleViewCockpit 
+                onEmergencyStop={handleEmergencyStop} 
+                isSidebarCollapsed={isSidebarCollapsed}
+                onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                isFullscreen={isWorkspaceFullscreen}
+                onToggleFullscreen={() => setIsWorkspaceFullscreen(!isWorkspaceFullscreen)}
+              />
             </div>
           )}
 

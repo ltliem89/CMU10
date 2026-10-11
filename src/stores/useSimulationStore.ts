@@ -508,8 +508,13 @@ class SimulationStore {
       if (dist < minDistanceAllowed) {
         // Physical soft bounce collision response
         const overlap = minDistanceAllowed - dist;
-        newX -= (dx / dist) * overlap;
-        newZ -= (dz / dist) * overlap;
+        if (dist > 0.001) {
+          newX -= (dx / dist) * overlap;
+          newZ -= (dz / dist) * overlap;
+        } else {
+          // If exactly at center, push arbitrarily to avoid NaN
+          newX -= overlap;
+        }
         isCollisionImminent = true;
       }
 

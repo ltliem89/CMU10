@@ -89,7 +89,7 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({ className = 
       {/* SVG Vector Arena Map Canvas */}
       <div className="relative w-full flex-1 min-h-[320px] bg-[#050914] flex items-center justify-center p-2">
         <svg
-          className="w-full h-full max-h-[500px] rounded-xl border border-slate-800"
+          className="w-full h-full rounded-xl border border-slate-800"
           viewBox="0 0 600 400"
           preserveAspectRatio="xMidYMid meet"
         >

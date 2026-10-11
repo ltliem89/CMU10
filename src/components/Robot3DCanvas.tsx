@@ -849,14 +849,20 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
       if (!container || !rendererRef.current || !cameraRef.current) return;
       const newW = container.clientWidth;
       const newH = container.clientHeight;
+      if (newW <= 0 || newH <= 0) return;
       cameraRef.current.aspect = newW / newH;
       cameraRef.current.updateProjectionMatrix();
       rendererRef.current.setSize(newW, newH);
     };
 
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+    resizeObserver.observe(container);
     window.addEventListener('resize', handleResize);
 
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener('resize', handleResize);
       if (animId) cancelAnimationFrame(animId);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
@@ -1001,7 +1007,11 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col bg-[#070D1B] rounded-2xl overflow-hidden border border-cyan-500/25 select-none shadow-2xl">
+    <div
+      data-testid="robot-3d-canvas"
+      data-active-cad-mode={internalMode}
+      className="relative w-full h-full flex flex-col bg-[#070D1B] rounded-2xl overflow-hidden border border-cyan-500/25 select-none shadow-2xl"
+    >
       {/* 3D Model Top Toolbar */}
       <div className="px-3.5 py-2.5 bg-gradient-to-r from-[#0C152B] via-[#0E1A36] to-[#122347] border-b border-cyan-500/20 flex flex-wrap items-center justify-between gap-2 z-10">
         <div className="flex items-center gap-2">
@@ -1175,7 +1185,7 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
 
       {/* Component Detail Drawer when in 'components' mode */}
       {internalMode === 'components' && (
-        <div className="p-3 bg-[#091122] border-t border-cyan-500/20 max-h-48 overflow-y-auto">
+        <div data-testid="cad-drawer-components" className="p-3 bg-[#091122] border-t border-cyan-500/20 max-h-48 overflow-y-auto">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-black text-cyan-300 uppercase tracking-wide flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
@@ -1225,7 +1235,7 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
 
       {/* CAD Dimensions Panel when in 'dimensions' mode */}
       {internalMode === 'dimensions' && (
-        <div className="p-3 bg-[#091122] border-t border-cyan-500/20 text-xs text-slate-300">
+        <div data-testid="cad-drawer-dimensions" className="p-3 bg-[#091122] border-t border-cyan-500/20 text-xs text-slate-300">
           <div className="font-black text-white text-xs mb-1.5 flex items-center gap-1.5">
             <Ruler className="w-3.5 h-3.5 text-blue-400" />
             Bảng Thông Số Kỹ Thuật Hình Học Chuẩn CMU10 / ISO:
@@ -1269,7 +1279,7 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
 
       {/* Collision Mode Analysis when in 'collision' mode */}
       {internalMode === 'collision' && (
-        <div className="p-3 bg-[#091122] border-t border-amber-500/20 text-xs text-amber-200">
+        <div data-testid="cad-drawer-collision" className="p-3 bg-[#091122] border-t border-amber-500/20 text-xs text-amber-200">
           <div className="font-black text-amber-300 text-xs mb-1 flex items-center gap-1.5">
             <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
             Vùng Bao Va Chạm (Collision Hull Geometry):

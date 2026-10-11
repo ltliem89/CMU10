@@ -194,14 +194,20 @@ export const DynamicCameraFPV: React.FC<DynamicCameraFPVProps> = ({
         if (!container || !rendererRef.current || !cameraRef.current) return;
         const w = container.clientWidth;
         const h = container.clientHeight;
+        if (w <= 0 || h <= 0) return;
         cameraRef.current.aspect = w / h;
         cameraRef.current.updateProjectionMatrix();
         rendererRef.current.setSize(w, h);
       };
 
+      const resizeObserver = new ResizeObserver(() => {
+        handleResize();
+      });
+      resizeObserver.observe(container);
       window.addEventListener('resize', handleResize);
 
       return () => {
+        resizeObserver.disconnect();
         window.removeEventListener('resize', handleResize);
         if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
 
