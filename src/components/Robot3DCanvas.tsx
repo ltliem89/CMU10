@@ -54,6 +54,8 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const leftWheelGroupRef = useRef<THREE.Group | null>(null);
   const rightWheelGroupRef = useRef<THREE.Group | null>(null);
+  const gridHelperRef = useRef<THREE.GridHelper | null>(null);
+  const gridOffsetRef = useRef(0);
   const componentsMapRef = useRef<Map<string, THREE.Object3D>>(new Map());
   const inspectionHelpersRef = useRef<{
     wireframeObjects: THREE.Object3D[];
@@ -237,6 +239,7 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
     const gridHelper = new THREE.GridHelper(1.2, 24, 0x0284c7, 0x1e293b);
     gridHelper.position.y = 0.0005; // Slightly above ground to prevent z-fighting
     scene.add(gridHelper);
+    gridHelperRef.current = gridHelper;
 
     // Concentric Robotic Range Rings (0.15m, 0.30m, 0.45m radii)
     [0.15, 0.30, 0.45].forEach((radius) => {
@@ -898,6 +901,17 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
         // Rotation around X axis of the wheel group (or its internal axis)
         leftWheelGroupRef.current.rotation.x -= omegaL * dt;
         rightWheelGroupRef.current.rotation.x -= omegaR * dt;
+      }
+
+      // Dynamic floor motion (Treadmill conveyor effect): ground grid shifts beneath wheels
+      if (gridHelperRef.current) {
+        const s = simulationStore.getState();
+        const linearV = s.linearVel;
+        if (Math.abs(linearV) > 0.001) {
+          // 0.05m is grid cell size (1.2m / 24 cells)
+          gridOffsetRef.current = (gridOffsetRef.current + linearV * dt) % 0.05;
+          gridHelperRef.current.position.x = -gridOffsetRef.current;
+        }
       }
 
       if (renderer) {

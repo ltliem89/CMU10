@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-11T12:24:23.189Z",
+  "timestamp": "2026-10-11T13:25:44.887Z",
   "viewports": {
     "1586x992_reference": {
       "name": "1586x992_reference",
@@ -258,11 +258,11 @@
   },
   "stateConsistency": {
     "sharedStorePose": {
-      "x": -0.78,
+      "x": -0.76,
       "z": 0,
-      "yawDeg": 353,
-      "v": 0.14,
-      "time": 0.5
+      "yawDeg": 349,
+      "v": 0.16,
+      "time": 0.7
     },
     "rightPanelReflectsPose": true,
     "hudReflectsTime": true
@@ -280,11 +280,11 @@
   },
   "sensorsAndCharts": {},
   "performance": {
-    "domCompleteMs": 822,
-    "loadEventEndMs": 822,
+    "domCompleteMs": 379,
+    "loadEventEndMs": 379,
     "memory": {
-      "usedJSHeapSize": 51,
-      "totalJSHeapSize": 61
+      "usedJSHeapSize": 45,
+      "totalJSHeapSize": 69
     }
   },
   "screenshots": [

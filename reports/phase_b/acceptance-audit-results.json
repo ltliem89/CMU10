@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-11T12:25:47.597Z",
+  "timestamp": "2026-10-11T13:24:52.019Z",
   "invariants": [
     {
       "title": "Initial Pose & State Match Physics Bounds",
@@ -9,22 +9,22 @@
     {
       "title": "Kinematics Continuous Integration (RUN)",
       "passed": true,
-      "evidence": "Robot moved forward: x=-0.698m, time=0.43s, trajectory points=3"
+      "evidence": "Robot moved forward: x=-0.675m, time=0.55s, trajectory points=3"
     },
     {
       "title": "Clock Freeze on PAUSE (No Zombie Integration)",
       "passed": true,
-      "evidence": "simTimeSec frozen at 0.428s across 300ms pause interval"
+      "evidence": "simTimeSec frozen at 0.554s across 300ms pause interval"
     },
     {
       "title": "Single Discrete Step (+0.1s)",
       "passed": true,
-      "evidence": "Time stepped from 0.428s to 0.528s (exact delta 0.100s)"
+      "evidence": "Time stepped from 0.554s to 0.654s (exact delta 0.100s)"
     },
     {
       "title": "State & Pose Parity Across View Transitions (2D/3D/FPV/TRIPLE)",
       "passed": true,
-      "evidence": "All views switched smoothly preserving continuous coordinates: 3D: (-0.67, 0.00) -> FPV: (-0.67, 0.00) -> TRIPLE: (-0.67, 0.00) -> 2D: (-0.67, 0.00)"
+      "evidence": "All views switched smoothly preserving continuous coordinates: 3D: (-0.65, 0.00) -> FPV: (-0.65, 0.00) -> TRIPLE: (-0.65, 0.00) -> 2D: (-0.65, 0.00)"
     },
     {
       "title": "E-STOP Immediate Motor Cutoff & Safety Latched",

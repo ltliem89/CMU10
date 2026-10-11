@@ -143,7 +143,13 @@ export const CMUSimulationWorkspace: React.FC<CMUSimulationWorkspaceProps> = ({
                 </button>
               ) : (
                 <button
-                  onClick={() => simulationStore.run()}
+                  onClick={() => {
+                    const s = simulationStore.getState();
+                    if (s.targetLeftSpeed === 0 && s.targetRightSpeed === 0) {
+                      simulationStore.setMotorSpeeds(0.6, 0.6, 'Chạy mô phỏng (Tiến thẳng)');
+                    }
+                    simulationStore.run();
+                  }}
                   className="px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-[13px] bg-[#009E66] hover:bg-[#059669] text-white flex items-center gap-1.5 shadow-xs transition"
                   title="Chạy mô phỏng liên tục"
                 >
@@ -153,7 +159,13 @@ export const CMUSimulationWorkspace: React.FC<CMUSimulationWorkspaceProps> = ({
               )}
 
               <button
-                onClick={() => simulationStore.step()}
+                onClick={() => {
+                  const s = simulationStore.getState();
+                  if (s.targetLeftSpeed === 0 && s.targetRightSpeed === 0) {
+                    simulationStore.setMotorSpeeds(0.6, 0.6, 'Từng bước (Tiến thẳng)');
+                  }
+                  simulationStore.step();
+                }}
                 className="px-3 py-1.5 rounded-xl font-bold text-xs sm:text-[13px] bg-[#0B356B] hover:bg-[#124A8A] text-white flex items-center gap-1.5 shadow-xs transition"
                 title="Thực hiện từng bước thời gian (+0.1s)"
               >

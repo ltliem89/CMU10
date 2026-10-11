@@ -39,21 +39,50 @@ export const RobotStatusPanel: React.FC = () => {
     switch (direction) {
       case 'forward':
         simulationStore.setMotorSpeeds(speedMultiplier, speedMultiplier, 'D-Pad: Tiến');
+        if (simulationStore.getState().executionState !== 'RUNNING') simulationStore.run();
         break;
       case 'backward':
         simulationStore.setMotorSpeeds(-speedMultiplier * 0.8, -speedMultiplier * 0.8, 'D-Pad: Lùi');
+        if (simulationStore.getState().executionState !== 'RUNNING') simulationStore.run();
         break;
       case 'left':
         simulationStore.setMotorSpeeds(-speedMultiplier * 0.6, speedMultiplier * 0.6, 'D-Pad: Rẽ Trái');
+        if (simulationStore.getState().executionState !== 'RUNNING') simulationStore.run();
         break;
       case 'right':
         simulationStore.setMotorSpeeds(speedMultiplier * 0.6, -speedMultiplier * 0.6, 'D-Pad: Rẽ Phải');
+        if (simulationStore.getState().executionState !== 'RUNNING') simulationStore.run();
         break;
       case 'stop':
         simulationStore.setMotorSpeeds(0, 0, 'D-Pad: Dừng');
         break;
     }
   };
+
+  // Keyboard navigation listener (Arrow keys and WASD)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) return;
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        e.preventDefault();
+        handleMove('forward');
+      } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+        e.preventDefault();
+        handleMove('backward');
+      } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        e.preventDefault();
+        handleMove('left');
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        e.preventDefault();
+        handleMove('right');
+      } else if (e.key === ' ' || e.key === 'x' || e.key === 'X') {
+        e.preventDefault();
+        handleMove('stop');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [speedMultiplier]);
 
   const yawDeg = ((simState.yaw * 180) / Math.PI + 360) % 360;
   const ultrasonicM = (simState.sensors.ultrasonicDistCm / 100).toFixed(2);
