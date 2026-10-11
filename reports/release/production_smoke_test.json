@@ -1,0 +1,10 @@
+{
+  "prodUrl": "https://cmu-10-five.vercel.app",
+  "httpStatus": 200,
+  "headerHeight": 81,
+  "pillarsCount": 5,
+  "hasEstop": true,
+  "hasHud": true,
+  "consoleErrors": [],
+  "passed": true
+}
