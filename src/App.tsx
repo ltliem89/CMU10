@@ -15,6 +15,7 @@ import {
   X, 
   FileText,
   ChevronRight,
+  ChevronDown,
   Sparkles,
   Sun,
   Moon,
@@ -63,6 +64,8 @@ export default function App() {
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [isWorkspaceFullscreen, setIsWorkspaceFullscreen] = useState<boolean>(false);
+  const [isModulesSectionOpen, setIsModulesSectionOpen] = useState<boolean>(false);
+  const [isPaletteSectionOpen, setIsPaletteSectionOpen] = useState<boolean>(false);
 
   // Selected module object
   const currentModule = modulesData.find((m) => m.id === selectedModuleId) || modulesData[0];
@@ -99,12 +102,12 @@ export default function App() {
     }
   }, [isDarkMode]);
 
-  // Vibrant STEM Navigation Definition
+  // Vibrant STEM Navigation Definition (Compact & concise)
   const navItems: NavItemDef[] = [
     { 
       id: 'home', 
-      label: 'Bản Đồ Kiến Thức', 
-      icon: <Layers className="w-5 h-5" />, 
+      label: 'Kiến Thức', 
+      icon: <Layers className="w-4 h-4" />, 
       activeColor: 'bg-blue-600 text-white shadow-blue-500/25',
       activeBorder: 'border-blue-400',
       badgeColor: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200'
@@ -112,17 +115,17 @@ export default function App() {
     { 
       id: 'robot-sim', 
       label: 'Robot 2 Động Cơ', 
-      icon: <Compass className="w-5 h-5" />, 
-      badge: 'Thử nghiệm',
+      icon: <Compass className="w-4 h-4" />, 
+      badge: 'Mô phỏng',
       activeColor: 'bg-orange-600 text-white shadow-orange-500/25',
       activeBorder: 'border-orange-400',
       badgeColor: 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-200'
     },
     { 
       id: 'modules', 
-      label: '12 Modules Chi Tiết', 
-      icon: <Bot className="w-5 h-5" />, 
-      badge: '12 Notebooks',
+      label: '12 Modules', 
+      icon: <Bot className="w-4 h-4" />, 
+      badge: '12 Bài',
       activeColor: 'bg-purple-600 text-white shadow-purple-500/25',
       activeBorder: 'border-purple-400',
       badgeColor: 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200'
@@ -130,15 +133,15 @@ export default function App() {
     { 
       id: 'pipeline', 
       label: 'Sơ Đồ Quy Trình', 
-      icon: <GitFork className="w-5 h-5" />, 
+      icon: <GitFork className="w-4 h-4" />, 
       activeColor: 'bg-teal-600 text-white shadow-teal-500/25',
       activeBorder: 'border-teal-400',
       badgeColor: 'bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-200'
     },
     { 
       id: 'functions', 
-      label: 'Thư Viện Hàm & Lệnh', 
-      icon: <BookOpen className="w-5 h-5" />, 
+      label: 'Thư Viện Hàm', 
+      icon: <BookOpen className="w-4 h-4" />, 
       badge: `${functionsData.length}+`,
       activeColor: 'bg-amber-600 text-white shadow-amber-500/25',
       activeBorder: 'border-amber-400',
@@ -146,8 +149,8 @@ export default function App() {
     },
     { 
       id: 'training-charts', 
-      label: 'Đồ Thị Huấn Luyện', 
-      icon: <LineChart className="w-5 h-5" />, 
+      label: 'Đồ Thị AI', 
+      icon: <LineChart className="w-4 h-4" />, 
       badge: 'Bokeh',
       activeColor: 'bg-teal-600 text-white shadow-teal-500/25',
       activeBorder: 'border-teal-400',
@@ -155,17 +158,17 @@ export default function App() {
     },
     { 
       id: 'what-if', 
-      label: 'Thí Nghiệm "Nếu Như"', 
-      icon: <Sliders className="w-5 h-5" />, 
-      badge: 'Sáng tạo',
+      label: 'Thí Nghiệm Nếu-Như', 
+      icon: <Sliders className="w-4 h-4" />, 
+      badge: 'Lab',
       activeColor: 'bg-pink-600 text-white shadow-pink-500/25',
       activeBorder: 'border-pink-400',
       badgeColor: 'bg-pink-100 text-pink-800 dark:bg-pink-900/50 dark:text-pink-200'
     },
     { 
       id: 'quiz', 
-      label: 'Thực Hành & Trắc Nghiệm', 
-      icon: <HelpCircle className="w-5 h-5" />, 
+      label: 'Trắc Nghiệm', 
+      icon: <HelpCircle className="w-4 h-4" />, 
       badge: '10 Câu',
       activeColor: 'bg-green-600 text-white shadow-green-500/25',
       activeBorder: 'border-green-400',
@@ -173,16 +176,16 @@ export default function App() {
     },
     { 
       id: 'glossary', 
-      label: 'Từ Điển Thuật Ngữ', 
-      icon: <BookA className="w-5 h-5" />, 
+      label: 'Thuật Ngữ', 
+      icon: <BookA className="w-4 h-4" />, 
       activeColor: 'bg-purple-600 text-white shadow-purple-500/25',
       activeBorder: 'border-purple-400',
       badgeColor: 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200'
     },
     { 
       id: 'sources', 
-      label: 'Nguồn & Lưu Ý Kỹ Thuật', 
-      icon: <FileText className="w-5 h-5" />, 
+      label: 'Nguồn & Lưu Ý', 
+      icon: <FileText className="w-4 h-4" />, 
       activeColor: 'bg-blue-600 text-white shadow-blue-500/25',
       activeBorder: 'border-blue-400',
       badgeColor: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200'
@@ -300,19 +303,19 @@ export default function App() {
       </header>
 
       {/* Main Body Layout */}
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 flex-1 flex gap-6">
+      <div className={`w-full px-3 sm:px-4 py-3 sm:py-4 flex-1 flex gap-3 sm:gap-4 ${currentTab === 'robot-sim' ? 'max-w-[1680px] mx-auto' : 'max-w-7xl mx-auto'}`}>
         {/* Desktop Sidebar Navigation */}
-        <aside className={`hidden md:flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'w-16' : 'w-72'} shrink-0 space-y-4`}>
+        <aside className={`hidden md:flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'w-16' : 'w-56 lg:w-60'} shrink-0 space-y-2.5 select-none`}>
           {/* Main Navigation Deck */}
-          <nav className="bg-white dark:bg-[#131E36] rounded-2xl border border-slate-200 dark:border-slate-800 p-2 sm:p-3 shadow-sm space-y-1">
-            <div className="px-2 py-2 text-xs font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center justify-between">
+          <nav className="bg-white dark:bg-[#131E36] rounded-2xl border border-slate-200 dark:border-slate-800 p-2 shadow-sm space-y-1">
+            <div className="px-2 py-1.5 text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center justify-between">
               {!isSidebarCollapsed && <span>ĐIỀU HƯỚNG STEM LAB</span>}
               <button 
                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
                 title={isSidebarCollapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên (56-72px)"}
-                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 mx-auto"
+                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 ml-auto"
               >
-                <Atom className="w-4 h-4 text-purple-500" />
+                <Atom className="w-3.5 h-3.5 text-purple-500" />
               </button>
             </div>
 
@@ -326,21 +329,21 @@ export default function App() {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   title={isSidebarCollapsed ? item.label : undefined}
-                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center px-2 py-2.5' : 'justify-between px-3.5 py-2.5'} rounded-xl text-sm font-semibold transition-all duration-150 ${
+                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center px-1.5 py-1.5' : 'justify-between px-2.5 py-1.5'} rounded-xl text-xs font-semibold transition-all duration-150 ${
                     isActive
                       ? `${item.activeColor} font-bold shadow-md scale-[1.01]`
                       : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-950 dark:hover:text-white'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className={isActive ? 'text-white' : 'text-slate-400 dark:text-slate-500'}>
+                  <div className="flex items-center gap-2.5 truncate">
+                    <span className={isActive ? 'text-white shrink-0' : 'text-slate-400 dark:text-slate-500 shrink-0'}>
                       {item.icon}
                     </span>
-                    {!isSidebarCollapsed && <span>{item.label}</span>}
+                    {!isSidebarCollapsed && <span className="truncate">{item.label}</span>}
                   </div>
                   {!isSidebarCollapsed && item.badge && (
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
                         isActive
                           ? 'bg-white/20 text-white'
                           : item.badgeColor
@@ -356,85 +359,100 @@ export default function App() {
 
           {!isSidebarCollapsed && (
             <>
+              {/* Collapsible 12-Module Color Coded List */}
+              <div className="bg-white dark:bg-[#131E36] rounded-2xl border border-slate-200 dark:border-slate-800 p-2.5 shadow-sm space-y-1.5">
+                <button
+                  onClick={() => setIsModulesSectionOpen(!isModulesSectionOpen)}
+                  className="w-full flex items-center justify-between px-1.5 text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition"
+                  title="Bấm để mở/thu gọn danh sách 12 modules"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Palette className="w-3.5 h-3.5 text-pink-500" />
+                    12 Modules
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-bold">
+                      M1-M12
+                    </span>
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isModulesSectionOpen ? 'rotate-180' : ''}`} />
+                  </div>
+                </button>
+                {isModulesSectionOpen && (
+                  <div className="space-y-0.5 max-h-48 overflow-y-auto pr-1 pt-1 border-t border-slate-100 dark:border-slate-800/80">
+                    {modulesData.map((m) => {
+                      const theme = MODULE_THEMES[m.id] || MODULE_THEMES['teleoperation'];
+                      const isSelected = currentTab === 'modules' && selectedModuleId === m.id;
+                      return (
+                        <button
+                          key={m.id}
+                          onClick={() => handleSelectModule(m.id)}
+                          className={`w-full text-left px-2 py-1 rounded-lg text-xs transition-all flex items-center justify-between ${
+                            isSelected
+                              ? `${theme.accentBg} ${theme.accentText} font-black border ${theme.accentBorder} shadow-xs`
+                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-medium'
+                          }`}
+                          title={`Module ${m.number}: ${m.nameVi}`}
+                        >
+                          <div className="flex items-center gap-1.5 truncate">
+                            <span 
+                              className="w-2 h-2 rounded-full shrink-0 shadow-2xs" 
+                              style={{ backgroundColor: theme.primaryHex }}
+                            />
+                            <span className="truncate text-[11px]">
+                              M{m.number}: {m.nameVi}
+                            </span>
+                          </div>
+                          <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
 
-          {/* Quick 12-Module Color Coded List */}
-          <div className="bg-white dark:bg-[#131E36] rounded-2xl border border-slate-200 dark:border-slate-800 p-3.5 shadow-sm space-y-2">
-            <div className="flex items-center justify-between px-2 text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              <span className="flex items-center gap-1.5">
-                <Palette className="w-3.5 h-3.5 text-pink-500" />
-                12 Modules Nguồn
-              </span>
-              <span className="text-xs px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-bold">
-                M1 - M12
-              </span>
-            </div>
-            <div className="space-y-1 max-h-64 overflow-y-auto pr-1">
-              {modulesData.map((m) => {
-                const theme = MODULE_THEMES[m.id] || MODULE_THEMES['teleoperation'];
-                const isSelected = currentTab === 'modules' && selectedModuleId === m.id;
-                return (
-                  <button
-                    key={m.id}
-                    onClick={() => handleSelectModule(m.id)}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs transition-all flex items-center justify-between ${
-                      isSelected
-                        ? `${theme.accentBg} ${theme.accentText} font-black border ${theme.accentBorder} shadow-xs`
-                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-medium'
-                    }`}
-                    title={`Module ${m.number}: ${m.nameVi}`}
-                  >
-                    <div className="flex items-center gap-2 truncate">
-                      <span 
-                        className="w-2.5 h-2.5 rounded-full shrink-0 shadow-2xs" 
-                        style={{ backgroundColor: theme.primaryHex }}
-                      />
-                      <span className="truncate">
-                        M{m.number}: {m.nameVi}
-                      </span>
+              {/* Collapsible Vibrant STEM Palette Visual Guide Card */}
+              <div className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 dark:from-indigo-950/40 dark:via-purple-950/40 dark:to-pink-950/40 p-2.5 rounded-2xl border border-indigo-200/50 dark:border-indigo-800/40 space-y-1.5">
+                <button
+                  onClick={() => setIsPaletteSectionOpen(!isPaletteSectionOpen)}
+                  className="w-full font-bold text-slate-800 dark:text-slate-200 text-[11px] flex items-center justify-between hover:text-slate-950 dark:hover:text-white transition"
+                  title="Bấm để mở/thu gọn quy chuẩn màu"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                    Màu STEM Chuẩn
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isPaletteSectionOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {isPaletteSectionOpen && (
+                  <div className="grid grid-cols-2 gap-1 text-[10px] pt-1 border-t border-indigo-200/30 dark:border-indigo-800/30">
+                    <div className="flex items-center gap-1.5 text-blue-700 dark:text-blue-300">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                      <span>Xanh: Điều khiển</span>
                     </div>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Vibrant STEM Palette Visual Guide Card */}
-          <div className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 dark:from-indigo-950/40 dark:via-purple-950/40 dark:to-pink-950/40 p-4 rounded-2xl border border-indigo-200/50 dark:border-indigo-800/40 space-y-2.5">
-            <div className="font-bold text-slate-900 dark:text-white text-xs flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                Quy Chuẩn Màu STEM Lớp 11
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-1.5 text-[11px]">
-              <div className="flex items-center gap-1.5 text-blue-700 dark:text-blue-300">
-                <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                <span>Xanh: Điều khiển</span>
+                    <div className="flex items-center gap-1.5 text-purple-700 dark:text-purple-300">
+                      <span className="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
+                      <span>Tím: AI &amp; Mạng</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-pink-700 dark:text-pink-300">
+                      <span className="w-1.5 h-1.5 rounded-full bg-pink-600"></span>
+                      <span>Hồng: Sáng tạo</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-orange-700 dark:text-orange-300">
+                      <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                      <span>Cam: Thử nghiệm</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                      <span>Vàng: Khám phá</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-teal-700 dark:text-teal-300">
+                      <span className="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+                      <span>Ngọc: Cảm biến</span>
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-1.5 text-purple-700 dark:text-purple-300">
-                <span className="w-2 h-2 rounded-full bg-purple-600"></span>
-                <span>Tím: AI &amp; Mạng</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-pink-700 dark:text-pink-300">
-                <span className="w-2 h-2 rounded-full bg-pink-600"></span>
-                <span>Hồng: Sáng tạo</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-orange-700 dark:text-orange-300">
-                <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                <span>Cam: Thử nghiệm</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
-                <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                <span>Vàng: Khám phá</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-teal-700 dark:text-teal-300">
-                <span className="w-2 h-2 rounded-full bg-teal-500"></span>
-                <span>Ngọc: Cảm biến</span>
-              </div>
-            </div>
-          </div>
-          </>
+            </>
           )}
         </aside>
 

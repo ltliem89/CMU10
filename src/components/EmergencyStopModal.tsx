@@ -40,6 +40,7 @@ export const EmergencyStopModal: React.FC<EmergencyStopModalProps> = ({ isOpen, 
 
         <div className="pt-2">
           <button
+            data-testid="estop-modal-dismiss-btn"
             onClick={onClose}
             className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl text-xs sm:text-sm font-black transition shadow-md flex items-center justify-center gap-2"
           >

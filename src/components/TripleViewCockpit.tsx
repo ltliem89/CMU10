@@ -345,7 +345,11 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
             </div>
           </div>
           <div className="flex-1 min-w-0 min-h-0 overflow-hidden relative">
-            <TacticalArenaMap className="w-full h-full border-none shadow-none rounded-none" />
+            <TacticalArenaMap 
+              className="w-full h-full border-none shadow-none rounded-none" 
+              onToggleMaximize={toggleMaximize}
+              isMaximized={isMax}
+            />
           </div>
         </div>
       );
@@ -469,32 +473,32 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
       {/* ============================================================================== */}
       {/* 1. MISSION CONTROL HEADER                                                      */}
       {/* ============================================================================== */}
-      <div className="bg-gradient-to-r from-[#0B1528] via-[#122347] to-[#1E3A8A] px-4 py-2.5 rounded-2xl border border-cyan-500/25 flex flex-wrap items-center justify-between gap-3 shadow-lg shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 shadow-sm shrink-0">
-            <Compass className="w-5 h-5 animate-spin-slow" />
+      <div className="bg-gradient-to-r from-[#0B1528] via-[#122347] to-[#1E3A8A] px-3.5 py-2 rounded-2xl border border-cyan-500/25 flex flex-wrap items-center justify-between gap-2.5 shadow-lg shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 shadow-sm shrink-0">
+            <Compass className="w-4.5 h-4.5 animate-spin-slow" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-sm sm:text-base font-black tracking-tight text-white uppercase">
+              <h1 className="text-xs sm:text-sm font-black tracking-tight text-white uppercase">
                 JetBot Virtual Lab • Simulation Workspace
               </h1>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
                 Lớp 11 STEM
               </span>
             </div>
-            <p className="text-[11px] text-cyan-200/80">
+            <p className="text-[10px] text-cyan-200/80">
               Vùng làm việc lấy khung mô phỏng làm trung tâm • Phân bổ linh hoạt 70–80% diện tích
             </p>
           </div>
         </div>
 
         {/* Primary Command Actions: RUN, PAUSE, STEP, RESET, E-STOP */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           {isRunning ? (
             <button
               onClick={() => simulationStore.pause()}
-              className="px-3 py-1.5 rounded-xl font-black text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 shadow-md transition"
+              className="px-2.5 py-1 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1 shadow-md transition"
               title="Tạm dừng mô phỏng"
             >
               <Pause className="w-3.5 h-3.5 fill-current" /> Tạm Dừng
@@ -502,7 +506,7 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
           ) : (
             <button
               onClick={() => simulationStore.run()}
-              className="px-3 py-1.5 rounded-xl font-black text-xs bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 shadow-md transition"
+              className="px-2.5 py-1 rounded-xl font-bold text-xs bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1 shadow-md transition"
               title="Chạy mô phỏng liên tục"
             >
               <Play className="w-3.5 h-3.5 fill-current" /> Chạy (Run)
@@ -511,7 +515,7 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
 
           <button
             onClick={() => simulationStore.step()}
-            className="px-3 py-1.5 rounded-xl font-bold text-xs bg-purple-600/40 hover:bg-purple-600/60 text-purple-200 border border-purple-400/40 flex items-center gap-1.5 transition"
+            className="px-2.5 py-1 rounded-xl font-bold text-xs bg-purple-600/40 hover:bg-purple-600/60 text-purple-200 border border-purple-400/40 flex items-center gap-1 transition"
             title="Thực thi từng bước thời gian (+0.1 giây)"
           >
             <StepForward className="w-3.5 h-3.5" /> Bước (Step)
@@ -519,7 +523,7 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
 
           <button
             onClick={() => simulationStore.reset()}
-            className="px-3 py-1.5 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition"
+            className="px-2.5 py-1 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1 transition"
             title="Đặt lại vị trí ban đầu"
           >
             <RotateCcw className="w-3.5 h-3.5" /> Đặt Lại
@@ -530,7 +534,7 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
               simulationStore.emergencyStop();
               if (onEmergencyStop) onEmergencyStop();
             }}
-            className="px-3.5 py-1.5 rounded-xl font-black text-xs bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white flex items-center gap-1.5 shadow-lg transition border border-red-400 animate-pulse"
+            className="px-3.5 py-1 rounded-xl font-black text-xs bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white flex items-center gap-1.5 shadow-lg transition border border-red-400 animate-pulse"
             title="Dừng khẩn cấp toàn bộ hệ thống (Spacebar)"
           >
             <AlertTriangle className="w-3.5 h-3.5" /> E-STOP

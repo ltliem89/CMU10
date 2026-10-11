@@ -1,0 +1,82 @@
+{
+  "timestamp": "2026-10-11T07:27:21.103Z",
+  "tests": [
+    {
+      "name": "Compact Nav Labels",
+      "status": "PASS",
+      "details": "\"12 Modules\" verified without word \"Chi Tiết\""
+    },
+    {
+      "name": "WebGL Viewport Initialization",
+      "status": "PASS",
+      "details": "2 active canvases, 0 fallbacks"
+    },
+    {
+      "name": "Layout Switch to Split View",
+      "status": "PASS",
+      "details": "50:50 allocation for Map testing"
+    },
+    {
+      "name": "Zoom In/Out Buttons",
+      "status": "PASS",
+      "details": "Initial: 100% -> In: 156% -> Out: 125%"
+    },
+    {
+      "name": "Fit to Frame (Fit All)",
+      "status": "PASS",
+      "details": "Reset to 100%"
+    },
+    {
+      "name": "Map Pan Drag",
+      "status": "PASS",
+      "details": "Successfully dragged viewport by 80x50 pixels"
+    },
+    {
+      "name": "Follow Robot Toggle",
+      "status": "PASS",
+      "details": "Active state verified: Đang Theo"
+    },
+    {
+      "name": "Click-to-Goal Placement",
+      "status": "PASS",
+      "details": "Goal marker & confirmation pill displayed at exact inverse world coords"
+    },
+    {
+      "name": "Start Navigation Confirmation",
+      "status": "PASS",
+      "details": "Engaged robot drive towards clicked goal"
+    },
+    {
+      "name": "Map Fullscreen & Restore",
+      "status": "PASS",
+      "details": "Fullscreen opened and restored without canvas distortion"
+    },
+    {
+      "name": "E-STOP Safety Priority",
+      "status": "PASS",
+      "details": "Emergency stop instantly engaged and halted system"
+    },
+    {
+      "name": "Simulation Reset",
+      "status": "PASS",
+      "details": "Pose reset cleanly to origin (0, 0, 0)"
+    },
+    {
+      "name": "Laptop 1280px Responsiveness",
+      "status": "PASS",
+      "details": "Clean rendering without layout breakage or overflow"
+    }
+  ],
+  "metrics": {
+    "memory": {
+      "jsHeapSizeLimit": 3586,
+      "totalJSHeapSize": 73,
+      "usedJSHeapSize": 43
+    }
+  },
+  "consoleErrors": [],
+  "consoleWarnings": [
+    "WARNING: Panel id and order props recommended when panels are dynamically rendered"
+  ],
+  "overallStatus": "PASS"
+}
