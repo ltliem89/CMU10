@@ -32,6 +32,7 @@ import { MODULE_THEMES, STEM_PALETTE } from './theme/stemTokens';
 
 import { KnowledgeMap } from './components/KnowledgeMap';
 import { RobotTwinMotorSimulator } from './components/RobotTwinMotorSimulator';
+import { TripleViewCockpit } from './components/TripleViewCockpit';
 import { ModuleDetailView } from './components/ModuleDetailView';
 import { FunctionExplorer } from './components/FunctionExplorer';
 import { PipelineDiagram } from './components/PipelineDiagram';
@@ -507,7 +508,7 @@ export default function App() {
 
           {currentTab === 'robot-sim' && (
             <div className="space-y-6">
-              <RobotTwinMotorSimulator onEmergencyStop={handleEmergencyStop} />
+              <TripleViewCockpit onEmergencyStop={handleEmergencyStop} />
             </div>
           )}
 

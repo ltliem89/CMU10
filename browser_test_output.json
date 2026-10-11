@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-10-10T07:28:46.377Z",
+  "timestamp": "2026-10-10T07:32:20.924Z",
   "totalAttemptedSwitches": 200,
-  "successfulTabSwitches": 180,
-  "successRate": "90.00%",
+  "successfulTabSwitches": 200,
+  "successRate": "100.00%",
   "timings": {
-    "averageMs": 891.91,
-    "minMs": 145,
-    "maxMs": 8900
+    "averageMs": 923,
+    "minMs": 118,
+    "maxMs": 10774
   },
   "rootContentLength": 43221,
   "isWhiteScreen": false,

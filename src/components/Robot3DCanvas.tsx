@@ -831,7 +831,11 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
       }
 
       if (renderer) {
-        renderer.render(scene, camera);
+        try {
+          renderer.render(scene, camera);
+        } catch (renderErr) {
+          console.warn('WebGL render cycle protected:', renderErr);
+        }
       }
       animFrameRef.current = requestAnimationFrame(animate);
     };
@@ -856,6 +860,28 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
       window.removeEventListener('resize', handleResize);
       if (animId) cancelAnimationFrame(animId);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+
+      // Deep dispose geometries, materials and textures to prevent VRAM memory leak
+      try {
+        scene.traverse((object) => {
+          if ((object as THREE.Mesh).isMesh) {
+            const mesh = object as THREE.Mesh;
+            if (mesh.geometry) {
+              mesh.geometry.dispose();
+            }
+            if (mesh.material) {
+              if (Array.isArray(mesh.material)) {
+                mesh.material.forEach((mat) => mat.dispose());
+              } else {
+                mesh.material.dispose();
+              }
+            }
+          }
+        });
+      } catch (dispErr) {
+        console.warn('Three.js scene traverse dispose notice:', dispErr);
+      }
+
       if (renderer) {
         try {
           renderer.dispose();
