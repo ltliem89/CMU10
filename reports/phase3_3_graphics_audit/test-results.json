@@ -1,0 +1,222 @@
+{
+  "timestamp": "2026-10-11T05:50:24.057Z",
+  "environment": {
+    "platform": "Windows (Win32 x64)",
+    "browser": "Microsoft Edge (Chromium Engine)",
+    "viewportBaseline": "1440x900",
+    "webgl": [
+      {
+        "index": 0,
+        "contextType": "WebGL 2.0",
+        "unmaskedVendor": "Google Inc. (Intel)",
+        "unmaskedRenderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "vendor": "WebKit",
+        "renderer": "WebKit WebGL",
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+        "maxTextureSize": 16384,
+        "maxRenderbufferSize": 16384,
+        "maxViewportDims": {
+          "0": 32767,
+          "1": 32767
+        },
+        "devicePixelRatio": 1,
+        "canvasClientWidth": 346,
+        "canvasClientHeight": 340,
+        "canvasBackingWidth": 346,
+        "canvasBackingHeight": 340,
+        "ratioBackingToClient": "1.00"
+      },
+      {
+        "index": 1,
+        "contextType": "WebGL 2.0",
+        "unmaskedVendor": "Google Inc. (Intel)",
+        "unmaskedRenderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "vendor": "WebKit",
+        "renderer": "WebKit WebGL",
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+        "maxTextureSize": 16384,
+        "maxRenderbufferSize": 16384,
+        "maxViewportDims": {
+          "0": 32767,
+          "1": 32767
+        },
+        "devicePixelRatio": 1,
+        "canvasClientWidth": 348,
+        "canvasClientHeight": 200,
+        "canvasBackingWidth": 348,
+        "canvasBackingHeight": 200,
+        "ratioBackingToClient": "1.00"
+      }
+    ]
+  },
+  "performance": {
+    "initialPageLoadTimeMs": 713,
+    "cockpitInitTimeMs": 1768,
+    "scenarioB_continuous60s": {
+      "totalFrames": 608,
+      "meanFrameTimeMs": 16.66,
+      "medianFrameTimeMs": 16.7,
+      "p95FrameTimeMs": 16.8,
+      "p99FrameTimeMs": 16.9,
+      "minFrameTimeMs": 11.8,
+      "maxFrameTimeMs": 17.2,
+      "worst1PercentFrameTimeMs": 17.03,
+      "fpsMean": 60,
+      "fps1PercentLow": 58.7,
+      "longTasksCount": 0,
+      "longTasks": [],
+      "memoryGrowthBytes": 24398023
+    },
+    "layoutSwitchLatency": {
+      "Standard": {
+        "avgMs": 339.9,
+        "minMs": 92,
+        "maxMs": 464
+      },
+      "Focus": {
+        "avgMs": 406.9,
+        "minMs": 139,
+        "maxMs": 465
+      },
+      "Split View": {
+        "avgMs": 158.3,
+        "minMs": 139,
+        "maxMs": 432
+      },
+      "Triple View": {
+        "avgMs": 174.4,
+        "minMs": 154,
+        "maxMs": 216
+      },
+      "PiP": {
+        "avgMs": 128.3,
+        "minMs": 123,
+        "maxMs": 152
+      },
+      "Fullscreen": {
+        "avgMs": 169.7,
+        "minMs": 154,
+        "maxMs": 203
+      }
+    },
+    "resizeTests": [
+      {
+        "viewport": "1920x1080 (desktop_1080p)",
+        "canvases": [
+          {
+            "width": 450,
+            "height": 340,
+            "hasZeroDim": false
+          },
+          {
+            "width": 497,
+            "height": 200,
+            "hasZeroDim": false
+          }
+        ],
+        "pass": true
+      },
+      {
+        "viewport": "1366x768 (laptop_1366)",
+        "canvases": [
+          {
+            "width": 450,
+            "height": 340,
+            "hasZeroDim": false
+          },
+          {
+            "width": 424,
+            "height": 200,
+            "hasZeroDim": false
+          }
+        ],
+        "pass": true
+      },
+      {
+        "viewport": "1024x768 (tablet_1024)",
+        "canvases": [
+          {
+            "width": 450,
+            "height": 340,
+            "hasZeroDim": false
+          },
+          {
+            "width": 294,
+            "height": 200,
+            "hasZeroDim": false
+          }
+        ],
+        "pass": true
+      },
+      {
+        "viewport": "412x915 (mobile_412)",
+        "canvases": [
+          {
+            "width": 450,
+            "height": 340,
+            "hasZeroDim": false
+          },
+          {
+            "width": 113,
+            "height": 200,
+            "hasZeroDim": false
+          }
+        ],
+        "pass": true
+      }
+    ]
+  },
+  "cadModes": {
+    "realistic": {
+      "activeMode": "realistic",
+      "screenshot": "cad_realistic.png",
+      "pass": true
+    },
+    "wireframe": {
+      "activeMode": "wireframe",
+      "screenshot": "cad_wireframe.png",
+      "pass": true
+    },
+    "components": {
+      "activeMode": "components",
+      "screenshot": "cad_components.png",
+      "pass": true
+    },
+    "collision": {
+      "activeMode": "collision",
+      "screenshot": "cad_collision.png",
+      "pass": true
+    },
+    "coordinates": {
+      "activeMode": "coordinates",
+      "screenshot": "cad_coordinates.png",
+      "pass": true
+    },
+    "sensors": {
+      "activeMode": "sensors",
+      "screenshot": "cad_sensors.png",
+      "pass": true
+    },
+    "dimensions": {
+      "activeMode": "dimensions",
+      "screenshot": "cad_dimensions.png",
+      "pass": true
+    }
+  },
+  "simulationCorrectness": {
+    "stepIncrementSec": 0.1,
+    "stepPass": true,
+    "numericalStability": true,
+    "resetPosePass": true
+  },
+  "errors": {
+    "consoleErrorsCount": 1,
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "pageErrorsCount": 0,
+    "pageErrors": []
+  }
+}

@@ -5,6 +5,7 @@ import {
   InspectionMode,
   ComponentSpec
 } from '../types/robotGeometry';
+import { simulationStore } from '../stores/useSimulationStore';
 import {
   RotateCcw,
   Eye,
@@ -42,6 +43,8 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
   const [webglError, setWebglError] = useState<boolean>(false);
   const [internalMode, setInternalMode] = useState<InspectionMode>(inspectionMode);
   const [activeComp, setActiveComp] = useState<ComponentSpec | null>(null);
+  const [qualityPreset, setQualityPreset] = useState<'low' | 'balanced' | 'high'>('balanced');
+  const [fpsMetrics, setFpsMetrics] = useState<{ fps: number; frameMs: number }>({ fps: 60, frameMs: 16.6 });
 
   // References to dynamic objects in Three.js scene
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -72,8 +75,33 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
   }, [leftSpeed, rightSpeed]);
 
   useEffect(() => {
+    const unsub = simulationStore.subscribe(() => {
+      const s = simulationStore.getState();
+      speedsRef.current = { left: s.actualLeftSpeed, right: s.actualRightSpeed };
+    });
+    return unsub;
+  }, []);
+
+  useEffect(() => {
     setInternalMode(inspectionMode);
   }, [inspectionMode]);
+
+  useEffect(() => {
+    if (!rendererRef.current) return;
+    const r = rendererRef.current;
+    if (qualityPreset === 'low') {
+      r.shadowMap.enabled = false;
+      r.setPixelRatio(1.0);
+    } else if (qualityPreset === 'balanced') {
+      r.shadowMap.enabled = true;
+      r.shadowMap.type = THREE.PCFShadowMap;
+      r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    } else if (qualityPreset === 'high') {
+      r.shadowMap.enabled = true;
+      r.shadowMap.type = THREE.PCFShadowMap;
+      r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2.0));
+    }
+  }, [qualityPreset]);
 
   // Orbit camera control state
   const isDraggingRef = useRef(false);
@@ -160,7 +188,7 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.shadowMap.type = THREE.PCFShadowMap;
       rendererRef.current = renderer;
 
       // Ensure empty and safely append canvas DOM element
@@ -208,6 +236,27 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
     gridHelper.position.y = 0.0005; // Slightly above ground to prevent z-fighting
     scene.add(gridHelper);
 
+    // Concentric Robotic Range Rings (0.15m, 0.30m, 0.45m radii)
+    [0.15, 0.30, 0.45].forEach((radius) => {
+      const ringGeo = new THREE.RingGeometry(radius - 0.001, radius + 0.001, 64);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: 0x0284c7,
+        transparent: true,
+        opacity: 0.35,
+        side: THREE.DoubleSide
+      });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.y = 0.0006;
+      scene.add(ring);
+    });
+
+    // Heading Arrow on Floor (+X forward direction)
+    const arrowDir = new THREE.Vector3(1, 0, 0);
+    const arrowOrigin = new THREE.Vector3(0, 0.0007, 0);
+    const headingArrow = new THREE.ArrowHelper(arrowDir, arrowOrigin, 0.22, 0x06b6d4, 0.04, 0.02);
+    scene.add(headingArrow);
+
     // 6. ROBOT ROOT GROUP (Origin is at wheel contact on ground: (0, 0, 0))
     const robotRoot = new THREE.Group();
     robotRoot.name = 'robotRoot';
@@ -216,16 +265,19 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
     const componentsMap = new Map<string, THREE.Object3D>();
     componentsMapRef.current = componentsMap;
 
-    // Common Materials
-    const aluminumMat = new THREE.MeshStandardMaterial({
+    // Common High-Fidelity PBR Materials
+    const aluminumMat = new THREE.MeshPhysicalMaterial({
       color: 0x0284c7, // JetBot signature cyan/blue
-      metalness: 0.7,
-      roughness: 0.35
+      metalness: 0.75,
+      roughness: 0.3,
+      clearcoat: 0.35,
+      clearcoatRoughness: 0.15
     });
-    const acrylicMat = new THREE.MeshStandardMaterial({
+    const acrylicMat = new THREE.MeshPhysicalMaterial({
       color: 0x0ea5e9,
-      roughness: 0.25,
+      roughness: 0.18,
       metalness: 0.1,
+      transmission: 0.55,
       transparent: true,
       opacity: 0.88
     });
@@ -679,22 +731,27 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
     // INSPECTION HELPERS: 1. WIREFRAME HELPER
     // -------------------------------------------------------------
     const wireframeObjects: THREE.Object3D[] = [];
+    const sourceMeshes: THREE.Mesh[] = [];
+    // Collect target meshes first without modifying scene graph during traversal
     robotRoot.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        const wireMat = new THREE.MeshBasicMaterial({
-          color: 0x22d3ee,
-          wireframe: true,
-          transparent: true,
-          opacity: 0.85
-        });
-        const wireMesh = new THREE.Mesh(child.geometry, wireMat);
-        wireMesh.position.copy(child.position);
-        wireMesh.rotation.copy(child.rotation);
-        wireMesh.scale.copy(child.scale);
-        wireMesh.visible = false;
-        child.add(wireMesh);
-        wireframeObjects.push(wireMesh);
+      if ((child as THREE.Mesh).isMesh) {
+        sourceMeshes.push(child as THREE.Mesh);
       }
+    });
+
+    const wireframeMat = new THREE.MeshBasicMaterial({
+      color: 0x22d3ee,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.85
+    });
+
+    // Create wireframes after traversal is completely finished
+    sourceMeshes.forEach((mesh) => {
+      const wireMesh = new THREE.Mesh(mesh.geometry, wireframeMat);
+      wireMesh.visible = false;
+      mesh.add(wireMesh);
+      wireframeObjects.push(wireMesh);
     });
     inspectionHelpersRef.current.wireframeObjects = wireframeObjects;
 
@@ -811,11 +868,22 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
     // RENDER LOOP & REAL-TIME WHEEL ROTATION
     // -------------------------------------------------------------
     let lastTime = performance.now();
+    let lastFpsTime = performance.now();
+    let frameCounter = 0;
 
     const animate = () => {
       const now = performance.now();
       const dt = (now - lastTime) / 1000;
+      const frameDeltaMs = now - lastTime;
       lastTime = now;
+
+      frameCounter++;
+      if (now - lastFpsTime >= 500) {
+        const measuredFps = Math.round((frameCounter * 1000) / (now - lastFpsTime));
+        setFpsMetrics({ fps: measuredFps, frameMs: parseFloat(frameDeltaMs.toFixed(1)) });
+        frameCounter = 0;
+        lastFpsTime = now;
+      }
 
       // Rotate wheels based on real-time motor speeds v_L & v_R
       if (leftWheelGroupRef.current && rightWheelGroupRef.current) {
@@ -900,8 +968,19 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
       }
     };
   } catch (err) {
-    console.warn('WebGL setup failed or not supported in current environment:', err);
-    setWebglError(true);
+    console.error('Three.js scene initialization error:', err);
+    // Only activate fallback if WebGL context actually cannot be acquired
+    const isWebGLAvailable = (() => {
+      try {
+        const testCanvas = document.createElement('canvas');
+        return !!(window.WebGLRenderingContext && (testCanvas.getContext('webgl2') || testCanvas.getContext('webgl')));
+      } catch {
+        return false;
+      }
+    })();
+    if (!isWebGLAvailable) {
+      setWebglError(true);
+    }
   }
 }, []);
 
@@ -1012,64 +1091,6 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
       data-active-cad-mode={internalMode}
       className="relative w-full h-full flex flex-col bg-[#070D1B] rounded-2xl overflow-hidden border border-cyan-500/25 select-none shadow-2xl"
     >
-      {/* 3D Model Top Toolbar */}
-      <div className="px-3.5 py-2.5 bg-gradient-to-r from-[#0C152B] via-[#0E1A36] to-[#122347] border-b border-cyan-500/20 flex flex-wrap items-center justify-between gap-2 z-10">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300">
-            <Box className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs sm:text-sm font-black text-white tracking-wide">
-                Mô Hình 3D Chuẩn Cơ Khí CMU10
-              </span>
-              <span className="text-[10px] font-mono font-bold px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                TỶ LỆ 1:1 (mm)
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Camera View Presets */}
-        <div className="flex items-center gap-1 text-[11px]">
-          <button
-            onClick={() => setViewPreset('isometric')}
-            className="px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition font-bold"
-            title="Góc nhìn phối cảnh 3D"
-          >
-            3D Iso
-          </button>
-          <button
-            onClick={() => setViewPreset('top')}
-            className="px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition font-bold"
-            title="Nhìn từ trên xuống"
-          >
-            Top
-          </button>
-          <button
-            onClick={() => setViewPreset('front')}
-            className="px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition font-bold"
-            title="Nhìn chính diện trước"
-          >
-            Front
-          </button>
-          <button
-            onClick={() => setViewPreset('side')}
-            className="px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition font-bold"
-            title="Nhìn ngang cạnh"
-          >
-            Side
-          </button>
-          <button
-            onClick={() => setViewPreset('reset')}
-            className="p-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-400/30 transition"
-            title="Khôi phục góc nhìn mặc định"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
-
       {/* Main 3D Canvas Area */}
       <div
         onMouseDown={handleMouseDown}
@@ -1077,7 +1098,7 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
         onMouseUp={handleMouseUp}
         onWheel={handleWheel}
         onContextMenu={(e) => e.preventDefault()}
-        className="w-full flex-1 min-h-[340px] cursor-grab active:cursor-grabbing relative overflow-hidden"
+        className="w-full flex-1 min-h-0 cursor-grab active:cursor-grabbing relative overflow-hidden"
       >
         {/* Dedicated Three.js canvas DOM container (Empty so React DOM tree is never touched) */}
         <div ref={canvasMountRef} className="absolute inset-0 w-full h-full pointer-events-none" />
@@ -1096,7 +1117,7 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
         )}
 
         {/* Floating Controls Overlay: 7 Inspection Modes Bar */}
-        <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1 bg-[#091122]/90 backdrop-blur-md p-1.5 rounded-xl border border-cyan-500/30 text-[11px] z-10 shadow-lg">
+        <div className="absolute top-2.5 left-2.5 max-w-[calc(100%-250px)] flex flex-wrap gap-1 bg-[#091122]/90 backdrop-blur-md p-1.5 rounded-xl border border-cyan-500/30 text-[11px] z-10 shadow-lg pointer-events-auto">
           <button
             onClick={() => changeMode('realistic')}
             className={`px-2 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
@@ -1165,6 +1186,63 @@ export const Robot3DCanvas: React.FC<Robot3DCanvasProps> = ({
           >
             <Ruler className="w-3 h-3" />
             <span>Kích Thước CAD</span>
+          </button>
+        </div>
+
+        {/* Floating Top-Right OSD: Quality Preset & Real-time Diagnostics */}
+        <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 bg-[#091122]/90 backdrop-blur-md p-1.5 rounded-xl border border-cyan-500/30 text-[11px] z-10 shadow-lg">
+          <span className="font-mono text-[10px] text-emerald-300 font-bold px-1.5 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/30 flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            {fpsMetrics.fps} FPS • {fpsMetrics.frameMs}ms
+          </span>
+          <select
+            value={qualityPreset}
+            onChange={(e) => setQualityPreset(e.target.value as 'low' | 'balanced' | 'high')}
+            className="bg-slate-900 border border-cyan-500/40 text-cyan-200 text-[10px] font-bold rounded-lg px-2 py-0.5 cursor-pointer hover:border-cyan-400"
+            title="Tùy chọn chất lượng đồ họa 3D"
+          >
+            <option value="low">Đồ họa: Thấp</option>
+            <option value="balanced">Đồ họa: Chuẩn (PBR)</option>
+            <option value="high">Đồ họa: Cao (FPS-grade)</option>
+          </select>
+        </div>
+
+        {/* Floating Camera View Presets */}
+        <div className="absolute bottom-10 right-2.5 flex items-center gap-1 bg-[#091122]/90 backdrop-blur-md p-1 rounded-xl border border-cyan-500/30 text-[10px] z-10 shadow-lg select-none">
+          <button
+            onClick={() => setViewPreset('isometric')}
+            className="px-2 py-0.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition font-bold"
+            title="Góc nhìn phối cảnh 3D"
+          >
+            3D Iso
+          </button>
+          <button
+            onClick={() => setViewPreset('top')}
+            className="px-2 py-0.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition font-bold"
+            title="Nhìn từ trên xuống"
+          >
+            Top
+          </button>
+          <button
+            onClick={() => setViewPreset('front')}
+            className="px-2 py-0.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition font-bold"
+            title="Nhìn chính diện trước"
+          >
+            Front
+          </button>
+          <button
+            onClick={() => setViewPreset('side')}
+            className="px-2 py-0.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition font-bold"
+            title="Nhìn ngang cạnh"
+          >
+            Side
+          </button>
+          <button
+            onClick={() => setViewPreset('reset')}
+            className="p-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-400/30 transition"
+            title="Khôi phục góc nhìn mặc định"
+          >
+            <RotateCcw className="w-3 h-3" />
           </button>
         </div>
 

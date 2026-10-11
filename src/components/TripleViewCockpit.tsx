@@ -59,6 +59,57 @@ export interface TripleViewCockpitProps {
 export type CockpitLayout = 'standard' | 'focus' | 'split' | 'triple' | 'pip' | 'fullscreen';
 export type ViewportId = 'map' | '3d' | 'fpv';
 
+/**
+ * Isolated Telemetry HUD Strip: subscribes independently to simulation store
+ * to display high-frequency metrics (t, pos, yaw, pwm) without triggering
+ * re-renders of the entire Cockpit layout tree.
+ */
+export const CockpitTelemetryStrip: React.FC = React.memo(() => {
+  const [telemetry, setTelemetry] = useState(() => {
+    const s = simulationStore.getState();
+    return {
+      t: s.simTimeSec,
+      x: s.x,
+      z: s.z,
+      yaw: s.yaw,
+      pwmL: s.pwmL,
+      pwmR: s.pwmR
+    };
+  });
+
+  useEffect(() => {
+    let lastTime = 0;
+    const unsub = simulationStore.subscribe(() => {
+      const now = performance.now();
+      // Throttle display updates to ~15-20 FPS for silky DOM rendering without micro-jank
+      if (now - lastTime < 50) return;
+      lastTime = now;
+      const s = simulationStore.getState();
+      setTelemetry({
+        t: s.simTimeSec,
+        x: s.x,
+        z: s.z,
+        yaw: s.yaw,
+        pwmL: s.pwmL,
+        pwmR: s.pwmR
+      });
+    });
+    return unsub;
+  }, []);
+
+  return (
+    <div className="hidden lg:flex items-center gap-3 font-mono text-[11px] text-cyan-300 bg-[#090F1E] px-3 py-1 rounded-xl border border-cyan-500/20">
+      <span>T: {telemetry.t.toFixed(1)}s</span>
+      <span>|</span>
+      <span className="text-emerald-400 font-bold">POS: ({telemetry.x.toFixed(2)}, {telemetry.z.toFixed(2)})m</span>
+      <span>|</span>
+      <span className="text-amber-400">YAW: {((telemetry.yaw * 180) / Math.PI).toFixed(0)}°</span>
+      <span>|</span>
+      <span className="text-blue-400">PWM: {telemetry.pwmL}% / {telemetry.pwmR}%</span>
+    </div>
+  );
+});
+
 export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
   onEmergencyStop,
   isSidebarCollapsed = false,
@@ -82,14 +133,14 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
   // Individual viewport maximize state ('map' | '3d' | 'fpv' | null)
   const [maximizedViewport, setMaximizedViewport] = useState<ViewportId | null>(null);
 
-  // Viewport slot configuration for Drag & Drop reordering
+  // Viewport slot configuration: 3D Twin is the main simulation focal point (Simulation-First)
   const [slotAssignments, setSlotAssignments] = useState<{
     main: ViewportId;
     sub1: ViewportId;
     sub2: ViewportId;
   }>({
-    main: 'map',
-    sub1: '3d',
+    main: '3d',
+    sub1: 'map',
     sub2: 'fpv'
   });
 
@@ -103,10 +154,21 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
 
   const logContainerRef = useRef<HTMLDivElement>(null);
 
-  // Subscribe to central simulation store
+  // Selective subscription: re-render cockpit only when state structure or interactive parameters change
   useEffect(() => {
+    let lastState = simulationStore.getState();
     const unsub = simulationStore.subscribe(() => {
-      setSimState(simulationStore.getState());
+      const curr = simulationStore.getState();
+      if (
+        curr.executionState !== lastState.executionState ||
+        curr.targetLeftSpeed !== lastState.targetLeftSpeed ||
+        curr.targetRightSpeed !== lastState.targetRightSpeed ||
+        curr.activePythonCode !== lastState.activePythonCode ||
+        curr.logs.length !== lastState.logs.length
+      ) {
+        lastState = curr;
+        setSimState(curr);
+      }
     });
     return unsub;
   }, []);
@@ -186,7 +248,7 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
     setShowConsole(true);
     setShowFpv(true);
     setShowTelemetry(true);
-    setSlotAssignments({ main: 'map', sub1: '3d', sub2: 'fpv' });
+    setSlotAssignments({ main: '3d', sub1: 'map', sub2: 'fpv' });
     setPipPos({ x: 24, y: 24 });
     if (isFullscreen && onToggleFullscreen) {
       onToggleFullscreen();
@@ -605,18 +667,8 @@ export const TripleViewCockpit: React.FC<TripleViewCockpitProps> = ({
           </button>
         </div>
 
-        {/* Global Telemetry Monitor Strip */}
-        {showTelemetry && (
-          <div className="hidden lg:flex items-center gap-3 font-mono text-[11px] text-cyan-300 bg-[#090F1E] px-3 py-1 rounded-xl border border-cyan-500/20">
-            <span>T: {simState.simTimeSec.toFixed(1)}s</span>
-            <span>|</span>
-            <span className="text-emerald-400 font-bold">POS: ({simState.x.toFixed(2)}, {simState.z.toFixed(2)})m</span>
-            <span>|</span>
-            <span className="text-amber-400">YAW: {((simState.yaw * 180) / Math.PI).toFixed(0)}°</span>
-            <span>|</span>
-            <span className="text-blue-400">PWM: {simState.pwmL}% / {simState.pwmR}%</span>
-          </div>
-        )}
+        {/* Global Telemetry Monitor Strip (Isolated from parent re-renders) */}
+        {showTelemetry && <CockpitTelemetryStrip />}
       </div>
 
       {/* ============================================================================== */}

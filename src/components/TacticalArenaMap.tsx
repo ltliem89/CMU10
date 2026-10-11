@@ -33,61 +33,52 @@ export const TacticalArenaMap: React.FC<TacticalArenaMapProps> = ({ className = 
   const robotAngleDeg = (simState.yaw * 180) / Math.PI;
 
   return (
-    <div className={`relative flex flex-col bg-[#070D1B] rounded-2xl overflow-hidden border border-cyan-500/25 shadow-xl select-none ${className}`}>
-      {/* Map Header Toolbar */}
-      <div className="px-3.5 py-2.5 bg-gradient-to-r from-[#0C152B] via-[#0E1A36] to-[#122347] border-b border-cyan-500/20 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-md bg-blue-500/20 border border-blue-400/40 flex items-center justify-center text-blue-300">
-            <Compass className="w-3.5 h-3.5 animate-spin-slow" />
-          </div>
-          <span className="font-bold text-white text-xs">
-            Khung A: Bản Đồ Sa Bàn Đua 2D/3D (Tactical Arena Map)
-          </span>
-          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-500/20 text-cyan-300 border border-blue-500/30">
-            Kích thước: 3.0m × 2.0m
-          </span>
-        </div>
+    <div className={`relative flex flex-col h-full w-full bg-[#070D1B] rounded-2xl overflow-hidden border border-cyan-500/25 shadow-xl select-none ${className}`}>
+      {/* Floating Arena Badges & Layer Visibility Toggles */}
+      <div className="absolute top-2.5 left-2.5 z-10 pointer-events-auto">
+        <span className="px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold bg-slate-950/80 backdrop-blur-md text-cyan-300 border border-cyan-500/30 shadow-sm select-none">
+          3.0m × 2.0m
+        </span>
+      </div>
 
-        {/* Layer Visibility Toggles */}
-        <div className="flex items-center gap-1.5 text-[11px]">
-          <button
-            onClick={() => setShowPlannedPath(!showPlannedPath)}
-            className={`px-2 py-0.5 rounded font-bold border transition ${
-              showPlannedPath
-                ? 'bg-amber-500/20 border-amber-400/50 text-amber-200'
-                : 'bg-slate-800 border-slate-700 text-slate-400'
-            }`}
-            title="Bật/Tắt Quỹ Đạo Dự Kiến"
-          >
-            Quỹ Đạo Mẫu
-          </button>
-          <button
-            onClick={() => setShowActualTrail(!showActualTrail)}
-            className={`px-2 py-0.5 rounded font-bold border transition ${
-              showActualTrail
-                ? 'bg-cyan-500/20 border-cyan-400/50 text-cyan-200'
-                : 'bg-slate-800 border-slate-700 text-slate-400'
-            }`}
-            title="Bật/Tắt Vệt Đường Đi Thực Tế"
-          >
-            Vết Thực Tế
-          </button>
-          <button
-            onClick={() => setShowSensorRays(!showSensorRays)}
-            className={`px-2 py-0.5 rounded font-bold border transition ${
-              showSensorRays
-                ? 'bg-emerald-500/20 border-emerald-400/50 text-emerald-200'
-                : 'bg-slate-800 border-slate-700 text-slate-400'
-            }`}
-            title="Bật/Tắt Tia Cảm Biến"
-          >
-            Tia Quét
-          </button>
-        </div>
+      <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5 p-1 bg-slate-950/80 backdrop-blur-md rounded-xl border border-cyan-500/30 text-[11px] shadow-sm pointer-events-auto">
+        <button
+          onClick={() => setShowPlannedPath(!showPlannedPath)}
+          className={`px-2 py-0.5 rounded font-bold border transition ${
+            showPlannedPath
+              ? 'bg-amber-500/20 border-amber-400/50 text-amber-200'
+              : 'bg-slate-800 border-slate-700 text-slate-400'
+          }`}
+          title="Bật/Tắt Quỹ Đạo Dự Kiến"
+        >
+          Quỹ Đạo Mẫu
+        </button>
+        <button
+          onClick={() => setShowActualTrail(!showActualTrail)}
+          className={`px-2 py-0.5 rounded font-bold border transition ${
+            showActualTrail
+              ? 'bg-cyan-500/20 border-cyan-400/50 text-cyan-200'
+              : 'bg-slate-800 border-slate-700 text-slate-400'
+          }`}
+          title="Bật/Tắt Vệt Đường Đi Thực Tế"
+        >
+          Vết Thực Tế
+        </button>
+        <button
+          onClick={() => setShowSensorRays(!showSensorRays)}
+          className={`px-2 py-0.5 rounded font-bold border transition ${
+            showSensorRays
+              ? 'bg-emerald-500/20 border-emerald-400/50 text-emerald-200'
+              : 'bg-slate-800 border-slate-700 text-slate-400'
+          }`}
+          title="Bật/Tắt Tia Cảm Biến"
+        >
+          Tia Quét
+        </button>
       </div>
 
       {/* SVG Vector Arena Map Canvas */}
-      <div className="relative w-full flex-1 min-h-[320px] bg-[#050914] flex items-center justify-center p-2">
+      <div className="relative w-full h-full flex-1 min-h-0 bg-[#050914] flex items-center justify-center p-2">
         <svg
           className="w-full h-full rounded-xl border border-slate-800"
           viewBox="0 0 600 400"

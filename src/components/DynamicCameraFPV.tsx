@@ -16,10 +16,15 @@ export const DynamicCameraFPV: React.FC<DynamicCameraFPVProps> = ({
   const [simState, setSimState] = useState<SimulationState>(simulationStore.getState());
   const [webglError, setWebglError] = useState<boolean>(false);
   const [showAiOverlay, setShowAiOverlay] = useState<boolean>(true);
+  const [measuredFps, setMeasuredFps] = useState<number>(30);
 
-  // Subscribe to central simulation store
+  // Subscribe to central simulation store with throttling to avoid 60Hz React DOM commit churn
   useEffect(() => {
+    let lastUpdate = 0;
     const unsub = simulationStore.subscribe(() => {
+      const now = performance.now();
+      if (now - lastUpdate < 45) return;
+      lastUpdate = now;
       setSimState(simulationStore.getState());
     });
     return unsub;
@@ -49,8 +54,8 @@ export const DynamicCameraFPV: React.FC<DynamicCameraFPVProps> = ({
       sceneRef.current = scene;
 
       // 2. Camera: Mounted on JetBot front chassis (tilt down 18 deg)
-      // JetBot FOV horizontal is ~160 deg fisheye, standard perspective FOV 85 deg
-      const camera = new THREE.PerspectiveCamera(82, width / height, 0.02, 12);
+      // IMX219 wide-angle lens: 105 deg perspective FOV for authentic cockpit view
+      const camera = new THREE.PerspectiveCamera(105, width / height, 0.02, 12);
       cameraRef.current = camera;
 
       // 3. Renderer
@@ -151,7 +156,19 @@ export const DynamicCameraFPV: React.FC<DynamicCameraFPVProps> = ({
       }
 
       // 8. Animation & FPV Camera Pose Sync Loop
+      let lastFpsTime = performance.now();
+      let fpvFrames = 0;
+
       const animate = () => {
+        const now = performance.now();
+        fpvFrames++;
+        if (now - lastFpsTime >= 500) {
+          const fps = Math.round((fpvFrames * 1000) / (now - lastFpsTime));
+          setMeasuredFps(fps);
+          fpvFrames = 0;
+          lastFpsTime = now;
+        }
+
         const s = simulationStore.getState();
 
         if (cameraRef.current) {
@@ -245,39 +262,28 @@ export const DynamicCameraFPV: React.FC<DynamicCameraFPVProps> = ({
   }, []);
 
   return (
-    <div className={`relative flex flex-col bg-[#070D1B] rounded-2xl overflow-hidden border border-cyan-500/25 shadow-xl ${className}`}>
-      {/* Camera Header Bar */}
-      <div className="px-3 py-2 bg-gradient-to-r from-[#0C152B] via-[#0E1A36] to-[#122347] border-b border-cyan-500/20 flex items-center justify-between gap-2 text-xs select-none">
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-md bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-teal-300">
-            <Camera className="w-3.5 h-3.5" />
-          </div>
-          <span className="font-bold text-white text-xs">
-            Khung C: Camera FPV Thực (Góc Nhìn Thứ Nhất)
-          </span>
-          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
+    <div className={`relative flex flex-col h-full w-full bg-[#070D1B] rounded-2xl overflow-hidden border border-cyan-500/25 shadow-xl ${className}`}>
+      {/* Main 3D Canvas Viewport - Full Area */}
+      <div className="relative w-full h-full flex-1 min-h-0 bg-[#050812] flex items-center justify-center overflow-hidden">
+        {/* Floating Top-Right OSD Controls */}
+        <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-20 pointer-events-auto">
+          <span className="px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold bg-slate-950/80 backdrop-blur-md text-emerald-300 border border-emerald-500/40 flex items-center gap-1 shadow-sm select-none">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            LIVE 30FPS
+            LIVE {measuredFps} FPS
           </span>
-        </div>
-
-        <div className="flex items-center gap-1.5">
           <button
             onClick={() => setShowAiOverlay(!showAiOverlay)}
-            className={`px-2 py-0.5 rounded text-[11px] font-bold border transition ${
+            className={`px-2 py-0.5 rounded-lg text-[10px] font-bold border transition shadow-sm backdrop-blur-md select-none ${
               showAiOverlay
-                ? 'bg-teal-500/20 border-teal-400/50 text-teal-200'
-                : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white'
+                ? 'bg-teal-500/30 border-teal-400/60 text-teal-200'
+                : 'bg-slate-900/80 border-slate-700 text-slate-400 hover:text-white'
             }`}
             title="Bật/Tắt Lớp Phủ AI & Điểm Ngắm"
           >
-            {showAiOverlay ? 'AI Overlay: BẬT' : 'AI Overlay: TẮT'}
+            {showAiOverlay ? 'AI: BẬT' : 'AI: TẮT'}
           </button>
         </div>
-      </div>
 
-      {/* Main 3D Canvas Viewport */}
-      <div className="relative w-full flex-1 min-h-[200px] bg-[#050812] flex items-center justify-center overflow-hidden">
         {webglError ? (
           <div className="p-4 text-center text-slate-400 space-y-2">
             <AlertTriangle className="w-8 h-8 text-amber-400 mx-auto" />
@@ -286,6 +292,9 @@ export const DynamicCameraFPV: React.FC<DynamicCameraFPVProps> = ({
         ) : (
           <div ref={mountRef} className="w-full h-full relative" />
         )}
+
+        {/* Cinematic IMX219 Lens Vignette */}
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_60%,rgba(0,0,0,0.5)_100%)] select-none z-10" />
 
         {/* AI Perception & Road Following Overlay */}
         {showAiOverlay && !webglError && (

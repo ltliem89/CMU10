@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-10-11T06:54:39.320Z",
+  "status": "PASS",
+  "webglInitialized": true,
+  "canvasesCount": 2,
+  "layoutTransitionsCompleted": 20,
+  "avgLayoutTransitionMs": 2479.8,
+  "consoleErrorsCount": 0,
+  "consoleWarningsCount": 12,
+  "consoleErrors": [],
+  "memory": {
+    "usedJSHeapSize": 51,
+    "totalJSHeapSize": 65
+  }
+}
